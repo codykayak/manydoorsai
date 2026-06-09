@@ -30,7 +30,8 @@ export const LOCAL_BUSINESS = {
 export function getPmCanonicalBase(config) {
   const explicit = import.meta.env?.VITE_PM_SITE_URL;
   if (explicit) return String(explicit).replace(/\/$/, '');
-  return 'https://www.macrorei.com';
+  if (config?.siteUrl) return String(config.siteUrl).replace(/\/$/, '');
+  return 'https://www.manydoorsai.com';
 }
 
 export function getPmSiteUrl(config, path = '') {

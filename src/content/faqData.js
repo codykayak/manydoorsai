@@ -24,7 +24,7 @@ export const FAQ_CATEGORIES = [
       },
       {
         q: 'Where is ManyDoors AI located? Which markets do you serve?',
-        a: 'ManyDoors AI is headquartered in Eugene, OR (541-321-2630, info@manydoorsai.com). We actively market to multifamily operators in Portland, Eugene, Salem, Corvallis, and Bend, Oregon — see /property-management/locations for metro-specific pages. The platform is built to scale nationally as portfolios expand.',
+        a: 'ManyDoors AI is headquartered in Eugene, OR (541-321-2630, info@manydoorsai.com). We actively market to multifamily operators in Portland, Eugene, Salem, Corvallis, and Bend, Oregon — see /locations for metro-specific pages. The platform is built to scale nationally as portfolios expand.',
       },
       {
         q: 'Does ManyDoors AI replace my PMS?',
@@ -292,7 +292,7 @@ export const FAQ_CATEGORIES = [
       },
       {
         q: 'What are the feature detail page URLs?',
-        a: '/property-management/features/communications, /leasing, /maintenance, /owner-portal, and /us-support — each explains time/money savings and U.S. support.',
+        a: '/features/communications, /leasing, /maintenance, /owner-portal, and /us-support — each explains time/money savings and U.S. support.',
       },
       {
         q: 'What is Developer Admin?',

@@ -14,31 +14,43 @@ jobs:
   deploy:
     runs-on: ubuntu-latest
     steps:
+      - name: Check for Firebase credentials
+        id: creds
+        run: |
+          if [ -z "${{ secrets.forfucksake }}" ]; then
+            echo "present=false" >> "$GITHUB_OUTPUT"
+            echo "::warning title=Firebase deploy skipped::Add forfucksake secret (same JSON as realestate repo) to enable Functions deploys."
+          else
+            echo "present=true" >> "$GITHUB_OUTPUT"
+          fi
+
       - uses: actions/checkout@v4
+        if: steps.creds.outputs.present == 'true'
 
       - uses: actions/setup-node@v4
+        if: steps.creds.outputs.present == 'true'
         with:
           node-version: '20'
 
       - name: Install root deps and build knowledge
+        if: steps.creds.outputs.present == 'true'
         run: |
           npm ci
           node scripts/build-pm-knowledge.mjs
 
       - name: Install functions deps
+        if: steps.creds.outputs.present == 'true'
         working-directory: functions
         run: npm ci
 
       - name: Authenticate Firebase (property-managment)
+        if: steps.creds.outputs.present == 'true'
         env:
           FIREBASE_SA: ${{ secrets.forfucksake }}
         run: |
-          if [ -z "$FIREBASE_SA" ]; then
-            echo "::error::Secret forfucksake is required for Functions deploy"
-            exit 1
-          fi
           echo "$FIREBASE_SA" > "${RUNNER_TEMP}/firebase-sa.json"
           echo "GOOGLE_APPLICATION_CREDENTIALS=${RUNNER_TEMP}/firebase-sa.json" >> "$GITHUB_ENV"
 
       - name: Deploy functions
+        if: steps.creds.outputs.present == 'true'
         run: npx firebase-tools deploy --only functions --project property-managment-a5ed3 --non-interactive

@@ -1,6 +1,6 @@
 import { useEffect } from 'react';
 
-const DEFAULT_SITE_URL = 'https://www.macrorei.com';
+const DEFAULT_SITE_URL = 'https://www.manydoorsai.com';
 
 /**
  * Per-route SEO for the property-management gateway (ManyDoors AI).

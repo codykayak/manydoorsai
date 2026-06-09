@@ -1,0 +1,31 @@
+/**
+ * White-label application config for the Property Management module.
+ * Defaults to ManyDoors AI branding. Override per deployment via VITE_PM_* env vars.
+ */
+
+const env = import.meta.env ?? {};
+
+export const PM_BASE_PATH = env.VITE_PM_BASE_PATH || '/';
+
+export const APP_CONFIG = {
+  productName: env.VITE_PM_PRODUCT_NAME || 'ManyDoors AI',
+  productTagline:
+    env.VITE_PM_PRODUCT_TAGLINE ||
+    'AI-powered property operations — maintenance triage, leasing, and resident communications',
+  logo: env.VITE_PM_LOGO || '/manydoors-logo.png',
+  logoWordmark: env.VITE_PM_LOGO_WORDMARK || '/manydoors-logo.png',
+  heroImage: env.VITE_PM_HERO_IMAGE || '/manydoors-ai-software-property-management.png',
+  companyName: env.VITE_PM_COMPANY_NAME || 'ManyDoors AI',
+  futureSite: env.VITE_PM_FUTURE_SITE || 'manydoorsai.com',
+  accent: env.VITE_PM_ACCENT || '#00d2d3',
+  accentSoft: env.VITE_PM_ACCENT_SOFT || 'rgba(58, 181, 176, 0.14)',
+  basePath: PM_BASE_PATH,
+  siteUrl: env.VITE_PM_SITE_URL || 'https://www.manydoorsai.com',
+  defaultTenantId: env.VITE_PM_DEFAULT_TENANT || 'demo',
+  supportEmail: env.VITE_PM_SUPPORT_EMAIL || 'info@manydoorsai.com',
+  supportPhone: env.VITE_PM_SUPPORT_PHONE || '541-321-2630',
+  salesPhone: env.VITE_PM_SALES_PHONE || '541-321-2630',
+  supportAddress: env.VITE_PM_SUPPORT_ADDRESS || 'Eugene, OR',
+};
+
+export default APP_CONFIG;

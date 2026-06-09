@@ -1,0 +1,44 @@
+name: Deploy Firebase Functions
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'functions/**'
+      - 'src/content/**'
+      - 'scripts/build-pm-knowledge.mjs'
+      - '.github/workflows/deploy-firebase-functions.yml'
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install root deps and build knowledge
+        run: |
+          npm ci
+          node scripts/build-pm-knowledge.mjs
+
+      - name: Install functions deps
+        working-directory: functions
+        run: npm ci
+
+      - name: Authenticate Firebase (property-managment)
+        env:
+          FIREBASE_SA: ${{ secrets.forfucksake }}
+        run: |
+          if [ -z "$FIREBASE_SA" ]; then
+            echo "::error::Secret forfucksake is required for Functions deploy"
+            exit 1
+          fi
+          echo "$FIREBASE_SA" > "${RUNNER_TEMP}/firebase-sa.json"
+          echo "GOOGLE_APPLICATION_CREDENTIALS=${RUNNER_TEMP}/firebase-sa.json" >> "$GITHUB_ENV"
+
+      - name: Deploy functions
+        run: npx firebase-tools deploy --only functions --project property-managment-a5ed3 --non-interactive

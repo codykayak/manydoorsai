@@ -226,7 +226,7 @@ export const FAQ_CATEGORIES = [
       },
       {
         q: 'How do I get help during the demo?',
-        a: 'Use the site chat assistant (powered by Gemini) for questions about the product, or email info@manydoorsai.com. Full contact details in the footer are being updated.',
+        a: 'Use the site chat assistant (powered by Gemini) for questions about the product, or email info@manydoorsai.com. Phone and office details are in the site footer.',
       },
     ],
   },

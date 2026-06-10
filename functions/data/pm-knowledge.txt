@@ -164,7 +164,7 @@ Q: Is enterprise SLA available?
 A: Yes — SLA-backed response for large portfolios is on the enterprise roadmap. Discuss during sales conversations.
 
 Q: How do I get help during the demo?
-A: Use the site chat assistant (powered by Gemini) for questions about the product, or email info@manydoorsai.com. Full contact details in the footer are being updated.
+A: Use the site chat assistant (powered by Gemini) for questions about the product, or email info@manydoorsai.com. Phone and office details are in the site footer.
 
 
 ## FAQ: Security & compliance

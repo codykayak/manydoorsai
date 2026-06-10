@@ -1,16 +1,17 @@
 /**
  * Contact form submission for the PM module (self-contained — no host imports).
  * Uses EmailJS when configured; falls back to mailto.
+ *
+ * EmailJS template: set "To email" to {{to_email}} (or hard-code info@manydoorsai.com).
  */
 
 import emailjs from '@emailjs/browser';
+import { CONTACT_EMAIL } from '../config/contactEmail.js';
 
 const SERVICE_ID = import.meta.env.VITE_EMAILJS_SERVICE_ID;
 const TEMPLATE_ID = import.meta.env.VITE_EMAILJS_TEMPLATE_ID;
 const PUBLIC_KEY = import.meta.env.VITE_EMAILJS_PUBLIC_KEY;
 const CONFIGURED = SERVICE_ID && TEMPLATE_ID && PUBLIC_KEY;
-
-const DEFAULT_TO = 'info@manydoorsai.com';
 
 /**
  * @param {object} data
@@ -21,7 +22,7 @@ const DEFAULT_TO = 'info@manydoorsai.com';
  * @param {string} data.cityState
  * @param {string} [data.name]
  */
-export async function submitPmContact(data, supportEmail = DEFAULT_TO) {
+export async function submitPmContact(data, supportEmail = CONTACT_EMAIL) {
   const message = [
     `Portfolio size: ${data.portfolioSize || '—'}`,
     `City / state: ${data.cityState || '—'}`,
@@ -45,6 +46,7 @@ export async function submitPmContact(data, supportEmail = DEFAULT_TO) {
     TEMPLATE_ID,
     {
       form_type: 'ManyDoors AI — Contact request',
+      to_email: supportEmail,
       from_name: data.name || 'ManyDoors prospect',
       from_email: data.email || supportEmail,
       from_phone: data.phone || '',

@@ -3,6 +3,8 @@
  * HQ is Eugene, OR; service areas are data-driven for programmatic /locations pages.
  */
 
+import { CONTACT_EMAIL } from '../config/contactEmail.js';
+
 /** Primary markets — add slugs here and a matching entry in locationsData.js to scale. */
 export const SERVICE_MARKET_SLUGS = [
   'portland-or',
@@ -53,7 +55,7 @@ function areaServedCities(cityNames) {
 export function localBusinessJsonLd(config, basePath = '/') {
   const url = getPmSiteUrl(config, basePath);
   const phone = config.supportPhone || '541-321-2630';
-  const email = config.supportEmail || 'info@manydoorsai.com';
+  const email = config.supportEmail || CONTACT_EMAIL;
 
   return {
     '@context': 'https://schema.org',

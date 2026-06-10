@@ -8,25 +8,35 @@ on:
       - 'src/content/**'
       - 'scripts/build-pm-knowledge.mjs'
       - '.github/workflows/deploy-firebase-functions.yml'
+      - 'firebase.json'
   workflow_dispatch:
 
 jobs:
   deploy:
     runs-on: ubuntu-latest
     steps:
-      - name: Check for Firebase credentials
+      - name: Resolve Firebase deploy credentials
         id: creds
         env:
-          FIREBASE_SA: ${{ secrets.FIREBASEMANNYDOORS || secrets.forfucksake }}
-          FB_TOKEN: ${{ secrets.FIREBASE_TOKEN }}
+          FIREBASE_MANNYDOORS: ${{ secrets.FIREBASEMANNYDOORS }}
+          FIREBASE_TOKEN_LEGACY: ${{ secrets.FIREBASE_TOKEN }}
         run: |
-          if [ -n "$FIREBASE_SA" ]; then
+          is_sa_json() {
+            printf '%s' "${1:-}" | python3 -c "import json,sys; d=json.load(sys.stdin); exit(0 if d.get('type')=='service_account' else 1)" 2>/dev/null
+          }
+
+          if is_sa_json "$FIREBASE_MANNYDOORS"; then
             echo "method=sa" >> "$GITHUB_OUTPUT"
-          elif [ -n "$FB_TOKEN" ]; then
+            echo "Firebase auth: service account JSON (FIREBASEMANNYDOORS)"
+          elif [ -n "$FIREBASE_MANNYDOORS" ] && [ "${FIREBASE_MANNYDOORS#\{}" = "$FIREBASE_MANNYDOORS" ]; then
             echo "method=token" >> "$GITHUB_OUTPUT"
+            echo "Firebase auth: CI token (FIREBASEMANNYDOORS)"
+          elif [ -n "$FIREBASE_TOKEN_LEGACY" ]; then
+            echo "method=token" >> "$GITHUB_OUTPUT"
+            echo "Firebase auth: CI token (FIREBASE_TOKEN)"
           else
             echo "method=none" >> "$GITHUB_OUTPUT"
-            echo "::warning title=Firebase deploy skipped::Add FIREBASEMANNYDOORS (property-managment-a5ed3 SA JSON) or FIREBASE_TOKEN."
+            echo "::warning title=Firebase deploy skipped::Add FIREBASEMANNYDOORS (firebase login:ci token) or a service-account JSON."
           fi
 
       - uses: actions/checkout@v4
@@ -37,29 +47,14 @@ jobs:
         with:
           node-version: '20'
 
-      - name: Validate Firebase service account JSON
-        id: sa_valid
-        if: steps.creds.outputs.method == 'sa'
-        env:
-          FIREBASE_SA: ${{ secrets.FIREBASEMANNYDOORS || secrets.forfucksake }}
-        run: |
-          if printf '%s' "$FIREBASE_SA" | python3 -c "import json,sys; d=json.load(sys.stdin); assert d.get('type')=='service_account'" 2>/dev/null; then
-            echo "valid=true" >> "$GITHUB_OUTPUT"
-            python3 -c "import json,os; d=json.loads(os.environ['FIREBASE_SA']); print('Service account project_id:', d.get('project_id'))"
-          else
-            echo "valid=false" >> "$GITHUB_OUTPUT"
-            echo "::error title=Invalid FIREBASEMANNYDOORS::Re-paste the full JSON from Firebase → property-managment-a5ed3 → Service accounts → Generate new private key."
-            exit 1
-          fi
-
       - id: auth
-        if: steps.creds.outputs.method == 'sa' && steps.sa_valid.outputs.valid == 'true'
+        if: steps.creds.outputs.method == 'sa'
         uses: google-github-actions/auth@v2
         with:
-          credentials_json: ${{ secrets.FIREBASEMANNYDOORS || secrets.forfucksake }}
+          credentials_json: ${{ secrets.FIREBASEMANNYDOORS }}
 
       - uses: google-github-actions/setup-gcloud@v2
-        if: steps.creds.outputs.method == 'sa' && steps.sa_valid.outputs.valid == 'true'
+        if: steps.creds.outputs.method == 'sa'
 
       - name: Install Firebase CLI
         if: steps.creds.outputs.method != 'none'
@@ -76,12 +71,26 @@ jobs:
         working-directory: functions
         run: npm ci
 
+      - name: Verify functions entry loads
+        if: steps.creds.outputs.method != 'none'
+        working-directory: functions
+        env:
+          GEMINI_API_KEY: ci-smoke-test
+        run: node -e "import('./index.js').then(() => console.log('functions index ok'))"
+
       - name: Deploy functions (service account)
-        if: steps.creds.outputs.method == 'sa' && steps.sa_valid.outputs.valid == 'true'
+        if: steps.creds.outputs.method == 'sa'
         run: firebase deploy --only functions --project property-managment-a5ed3 --non-interactive
 
       - name: Deploy functions (CI token)
         if: steps.creds.outputs.method == 'token'
         env:
-          FIREBASE_TOKEN: ${{ secrets.FIREBASE_TOKEN }}
-        run: firebase deploy --only functions --project property-managment-a5ed3 --non-interactive
+          FIREBASE_MANNYDOORS: ${{ secrets.FIREBASEMANNYDOORS }}
+          FIREBASE_TOKEN_LEGACY: ${{ secrets.FIREBASE_TOKEN }}
+        run: |
+          if [ -n "$FIREBASE_MANNYDOORS" ] && [ "${FIREBASE_MANNYDOORS#\{}" = "$FIREBASE_MANNYDOORS" ]; then
+            export FIREBASE_TOKEN="$FIREBASE_MANNYDOORS"
+          else
+            export FIREBASE_TOKEN="$FIREBASE_TOKEN_LEGACY"
+          fi
+          firebase deploy --only functions --project property-managment-a5ed3 --non-interactive

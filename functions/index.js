@@ -7,6 +7,7 @@ const geminiApiKey = defineSecret('GEMINI_API_KEY');
 
 initializeApp();
 
+/** Deploy target: property-managment-a5ed3 · public site chat for manydoorsai.com */
 const REGION = process.env.FUNCTION_REGION || 'us-central1';
 
 export const pmGatewayChat = onRequest(

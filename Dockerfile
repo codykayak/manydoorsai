@@ -9,10 +9,12 @@ COPY . .
 
 ARG VITE_PM_BASE_PATH=/
 ARG VITE_PM_SITE_URL=https://www.manydoorsai.com
+ARG VITE_PM_SUPPORT_EMAIL=info@manydoorsai.com
 ARG VITE_PM_CHAT_URL=https://us-central1-property-managment-a5ed3.cloudfunctions.net/pmGatewayChat
 
 ENV VITE_PM_BASE_PATH=$VITE_PM_BASE_PATH
 ENV VITE_PM_SITE_URL=$VITE_PM_SITE_URL
+ENV VITE_PM_SUPPORT_EMAIL=$VITE_PM_SUPPORT_EMAIL
 ENV VITE_PM_CHAT_URL=$VITE_PM_CHAT_URL
 
 RUN npm run build

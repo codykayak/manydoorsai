@@ -14,7 +14,7 @@ git push -u origin main
 | Secret | Purpose |
 |--------|---------|
 | `PROJECTMANAGMENT` | GCP SA JSON — optional GHA deploy via `cloudbuild.yaml` |
-| `FIREBASEMANNYDOORS` | Firebase SA JSON — `property-managment-a5ed3` Functions (`forfucksake` legacy fallback) |
+| `FIREBASEMANNYDOORS` | `firebase login:ci` token **or** service-account JSON for `property-managment-a5ed3` Functions |
 | `GCP_PROJECT_ID` | Optional GCP project override |
 
 ## PRs

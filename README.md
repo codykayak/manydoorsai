@@ -40,13 +40,19 @@ Map custom domain **manydoorsai.com** in Cloud Run → **manydoorsai** → Manag
 
 ### Firebase Functions (site chat)
 
-Uses project **`property-managment-a5ed3`** and GitHub secret **`FIREBASEMANNYDOORS`** (service-account JSON).
+Uses project **`property-managment-a5ed3`** and GitHub secret **`FIREBASEMANNYDOORS`**:
 
-Set `GEMINI_API_KEY` on Firebase (required for site chat):
+- **Recommended:** `firebase login:ci` token (paste the full token — not JSON)
+- **Legacy:** service-account JSON key
+
+Set `GEMINI_API_KEY` in Firebase **after** the first Functions deploy (console may say “build backend first” until `pmGatewayChat` exists):
 
 ```bash
 firebase functions:secrets:set GEMINI_API_KEY --project property-managment-a5ed3
+firebase deploy --only functions --project property-managment-a5ed3
 ```
+
+All site contact email routes to **`info@manydoorsai.com`**. For the contact widget via EmailJS, set template “To” to `{{to_email}}` and add `VITE_EMAILJS_*` to Cloud Build / Docker build args.
 
 The SPA calls `pmGatewayChat` on `property-managment-a5ed3` via `VITE_PM_CHAT_URL` in `cloudbuild.yaml` / `Dockerfile`.
 

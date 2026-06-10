@@ -3,6 +3,8 @@
  * Defaults to ManyDoors AI branding. Override per deployment via VITE_PM_* env vars.
  */
 
+import { CONTACT_EMAIL } from './contactEmail.js';
+
 const env = import.meta.env ?? {};
 
 export const PM_BASE_PATH = env.VITE_PM_BASE_PATH || '/';
@@ -22,7 +24,7 @@ export const APP_CONFIG = {
   basePath: PM_BASE_PATH,
   siteUrl: env.VITE_PM_SITE_URL || 'https://www.manydoorsai.com',
   defaultTenantId: env.VITE_PM_DEFAULT_TENANT || 'demo',
-  supportEmail: env.VITE_PM_SUPPORT_EMAIL || 'info@manydoorsai.com',
+  supportEmail: env.VITE_PM_SUPPORT_EMAIL || CONTACT_EMAIL,
   supportPhone: env.VITE_PM_SUPPORT_PHONE || '541-321-2630',
   salesPhone: env.VITE_PM_SALES_PHONE || '541-321-2630',
   supportAddress: env.VITE_PM_SUPPORT_ADDRESS || 'Eugene, OR',

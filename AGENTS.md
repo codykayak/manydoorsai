@@ -13,15 +13,16 @@ git push -u origin main
 
 | Secret | Purpose |
 |--------|---------|
-| `PROJECTMANAGMENT` | GCP SA JSON with **Cloud Build Editor**, **Storage Admin**, **Cloud Run Admin** |
-| `FIREBASEMANNYDOORS` | `firebase login:ci` token **or** service-account JSON for `property-managment-a5ed3` |
+| `PROJECTMANAGMENT` | GCP SA JSON — Cloud Run deploy via `cloudbuild.yaml` (Cloud Build + Storage + Run permissions) |
+| `FIREBASEMANNYDOORS` | `firebase login:ci` token **or** service-account JSON for `property-managment-a5ed3` Functions only |
 | `GCP_PROJECT_ID` | Optional GCP project override |
 
-## Deploy paths (pick one)
+## Deploy
 
-1. **GCP Cloud Build trigger `manydoorsai`** on `main` → Cloud Run (recommended for manydoorsai.com)
-2. **GitHub Actions `Deploy to Cloud Run`** — needs `PROJECTMANAGMENT` or a SA with GCR + Run permissions (Firebase SA alone is not enough)
-3. **GitHub Actions `Deploy Firebase Hosting`** — uses `FIREBASEMANNYDOORS`; map **manydoorsai.com** in Firebase Console → Hosting → Custom domains if Cloud Run is stale
+Production is **Cloud Run only** (`manydoorsai` service, `us-west1`). Site is not hosted on Firebase Hosting.
+
+1. **GCP Cloud Build trigger `manydoorsai`** on `main` → `cloudbuild.yaml` (recommended)
+2. **GitHub Actions `Deploy to Cloud Run`** — needs `PROJECTMANAGMENT`
 
 If pitch video shows a broken image, production is stale. Run `./scripts/verify-live-deploy.sh`.
 

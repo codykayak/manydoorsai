@@ -7,3 +7,4 @@ dist
 .env
 .env.*
 scripts/.auth-configured
+public/*.source.mp4

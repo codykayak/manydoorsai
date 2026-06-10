@@ -5,35 +5,18 @@ on:
     branches: [main]
   workflow_dispatch:
 
-env:
-  SERVICE_NAME: manydoorsai
-  REGION: us-west1
-
 jobs:
   deploy:
     runs-on: ubuntu-latest
     steps:
-      - name: Resolve GCP deploy credentials
+      - name: Check for GCP deploy credentials
         id: creds
-        env:
-          PROJECTMANAGMENT: ${{ secrets.PROJECTMANAGMENT }}
-          FIREBASE_MANNYDOORS: ${{ secrets.FIREBASEMANNYDOORS }}
         run: |
-          is_sa_json() {
-            printf '%s' "${1:-}" | python3 -c "import json,sys; d=json.load(sys.stdin); exit(0 if d.get('type')=='service_account' else 1)" 2>/dev/null
-          }
-
-          if is_sa_json "$PROJECTMANAGMENT"; then
-            echo "present=true" >> "$GITHUB_OUTPUT"
-            echo "source=PROJECTMANAGMENT" >> "$GITHUB_OUTPUT"
-            echo "Cloud Run auth: PROJECTMANAGMENT service account"
-          elif is_sa_json "$FIREBASE_MANNYDOORS"; then
-            echo "present=true" >> "$GITHUB_OUTPUT"
-            echo "source=FIREBASEMANNYDOORS" >> "$GITHUB_OUTPUT"
-            echo "Cloud Run auth: FIREBASEMANNYDOORS service account (fallback)"
-          else
+          if [ -z "${{ secrets.PROJECTMANAGMENT }}" ]; then
             echo "present=false" >> "$GITHUB_OUTPUT"
-            echo "::error title=Cloud Run deploy blocked::Add PROJECTMANAGMENT or a service-account JSON in FIREBASEMANNYDOORS. CI tokens cannot deploy to Cloud Run."
+            echo "::error title=Cloud Run deploy blocked::Add PROJECTMANAGMENT (GCP service-account JSON with Cloud Build, Storage, and Cloud Run permissions)."
+          else
+            echo "present=true" >> "$GITHUB_OUTPUT"
           fi
 
       - uses: actions/checkout@v4
@@ -43,52 +26,17 @@ jobs:
         if: steps.creds.outputs.present == 'true'
         uses: google-github-actions/auth@v2
         with:
-          credentials_json: ${{ steps.creds.outputs.source == 'PROJECTMANAGMENT' && secrets.PROJECTMANAGMENT || secrets.FIREBASEMANNYDOORS }}
+          credentials_json: ${{ secrets.PROJECTMANAGMENT }}
 
       - uses: google-github-actions/setup-gcloud@v2
         if: steps.creds.outputs.present == 'true'
 
-      - name: Configure Docker for GCR
-        if: steps.creds.outputs.present == 'true'
-        run: gcloud auth configure-docker --quiet
-
-      - name: Build and push image
+      - name: Build and deploy (cloudbuild.yaml)
         if: steps.creds.outputs.present == 'true'
         env:
           PROJECT_ID: ${{ secrets.GCP_PROJECT_ID || steps.auth.outputs.project_id }}
-          IMAGE: gcr.io/${{ secrets.GCP_PROJECT_ID || steps.auth.outputs.project_id }}/manydoorsai:${{ github.sha }}
         run: |
-          docker build \
-            --build-arg VITE_PM_BASE_PATH=/ \
-            --build-arg VITE_PM_SITE_URL=https://www.manydoorsai.com \
-            --build-arg VITE_PM_SUPPORT_EMAIL=info@manydoorsai.com \
-            --build-arg VITE_PM_CHAT_URL=https://us-central1-property-managment-a5ed3.cloudfunctions.net/pmGatewayChat \
-            --build-arg VITE_PM_FIREBASE_API_KEY=AIzaSyAuYn4nm9jTIcdFeNStmLF_Ky8qgwe4R2M \
-            --build-arg VITE_PM_FIREBASE_AUTH_DOMAIN=property-managment-a5ed3.firebaseapp.com \
-            --build-arg VITE_PM_FIREBASE_PROJECT_ID=property-managment-a5ed3 \
-            --build-arg VITE_PM_FIREBASE_STORAGE_BUCKET=property-managment-a5ed3.firebasestorage.app \
-            --build-arg VITE_PM_FIREBASE_MESSAGING_SENDER_ID=742597343666 \
-            --build-arg VITE_PM_FIREBASE_APP_ID=1:742597343666:web:d04e9435b5fdaafa048cab \
-            --build-arg VITE_PM_FIRESTORE_DB=property-managment \
-            -t "$IMAGE" \
-            -t "gcr.io/${PROJECT_ID}/manydoorsai:latest" \
-            .
-          docker push "$IMAGE"
-          docker push "gcr.io/${PROJECT_ID}/manydoorsai:latest"
-
-      - name: Deploy to Cloud Run
-        if: steps.creds.outputs.present == 'true'
-        env:
-          PROJECT_ID: ${{ secrets.GCP_PROJECT_ID || steps.auth.outputs.project_id }}
-          IMAGE: gcr.io/${{ secrets.GCP_PROJECT_ID || steps.auth.outputs.project_id }}/manydoorsai:${{ github.sha }}
-        run: |
-          gcloud run deploy "${{ env.SERVICE_NAME }}" \
-            --image "$IMAGE" \
-            --region "${{ env.REGION }}" \
-            --platform managed \
-            --allow-unauthenticated \
-            --port 8080 \
-            --project "${PROJECT_ID}"
+          gcloud builds submit --config cloudbuild.yaml --project "${PROJECT_ID}"
 
       - name: Verify live site updated
         if: steps.creds.outputs.present == 'true'
@@ -108,7 +56,7 @@ jobs:
             echo "Deploy verified: pitch video and bundle look current."
             exit 0
           done
-          echo "::warning title=Post-deploy check inconclusive::Cloud Run may still be rolling out. Check https://www.manydoorsai.com manually."
+          echo "::warning title=Post-deploy check inconclusive::Cloud Run may still be rolling out. Run ./scripts/verify-live-deploy.sh"
 
       - name: Fail when no GCP credentials
         if: steps.creds.outputs.present != 'true'

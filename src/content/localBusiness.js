@@ -64,7 +64,7 @@ export function localBusinessJsonLd(config, basePath = '/') {
     url,
     email,
     telephone: phone,
-    image: getPmSiteUrl(config, config.logo || '/manydoors-logo.png'),
+    image: getPmSiteUrl(config, config.logoWordmark || config.logo || '/manydoors-logo.svg'),
     address: {
       '@type': 'PostalAddress',
       addressLocality: LOCAL_BUSINESS.addressLocality,

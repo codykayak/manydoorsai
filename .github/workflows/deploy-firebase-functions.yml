@@ -17,11 +17,11 @@ jobs:
       - name: Check for Firebase credentials
         id: creds
         run: |
-          if [ -z "${{ secrets.forfucksake }}" ]; then
-            echo "present=false" >> "$GITHUB_OUTPUT"
-            echo "::warning title=Firebase deploy skipped::Add forfucksake secret (same JSON as realestate repo) to enable Functions deploys."
-          else
+          if [ -n "${{ secrets.FIREBASEMANNYDOORS }}" ] || [ -n "${{ secrets.forfucksake }}" ]; then
             echo "present=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "present=false" >> "$GITHUB_OUTPUT"
+            echo "::warning title=Firebase deploy skipped::Add FIREBASEMANNYDOORS (property-managment-a5ed3 SA JSON) to enable Functions deploys."
           fi
 
       - uses: actions/checkout@v4
@@ -46,7 +46,7 @@ jobs:
       - name: Authenticate Firebase (property-managment)
         if: steps.creds.outputs.present == 'true'
         env:
-          FIREBASE_SA: ${{ secrets.forfucksake }}
+          FIREBASE_SA: ${{ secrets.FIREBASEMANNYDOORS || secrets.forfucksake }}
         run: |
           echo "$FIREBASE_SA" > "${RUNNER_TEMP}/firebase-sa.json"
           echo "GOOGLE_APPLICATION_CREDENTIALS=${RUNNER_TEMP}/firebase-sa.json" >> "$GITHUB_ENV"

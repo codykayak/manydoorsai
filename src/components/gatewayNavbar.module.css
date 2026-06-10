@@ -30,7 +30,15 @@
   width: 34px;
   height: 34px;
   object-fit: contain;
-  border-radius: 7px;
+  flex-shrink: 0;
+}
+
+.wordmark {
+  width: auto;
+  height: 36px;
+  max-width: min(220px, 42vw);
+  object-fit: contain;
+  flex-shrink: 0;
 }
 
 .brandText {

@@ -11,7 +11,7 @@ export const GATEWAY_ASSETS = {
   softwareImage: '/manydoors-ai-software-property-management.png',
   investorImage: '/manydoorsai-property-management-investor-software-ai.png',
   opsTeamImage: '/pm-pitch/pm-pitch-operations-team.png',
-  logo: '/manydoors-logo.png',
+  logo: '/manydoors-logo.svg',
 };
 
 export const US_SUPPORT = {

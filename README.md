@@ -40,15 +40,15 @@ Map custom domain **manydoorsai.com** in Cloud Run → **manydoorsai** → Manag
 
 ### Firebase Functions (site chat)
 
-Uses project **`property-managment-a5ed3`** and secret **`forfucksake`** in GitHub Actions.
+Uses project **`property-managment-a5ed3`** and GitHub secret **`FIREBASEMANNYDOORS`** (service-account JSON).
 
-Set `GEMINI_API_KEY` on Firebase:
+Set `GEMINI_API_KEY` on Firebase (required for site chat):
 
 ```bash
 firebase functions:secrets:set GEMINI_API_KEY --project property-managment-a5ed3
 ```
 
-Until Functions deploy on the PM project, the SPA uses the Macro REI chat endpoint via `VITE_PM_CHAT_URL` in the Dockerfile.
+The SPA calls `pmGatewayChat` on `property-managment-a5ed3` via `VITE_PM_CHAT_URL` in `cloudbuild.yaml` / `Dockerfile`.
 
 ## Environment
 

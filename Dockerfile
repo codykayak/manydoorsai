@@ -9,7 +9,7 @@ COPY . .
 
 ARG VITE_PM_BASE_PATH=/
 ARG VITE_PM_SITE_URL=https://www.manydoorsai.com
-ARG VITE_PM_CHAT_URL=https://us-central1-realestate-map-23692.cloudfunctions.net/pmGatewayChat
+ARG VITE_PM_CHAT_URL=https://us-central1-property-managment-a5ed3.cloudfunctions.net/pmGatewayChat
 
 ENV VITE_PM_BASE_PATH=$VITE_PM_BASE_PATH
 ENV VITE_PM_SITE_URL=$VITE_PM_SITE_URL

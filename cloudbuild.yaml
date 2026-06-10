@@ -10,7 +10,7 @@ substitutions:
   _REGION: us-west1
   _VITE_PM_BASE_PATH: /
   _VITE_PM_SITE_URL: https://www.manydoorsai.com
-  _VITE_PM_CHAT_URL: https://us-central1-realestate-map-23692.cloudfunctions.net/pmGatewayChat
+  _VITE_PM_CHAT_URL: https://us-central1-property-managment-a5ed3.cloudfunctions.net/pmGatewayChat
 
 options:
   logging: CLOUD_LOGGING_ONLY

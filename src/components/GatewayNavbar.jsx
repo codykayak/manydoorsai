@@ -24,13 +24,21 @@ export default function GatewayNavbar({ onEnter }) {
     <header className={nav.bar}>
       <div className={nav.inner}>
         <NavLink to={hrefFor(base, '')} end className={nav.brand}>
-          {config.logo ? (
+          {config.logoWordmark ? (
+            <img
+              src={config.logoWordmark}
+              alt={config.productName}
+              className={nav.wordmark}
+            />
+          ) : config.logo ? (
             <img src={config.logo} alt={`${config.productName} logo`} className={nav.logo} />
           ) : (
             <Icon name="home" size={28} />
           )}
           <div className={nav.brandText}>
-            <span className={nav.brandName}>{config.productName}</span>
+            {!config.logoWordmark && (
+              <span className={nav.brandName}>{config.productName}</span>
+            )}
             <span className={nav.brandSub}>{tenant?.name || config.companyName}</span>
           </div>
         </NavLink>

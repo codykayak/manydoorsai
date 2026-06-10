@@ -21,22 +21,31 @@ npm run build
 
 ## Deploy
 
-### Cloud Run (`manydoorsai`) — recommended
+### Firebase Hosting (works today on every `main` push)
+
+GitHub Actions workflow **`Deploy Firebase Hosting`** builds `dist/` and runs `firebase deploy --only hosting` using secret **`FIREBASEMANNYDOORS`**.
+
+- **Preview URL:** https://property-managment-a5ed3.web.app (always has the latest `main` build)
+- **Custom domain:** Firebase Console → **Hosting** → **Add custom domain** → `manydoorsai.com` and `www.manydoorsai.com`
+- If the apex domain still shows an old build (broken pitch image), it is still mapped to **stale Cloud Run** — finish Firebase custom-domain setup and remove the Cloud Run domain mapping for the same hostnames.
+
+Smoke test:
+
+```bash
+./scripts/verify-live-deploy.sh
+./scripts/verify-live-deploy.sh https://property-managment-a5ed3.web.app
+```
+
+### Cloud Run (`manydoorsai`) — optional
 
 Use a **Cloud Build trigger** named `manydoorsai` on this repo (`main` branch), pointing at **`/cloudbuild.yaml`**.
 
 1. GCP Console → **Cloud Build** → **Triggers** → create or edit `manydoorsai`
 2. Source: GitHub `codykayak/manydoorsai`, branch `main`
 3. Configuration: **Cloud Build configuration file** → `cloudbuild.yaml`
-4. Service account: same one used for Macro REI Cloud Run (needs Cloud Build + Cloud Run + Storage permissions)
+4. Service account with **Cloud Build Editor**, **Storage Admin**, **Cloud Run Admin**
 
-The build tags `gcr.io/$PROJECT_ID/manydoorsai` and deploys Cloud Run service **`manydoorsai`** in `us-west1`.
-
-Map custom domain **manydoorsai.com** in Cloud Run → **manydoorsai** → Manage custom domains.
-
-### GitHub Actions (optional fallback)
-
-`.github/workflows/deploy-cloud-run.yml` runs the same `cloudbuild.yaml` when secret **`PROJECTMANAGMENT`** is set. Disable this workflow if you only use the GCP trigger (avoids double deploys).
+Or set GitHub secret **`PROJECTMANAGMENT`** to a deploy service-account JSON (the Firebase admin SA alone cannot push images or submit Cloud Build).
 
 ### Firebase Functions (site chat)
 

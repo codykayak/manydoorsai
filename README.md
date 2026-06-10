@@ -58,10 +58,22 @@ The SPA calls `pmGatewayChat` on `property-managment-a5ed3` via `VITE_PM_CHAT_UR
 
 ## Environment
 
+See `.env.example`. Production builds bake defaults via `cloudbuild.yaml` / `Dockerfile`.
+
 | Variable | Purpose |
 |----------|---------|
 | `VITE_PM_BASE_PATH` | `/` (default) |
 | `VITE_PM_SITE_URL` | `https://www.manydoorsai.com` |
-| `VITE_PM_CHAT_URL` | Gemini chat endpoint |
-| `VITE_EMAILJS_*` | Contact form email |
-| `VITE_PM_FIREBASE_*` | PM Firestore (when wired) |
+| `VITE_PM_SUPPORT_EMAIL` | `info@manydoorsai.com` |
+| `VITE_PM_CHAT_URL` | `pmGatewayChat` on `property-managment-a5ed3` |
+| `VITE_EMAILJS_*` | Optional contact form (template To: `{{to_email}}`) |
+| `VITE_PM_FIREBASE_*` | PM Firestore client (defaults in `firebasePublic.js`) |
+
+## Setup checklist (complete)
+
+- [x] Cloud Run `manydoorsai` + custom domain
+- [x] Firebase Functions `pmGatewayChat` + `GEMINI_API_KEY`
+- [x] Firestore rules on database `property-managment`
+- [x] `robots.txt` + `sitemap.xml`
+- [x] macrorei.com `/property-management` → manydoorsai.com (301)
+- [ ] EmailJS keys on Cloud Build trigger (optional — mailto fallback works)

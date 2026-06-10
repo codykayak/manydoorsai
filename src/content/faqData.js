@@ -40,7 +40,7 @@ export const FAQ_CATEGORIES = [
       },
       {
         q: 'What is the relationship between ManyDoors AI and MacroREI?',
-        a: 'The live demo is hosted on macrorei.com while manydoorsai.com is the product brand. Production deployments are white-labeled per operator with isolated Firebase tenants.',
+        a: 'ManyDoors AI is the product brand at manydoorsai.com. MacroREI (macrorei.com) is our Oregon cash-home-buyer site — a separate business. Production PM deployments are white-labeled per operator with isolated Firebase tenants.',
       },
     ],
   },

@@ -13,7 +13,7 @@ export default function HeroSection() {
     <section className={styles.hero} aria-label={config.productName}>
       <div className={styles.heroInner}>
         <div className={styles.heroCopy}>
-          <p className={styles.heroEyebrow}>Migrating soon to {config.futureSite}</p>
+          <p className={styles.heroEyebrow}>Live at {config.futureSite}</p>
           <h1 className={styles.heroTitle}>{config.productName}</h1>
           <p className={styles.heroTagline}>{config.productTagline}</p>
           <p className={styles.heroHint}>

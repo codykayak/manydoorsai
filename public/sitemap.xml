@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  <url><loc>https://www.manydoorsai.com/</loc><changefreq>weekly</changefreq><priority>1.0</priority></url>
+  <url><loc>https://www.manydoorsai.com/faq</loc><changefreq>monthly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://www.manydoorsai.com/locations</loc><changefreq>monthly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://www.manydoorsai.com/features/communications</loc><changefreq>monthly</changefreq><priority>0.7</priority></url>
+  <url><loc>https://www.manydoorsai.com/features/leasing</loc><changefreq>monthly</changefreq><priority>0.7</priority></url>
+  <url><loc>https://www.manydoorsai.com/features/maintenance</loc><changefreq>monthly</changefreq><priority>0.7</priority></url>
+  <url><loc>https://www.manydoorsai.com/features/owner-portal</loc><changefreq>monthly</changefreq><priority>0.7</priority></url>
+  <url><loc>https://www.manydoorsai.com/features/us-support</loc><changefreq>monthly</changefreq><priority>0.7</priority></url>
+  <url><loc>https://www.manydoorsai.com/locations/portland-or</loc><changefreq>monthly</changefreq><priority>0.6</priority></url>
+  <url><loc>https://www.manydoorsai.com/locations/eugene-or</loc><changefreq>monthly</changefreq><priority>0.6</priority></url>
+  <url><loc>https://www.manydoorsai.com/locations/salem-or</loc><changefreq>monthly</changefreq><priority>0.6</priority></url>
+  <url><loc>https://www.manydoorsai.com/locations/corvallis-or</loc><changefreq>monthly</changefreq><priority>0.6</priority></url>
+  <url><loc>https://www.manydoorsai.com/locations/bend-or</loc><changefreq>monthly</changefreq><priority>0.6</priority></url>
+</urlset>

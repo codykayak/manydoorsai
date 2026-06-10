@@ -9,6 +9,7 @@ on:
       - 'scripts/build-pm-knowledge.mjs'
       - '.github/workflows/deploy-firebase-functions.yml'
       - 'firebase.json'
+      - 'firestore.rules'
   workflow_dispatch:
 
 jobs:
@@ -78,11 +79,11 @@ jobs:
           GEMINI_API_KEY: ci-smoke-test
         run: node -e "import('./index.js').then(() => console.log('functions index ok'))"
 
-      - name: Deploy functions (service account)
+      - name: Deploy functions and Firestore rules (service account)
         if: steps.creds.outputs.method == 'sa'
-        run: firebase deploy --only functions --project property-managment-a5ed3 --non-interactive
+        run: firebase deploy --only functions,firestore:rules --project property-managment-a5ed3 --non-interactive
 
-      - name: Deploy functions (CI token)
+      - name: Deploy functions and Firestore rules (CI token)
         if: steps.creds.outputs.method == 'token'
         env:
           FIREBASE_MANNYDOORS: ${{ secrets.FIREBASEMANNYDOORS }}
@@ -93,4 +94,4 @@ jobs:
           else
             export FIREBASE_TOKEN="$FIREBASE_TOKEN_LEGACY"
           fi
-          firebase deploy --only functions --project property-managment-a5ed3 --non-interactive
+          firebase deploy --only functions,firestore:rules --project property-managment-a5ed3 --non-interactive

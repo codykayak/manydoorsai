@@ -111,7 +111,7 @@ export default function GatewayPage() {
             <Icon name="bolt" size={22} />
           </button>
           <p className={gw.enterHint}>
-            Live demo · {tenant?.name || 'Demo tenant'} · data stored locally until Firebase is connected
+            Live demo · {tenant?.name || 'Demo tenant'} · explore the full platform with sample portfolio data
           </p>
         </div>
       </section>

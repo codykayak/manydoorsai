@@ -35,7 +35,7 @@ Q: Is there a live demo?
 A: Yes. Visit manydoorsai.com and click Enter platform to explore the full build-and-pitch demo on local sample data — dashboard, communications, leasing, maintenance, owner portal, and knowledge base.
 
 Q: What is the relationship between ManyDoors AI and MacroREI?
-A: The live demo is hosted on macrorei.com while manydoorsai.com is the product brand. Production deployments are white-labeled per operator with isolated Firebase tenants.
+A: ManyDoors AI is the product brand at manydoorsai.com. MacroREI (macrorei.com) is our Oregon cash-home-buyer site — a separate business. Production PM deployments are white-labeled per operator with isolated Firebase tenants.
 
 
 ## FAQ: AI resident communication

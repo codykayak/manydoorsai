@@ -19,20 +19,22 @@
 import { initializeApp, getApps } from 'firebase/app';
 import { getFirestore } from 'firebase/firestore';
 import { getAuth, GoogleAuthProvider } from 'firebase/auth';
+import { PM_FIREBASE_PUBLIC_DEFAULTS } from '../config/firebasePublic.js';
 
 const env = import.meta.env ?? {};
+const defaults = PM_FIREBASE_PUBLIC_DEFAULTS;
 
 const pmConfig = {
-  apiKey: env.VITE_PM_FIREBASE_API_KEY,
-  authDomain: env.VITE_PM_FIREBASE_AUTH_DOMAIN,
-  projectId: env.VITE_PM_FIREBASE_PROJECT_ID,
-  storageBucket: env.VITE_PM_FIREBASE_STORAGE_BUCKET,
-  messagingSenderId: env.VITE_PM_FIREBASE_MESSAGING_SENDER_ID,
-  appId: env.VITE_PM_FIREBASE_APP_ID,
+  apiKey: env.VITE_PM_FIREBASE_API_KEY || defaults.apiKey,
+  authDomain: env.VITE_PM_FIREBASE_AUTH_DOMAIN || defaults.authDomain,
+  projectId: env.VITE_PM_FIREBASE_PROJECT_ID || defaults.projectId,
+  storageBucket: env.VITE_PM_FIREBASE_STORAGE_BUCKET || defaults.storageBucket,
+  messagingSenderId: env.VITE_PM_FIREBASE_MESSAGING_SENDER_ID || defaults.messagingSenderId,
+  appId: env.VITE_PM_FIREBASE_APP_ID || defaults.appId,
 };
 
 /** Name of the Cloud Firestore database to use (named database support). */
-export const PM_FIRESTORE_DB = env.VITE_PM_FIRESTORE_DB || 'property-managment';
+export const PM_FIRESTORE_DB = env.VITE_PM_FIRESTORE_DB || defaults.firestoreDatabase;
 
 export const isPmFirebaseConfigured = Boolean(
   pmConfig.apiKey && pmConfig.projectId && pmConfig.appId,

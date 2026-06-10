@@ -91,7 +91,7 @@ export default function GatewayPage() {
           muted
           loop
           playsInline
-          poster={GATEWAY_ASSETS.softwareImage}
+          preload="auto"
         >
           <source src={GATEWAY_ASSETS.heroVideo} type="video/mp4" />
         </video>

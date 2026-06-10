@@ -9,14 +9,27 @@ jobs:
   deploy:
     runs-on: ubuntu-latest
     steps:
-      - name: Check for GCP credentials
+      - name: Resolve GCP deploy credentials
         id: creds
+        env:
+          PROJECTMANAGMENT: ${{ secrets.PROJECTMANAGMENT }}
+          FIREBASE_MANNYDOORS: ${{ secrets.FIREBASEMANNYDOORS }}
         run: |
-          if [ -z "${{ secrets.PROJECTMANAGMENT }}" ]; then
-            echo "present=false" >> "$GITHUB_OUTPUT"
-            echo "::warning title=Cloud Run deploy skipped::Add PROJECTMANAGMENT secret to enable deploys."
-          else
+          is_sa_json() {
+            printf '%s' "${1:-}" | python3 -c "import json,sys; d=json.load(sys.stdin); exit(0 if d.get('type')=='service_account' else 1)" 2>/dev/null
+          }
+
+          if is_sa_json "$PROJECTMANAGMENT"; then
             echo "present=true" >> "$GITHUB_OUTPUT"
+            echo "source=PROJECTMANAGMENT" >> "$GITHUB_OUTPUT"
+            echo "Cloud Run auth: PROJECTMANAGMENT service account"
+          elif is_sa_json "$FIREBASE_MANNYDOORS"; then
+            echo "present=true" >> "$GITHUB_OUTPUT"
+            echo "source=FIREBASEMANNYDOORS" >> "$GITHUB_OUTPUT"
+            echo "Cloud Run auth: FIREBASEMANNYDOORS service account (fallback)"
+          else
+            echo "present=false" >> "$GITHUB_OUTPUT"
+            echo "::error title=Cloud Run deploy blocked::Add PROJECTMANAGMENT or a service-account JSON in FIREBASEMANNYDOORS. CI tokens cannot run gcloud builds submit."
           fi
 
       - uses: actions/checkout@v4
@@ -26,7 +39,7 @@ jobs:
         if: steps.creds.outputs.present == 'true'
         uses: google-github-actions/auth@v2
         with:
-          credentials_json: ${{ secrets.PROJECTMANAGMENT }}
+          credentials_json: ${{ steps.creds.outputs.source == 'PROJECTMANAGMENT' && secrets.PROJECTMANAGMENT || secrets.FIREBASEMANNYDOORS }}
 
       - uses: google-github-actions/setup-gcloud@v2
         if: steps.creds.outputs.present == 'true'
@@ -37,3 +50,27 @@ jobs:
           PROJECT_ID: ${{ secrets.GCP_PROJECT_ID || steps.auth.outputs.project_id }}
         run: |
           gcloud builds submit --config cloudbuild.yaml --project "${PROJECT_ID}"
+
+      - name: Verify live site updated
+        if: steps.creds.outputs.present == 'true'
+        run: |
+          set -euo pipefail
+          for i in 1 2 3 4 5 6; do
+            sleep 20
+            if ! curl -fsI "https://www.manydoorsai.com/manydoors-ai-property-managment-automation.mp4" | grep -q "200"; then
+              echo "Pitch video not yet 200 (attempt $i/6)"
+              continue
+            fi
+            html="$(curl -fsSL https://www.manydoorsai.com/)"
+            if echo "$html" | grep -q "Multifamily community"; then
+              echo "Live bundle still contains old pitch image alt text (attempt $i/6)"
+              continue
+            fi
+            echo "Deploy verified: pitch video and bundle look current."
+            exit 0
+          done
+          echo "::warning title=Post-deploy check inconclusive::Cloud Run may still be rolling out. Check https://www.manydoorsai.com manually."
+
+      - name: Fail when no GCP credentials
+        if: steps.creds.outputs.present != 'true'
+        run: exit 1

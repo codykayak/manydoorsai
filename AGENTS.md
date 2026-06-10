@@ -13,7 +13,7 @@ git push -u origin main
 
 | Secret | Purpose |
 |--------|---------|
-| `PROJECTMANAGMENT` | GCP SA JSON — Cloud Run deploy `manydoors-pm` |
+| `PROJECTMANAGMENT` | GCP SA JSON — optional GHA deploy via `cloudbuild.yaml` |
 | `forfucksake` | Firebase SA JSON — `property-managment-a5ed3` Functions |
 | `GCP_PROJECT_ID` | Optional GCP project override |
 

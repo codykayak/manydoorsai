@@ -31,15 +31,9 @@ jobs:
       - uses: google-github-actions/setup-gcloud@v2
         if: steps.creds.outputs.present == 'true'
 
-      - name: Build and deploy manydoors-pm
+      - name: Build and deploy (cloudbuild.yaml)
         if: steps.creds.outputs.present == 'true'
         env:
           PROJECT_ID: ${{ secrets.GCP_PROJECT_ID || steps.auth.outputs.project_id }}
         run: |
-          gcloud builds submit --tag "gcr.io/${PROJECT_ID}/manydoors-pm"
-          gcloud run deploy manydoors-pm \
-            --image "gcr.io/${PROJECT_ID}/manydoors-pm" \
-            --platform managed \
-            --region us-west1 \
-            --allow-unauthenticated \
-            --port 8080
+          gcloud builds submit --config cloudbuild.yaml --project "${PROJECT_ID}"

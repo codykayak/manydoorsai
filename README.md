@@ -21,11 +21,22 @@ npm run build
 
 ## Deploy
 
-### Cloud Run (`manydoors-pm`)
+### Cloud Run (`manydoorsai`) — recommended
 
-GitHub Actions on push to `main` when secret **`PROJECTMANAGMENT`** is set (same GCP SA as macrorei.com).
+Use a **Cloud Build trigger** named `manydoorsai` on this repo (`main` branch), pointing at **`/cloudbuild.yaml`**.
 
-Map custom domain **manydoorsai.com** in Cloud Run → manydoors-pm → Manage custom domains.
+1. GCP Console → **Cloud Build** → **Triggers** → create or edit `manydoorsai`
+2. Source: GitHub `codykayak/manydoorsai`, branch `main`
+3. Configuration: **Cloud Build configuration file** → `cloudbuild.yaml`
+4. Service account: same one used for Macro REI Cloud Run (needs Cloud Build + Cloud Run + Storage permissions)
+
+The build tags `gcr.io/$PROJECT_ID/manydoorsai` and deploys Cloud Run service **`manydoorsai`** in `us-west1`.
+
+Map custom domain **manydoorsai.com** in Cloud Run → **manydoorsai** → Manage custom domains.
+
+### GitHub Actions (optional fallback)
+
+`.github/workflows/deploy-cloud-run.yml` runs the same `cloudbuild.yaml` when secret **`PROJECTMANAGMENT`** is set. Disable this workflow if you only use the GCP trigger (avoids double deploys).
 
 ### Firebase Functions (site chat)
 

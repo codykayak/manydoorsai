@@ -1,0 +1,61 @@
+# Cloud Build → Cloud Run for manydoorsai.com
+# Connect repo codykayak/manydoorsai with a trigger named "manydoorsai" (branch: main).
+#
+# Console: Cloud Build → Triggers → manydoorsai
+#   Configuration: Cloud Build configuration file
+#   Location: /cloudbuild.yaml
+
+substitutions:
+  _SERVICE_NAME: manydoorsai
+  _REGION: us-west1
+  _VITE_PM_BASE_PATH: /
+  _VITE_PM_SITE_URL: https://www.manydoorsai.com
+  _VITE_PM_CHAT_URL: https://us-central1-realestate-map-23692.cloudfunctions.net/pmGatewayChat
+
+options:
+  logging: CLOUD_LOGGING_ONLY
+
+steps:
+  - name: gcr.io/cloud-builders/docker
+    id: build
+    args:
+      - build
+      - --build-arg
+      - VITE_PM_BASE_PATH=${_VITE_PM_BASE_PATH}
+      - --build-arg
+      - VITE_PM_SITE_URL=${_VITE_PM_SITE_URL}
+      - --build-arg
+      - VITE_PM_CHAT_URL=${_VITE_PM_CHAT_URL}
+      - -t
+      - gcr.io/$PROJECT_ID/${_SERVICE_NAME}:$SHORT_SHA
+      - -t
+      - gcr.io/$PROJECT_ID/${_SERVICE_NAME}:latest
+      - .
+
+  - name: gcr.io/cloud-builders/docker
+    id: push
+    args:
+      - push
+      - --all-tags
+      - gcr.io/$PROJECT_ID/${_SERVICE_NAME}
+
+  - name: gcr.io/google.com/cloudsdktool/cloud-sdk:slim
+    id: deploy
+    entrypoint: gcloud
+    args:
+      - run
+      - deploy
+      - ${_SERVICE_NAME}
+      - --image
+      - gcr.io/$PROJECT_ID/${_SERVICE_NAME}:$SHORT_SHA
+      - --region
+      - ${_REGION}
+      - --platform
+      - managed
+      - --allow-unauthenticated
+      - --port
+      - "8080"
+
+images:
+  - gcr.io/$PROJECT_ID/${_SERVICE_NAME}:$SHORT_SHA
+  - gcr.io/$PROJECT_ID/${_SERVICE_NAME}:latest

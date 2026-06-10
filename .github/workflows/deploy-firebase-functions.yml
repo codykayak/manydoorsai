@@ -16,41 +16,72 @@ jobs:
     steps:
       - name: Check for Firebase credentials
         id: creds
+        env:
+          FIREBASE_SA: ${{ secrets.FIREBASEMANNYDOORS || secrets.forfucksake }}
+          FB_TOKEN: ${{ secrets.FIREBASE_TOKEN }}
         run: |
-          if [ -n "${{ secrets.FIREBASEMANNYDOORS }}" ] || [ -n "${{ secrets.forfucksake }}" ]; then
-            echo "present=true" >> "$GITHUB_OUTPUT"
+          if [ -n "$FIREBASE_SA" ]; then
+            echo "method=sa" >> "$GITHUB_OUTPUT"
+          elif [ -n "$FB_TOKEN" ]; then
+            echo "method=token" >> "$GITHUB_OUTPUT"
           else
-            echo "present=false" >> "$GITHUB_OUTPUT"
-            echo "::warning title=Firebase deploy skipped::Add FIREBASEMANNYDOORS (property-managment-a5ed3 SA JSON) to enable Functions deploys."
+            echo "method=none" >> "$GITHUB_OUTPUT"
+            echo "::warning title=Firebase deploy skipped::Add FIREBASEMANNYDOORS (property-managment-a5ed3 SA JSON) or FIREBASE_TOKEN."
           fi
 
       - uses: actions/checkout@v4
-        if: steps.creds.outputs.present == 'true'
+        if: steps.creds.outputs.method != 'none'
 
       - uses: actions/setup-node@v4
-        if: steps.creds.outputs.present == 'true'
+        if: steps.creds.outputs.method != 'none'
         with:
           node-version: '20'
 
+      - name: Validate Firebase service account JSON
+        id: sa_valid
+        if: steps.creds.outputs.method == 'sa'
+        env:
+          FIREBASE_SA: ${{ secrets.FIREBASEMANNYDOORS || secrets.forfucksake }}
+        run: |
+          if printf '%s' "$FIREBASE_SA" | python3 -c "import json,sys; d=json.load(sys.stdin); assert d.get('type')=='service_account'" 2>/dev/null; then
+            echo "valid=true" >> "$GITHUB_OUTPUT"
+            python3 -c "import json,os; d=json.loads(os.environ['FIREBASE_SA']); print('Service account project_id:', d.get('project_id'))"
+          else
+            echo "valid=false" >> "$GITHUB_OUTPUT"
+            echo "::error title=Invalid FIREBASEMANNYDOORS::Re-paste the full JSON from Firebase → property-managment-a5ed3 → Service accounts → Generate new private key."
+            exit 1
+          fi
+
+      - id: auth
+        if: steps.creds.outputs.method == 'sa' && steps.sa_valid.outputs.valid == 'true'
+        uses: google-github-actions/auth@v2
+        with:
+          credentials_json: ${{ secrets.FIREBASEMANNYDOORS || secrets.forfucksake }}
+
+      - uses: google-github-actions/setup-gcloud@v2
+        if: steps.creds.outputs.method == 'sa' && steps.sa_valid.outputs.valid == 'true'
+
+      - name: Install Firebase CLI
+        if: steps.creds.outputs.method != 'none'
+        run: npm install -g firebase-tools@14.11.0
+
       - name: Install root deps and build knowledge
-        if: steps.creds.outputs.present == 'true'
+        if: steps.creds.outputs.method != 'none'
         run: |
           npm ci
           node scripts/build-pm-knowledge.mjs
 
       - name: Install functions deps
-        if: steps.creds.outputs.present == 'true'
+        if: steps.creds.outputs.method != 'none'
         working-directory: functions
         run: npm ci
 
-      - name: Authenticate Firebase (property-managment)
-        if: steps.creds.outputs.present == 'true'
-        env:
-          FIREBASE_SA: ${{ secrets.FIREBASEMANNYDOORS || secrets.forfucksake }}
-        run: |
-          echo "$FIREBASE_SA" > "${RUNNER_TEMP}/firebase-sa.json"
-          echo "GOOGLE_APPLICATION_CREDENTIALS=${RUNNER_TEMP}/firebase-sa.json" >> "$GITHUB_ENV"
+      - name: Deploy functions (service account)
+        if: steps.creds.outputs.method == 'sa' && steps.sa_valid.outputs.valid == 'true'
+        run: firebase deploy --only functions --project property-managment-a5ed3 --non-interactive
 
-      - name: Deploy functions
-        if: steps.creds.outputs.present == 'true'
-        run: npx firebase-tools deploy --only functions --project property-managment-a5ed3 --non-interactive
+      - name: Deploy functions (CI token)
+        if: steps.creds.outputs.method == 'token'
+        env:
+          FIREBASE_TOKEN: ${{ secrets.FIREBASE_TOKEN }}
+        run: firebase deploy --only functions --project property-managment-a5ed3 --non-interactive

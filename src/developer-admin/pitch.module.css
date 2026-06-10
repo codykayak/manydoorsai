@@ -82,6 +82,13 @@
   max-height: 360px;
 }
 
+.heroVideoPlaceholder {
+  width: 100%;
+  aspect-ratio: 16 / 10;
+  max-height: 360px;
+  background: linear-gradient(135deg, #11161d 0%, #0b0f14 50%, #161c25 100%);
+}
+
 .section {
   scroll-margin-top: 24px;
 }

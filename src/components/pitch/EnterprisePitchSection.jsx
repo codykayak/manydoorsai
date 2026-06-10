@@ -1,25 +1,47 @@
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { usePm } from '../../context/PmContext';
 import { GATEWAY_ASSETS } from '../../content/gatewayContent';
 import styles from '../../pm.module.css';
 import pitch from '../../developer-admin/pitch.module.css';
+
+const PITCH_VIDEO = '/manydoors-ai-property-managment-automation.mp4';
 
 /**
  * Enterprise & mid-market pitch block — shared by Developer Admin pitch deck
  * and the public gateway homepage.
  */
 export default function EnterprisePitchSection({
-  videoSrc = GATEWAY_ASSETS.pitchVideo,
-  posterSrc = GATEWAY_ASSETS.softwareImage,
+  videoSrc = GATEWAY_ASSETS.pitchVideo || PITCH_VIDEO,
 }) {
   const { config } = usePm();
+  const visualRef = useRef(null);
   const videoRef = useRef(null);
+  const [active, setActive] = useState(false);
 
   useEffect(() => {
+    const el = visualRef.current;
+    if (!el) return undefined;
+
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          setActive(true);
+          observer.disconnect();
+        }
+      },
+      { rootMargin: '120px' },
+    );
+
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, []);
+
+  useEffect(() => {
+    if (!active) return;
     const v = videoRef.current;
     if (!v) return;
     v.play().catch(() => {});
-  }, [videoSrc]);
+  }, [active, videoSrc]);
 
   return (
     <>
@@ -42,19 +64,23 @@ export default function EnterprisePitchSection({
             <span className={`${styles.badge} ${styles.badgeGray}`}>PMS-agnostic</span>
           </div>
         </div>
-        <div className={pitch.heroVisual}>
-          <video
-            ref={videoRef}
-            className={pitch.heroVideo}
-            autoPlay
-            muted
-            loop
-            playsInline
-            preload="metadata"
-            poster={posterSrc}
-          >
-            <source src={videoSrc} type="video/mp4" />
-          </video>
+        <div className={pitch.heroVisual} ref={visualRef}>
+          {active ? (
+            <video
+              ref={videoRef}
+              className={pitch.heroVideo}
+              autoPlay
+              muted
+              loop
+              playsInline
+              preload="auto"
+              aria-label="Property management automation demo"
+            >
+              <source src={videoSrc} type="video/mp4" />
+            </video>
+          ) : (
+            <div className={pitch.heroVideoPlaceholder} aria-hidden />
+          )}
         </div>
       </section>
 

@@ -14,8 +14,8 @@ fi
 
 echo "Optimizing pitch video → manydoors-ai-property-managment-automation.mp4"
 ffmpeg -y -hide_banner -loglevel error -i "$PITCH_SRC" \
-  -c:v libx264 -crf 27 -preset medium \
-  -vf "scale=1280:-2:flags=lanczos" \
+  -c:v libx264 -crf 28 -preset slow \
+  -vf "scale=960:-2:flags=lanczos" \
   -movflags +faststart \
   -an \
   manydoors-ai-property-managment-automation.mp4

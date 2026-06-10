@@ -8,6 +8,7 @@ import { localBusinessJsonLd, getPmSiteUrl } from './localBusiness.js';
 /** Served from /public — same location as manydoors-logo.png */
 export const GATEWAY_ASSETS = {
   heroVideo: '/manydoors-ai_property-management-realestate.mp4',
+  pitchVideo: '/manydoors-ai-property-managment-automation.mp4',
   softwareImage: '/manydoors-ai-software-property-management.png',
   investorImage: '/manydoorsai-property-management-investor-software-ai.png',
   opsTeamImage: '/pm-pitch/pm-pitch-operations-team.png',

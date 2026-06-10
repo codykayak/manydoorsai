@@ -1,15 +1,25 @@
+import { useEffect, useRef } from 'react';
 import { usePm } from '../../context/PmContext';
+import { GATEWAY_ASSETS } from '../../content/gatewayContent';
 import styles from '../../pm.module.css';
 import pitch from '../../developer-admin/pitch.module.css';
-
-const HERO_IMG = '/pm-pitch/pm-pitch-hero-community.png';
 
 /**
  * Enterprise & mid-market pitch block — shared by Developer Admin pitch deck
  * and the public gateway homepage.
  */
-export default function EnterprisePitchSection({ imageSrc = HERO_IMG }) {
+export default function EnterprisePitchSection({
+  videoSrc = GATEWAY_ASSETS.pitchVideo,
+  posterSrc = GATEWAY_ASSETS.softwareImage,
+}) {
   const { config } = usePm();
+  const videoRef = useRef(null);
+
+  useEffect(() => {
+    const v = videoRef.current;
+    if (!v) return;
+    v.play().catch(() => {});
+  }, [videoSrc]);
 
   return (
     <>
@@ -33,7 +43,18 @@ export default function EnterprisePitchSection({ imageSrc = HERO_IMG }) {
           </div>
         </div>
         <div className={pitch.heroVisual}>
-          <img src={imageSrc} alt="Multifamily community — illustrative" className={pitch.heroImg} />
+          <video
+            ref={videoRef}
+            className={pitch.heroVideo}
+            autoPlay
+            muted
+            loop
+            playsInline
+            preload="metadata"
+            poster={posterSrc}
+          >
+            <source src={videoSrc} type="video/mp4" />
+          </video>
         </div>
       </section>
 

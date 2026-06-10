@@ -61,6 +61,7 @@
   overflow: hidden;
   border: 1px solid #2d3748;
   box-shadow: 0 12px 40px rgba(0, 0, 0, 0.35);
+  background: #0b0f14;
 }
 
 .heroImg {
@@ -69,6 +70,16 @@
   display: block;
   object-fit: cover;
   max-height: 320px;
+}
+
+.heroVideo {
+  width: 100%;
+  display: block;
+  aspect-ratio: 16 / 10;
+  object-fit: cover;
+  object-position: center center;
+  background: #0b0f14;
+  max-height: 360px;
 }
 
 .section {

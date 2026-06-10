@@ -6,6 +6,10 @@ SITE="${1:-https://www.manydoorsai.com}"
 fail=0
 
 echo "Checking $SITE ..."
+lm="$(curl -fsI "$SITE/" 2>/dev/null | awk -F': ' 'tolower($1)=="last-modified" {print $2}' | tr -d '\r')"
+if [ -n "$lm" ]; then
+  echo "index.html Last-Modified: $lm"
+fi
 
 if curl -fsI "$SITE/manydoors-ai-property-managment-automation.mp4" | head -1 | grep -q "200"; then
   echo "OK  pitch mp4"

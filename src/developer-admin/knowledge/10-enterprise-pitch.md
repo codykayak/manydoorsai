@@ -23,6 +23,8 @@ Uses `pitchData.js` unit economics. Replace illustrative numbers with pilot metr
 
 Acknowledge EliseAI and PMS-native AI; win on bundled ops, fraud audit, mid-market packaging, ROI dashboard.
 
-## Images
+## Hero visual
 
-`/pm-pitch/pm-pitch-hero-community.png` and `pm-pitch-operations-team.png`
+Public homepage and pitch deck use **`/manydoors-ai-property-managment-automation.mp4`** (automation demo video).
+
+Operations section still uses `/pm-pitch/pm-pitch-operations-team.png`.

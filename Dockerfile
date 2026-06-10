@@ -37,7 +37,9 @@ ENV VITE_EMAILJS_SERVICE_ID=$VITE_EMAILJS_SERVICE_ID
 ENV VITE_EMAILJS_TEMPLATE_ID=$VITE_EMAILJS_TEMPLATE_ID
 ENV VITE_EMAILJS_PUBLIC_KEY=$VITE_EMAILJS_PUBLIC_KEY
 
-RUN npm run build
+RUN npm run build \
+  && test -f dist/manydoors-ai-property-managment-automation.mp4 \
+  && test -f dist/manydoors-ai_property-management-realestate.mp4
 
 FROM nginx:1.27-alpine
 

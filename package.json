@@ -5,7 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "node scripts/build-pm-knowledge.mjs && vite build",
+    "build": "node scripts/check-site-assets.mjs && node scripts/build-pm-knowledge.mjs && vite build",
     "build:pm-knowledge": "node scripts/build-pm-knowledge.mjs",
     "lint": "eslint .",
     "preview": "vite preview"

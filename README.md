@@ -42,6 +42,15 @@ Smoke test after deploy:
 ./scripts/verify-live-deploy.sh
 ```
 
+**Pitch video missing on manydoorsai.com?** Production is almost certainly a **stale Cloud Run revision** (old JS still references a broken PNG). Code on `main` is correct. Redeploy:
+
+```bash
+# From your laptop (gcloud auth login first)
+./scripts/deploy-cloud-run.sh
+```
+
+Or GCP Console → **Cloud Build** → trigger **`manydoorsai`** → **Run** on branch `main`. Then confirm Cloud Run → **manydoorsai** → latest revision has **100% traffic**.
+
 ### Firebase Functions (site chat)
 
 Uses project **`property-managment-a5ed3`** and GitHub secret **`FIREBASEMANNYDOORS`**:

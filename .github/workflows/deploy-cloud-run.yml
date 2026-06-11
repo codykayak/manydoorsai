@@ -12,9 +12,9 @@ jobs:
       - name: Check for GCP deploy credentials
         id: creds
         run: |
-          if [ -z "${{ secrets.PROJECTMANAGMENT }}" ]; then
+          if [ -z "${{ secrets.PROJECTMANAGEMENT }}" ]; then
             echo "present=false" >> "$GITHUB_OUTPUT"
-            echo "::error title=Cloud Run deploy blocked::Add PROJECTMANAGMENT (GCP service-account JSON with Cloud Build, Storage, and Cloud Run permissions)."
+            echo "::error title=Cloud Run deploy blocked::Add PROJECTMANAGEMENT (GCP service-account JSON with Cloud Build, Storage, and Cloud Run permissions)."
           else
             echo "present=true" >> "$GITHUB_OUTPUT"
           fi
@@ -26,7 +26,7 @@ jobs:
         if: steps.creds.outputs.present == 'true'
         uses: google-github-actions/auth@v2
         with:
-          credentials_json: ${{ secrets.PROJECTMANAGMENT }}
+          credentials_json: ${{ secrets.PROJECTMANAGEMENT }}
 
       - uses: google-github-actions/setup-gcloud@v2
         if: steps.creds.outputs.present == 'true'

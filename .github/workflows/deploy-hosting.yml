@@ -1,0 +1,94 @@
+name: Deploy Firebase Hosting
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Resolve Firebase deploy credentials
+        id: creds
+        env:
+          FIREBASE_MANNYDOORS: ${{ secrets.FIREBASEMANNYDOORS }}
+          FIREBASE_TOKEN_LEGACY: ${{ secrets.FIREBASE_TOKEN }}
+        run: |
+          is_sa_json() {
+            printf '%s' "${1:-}" | python3 -c "import json,sys; d=json.load(sys.stdin); exit(0 if d.get('type')=='service_account' else 1)" 2>/dev/null
+          }
+
+          if is_sa_json "$FIREBASE_MANNYDOORS"; then
+            echo "method=sa" >> "$GITHUB_OUTPUT"
+            echo "Firebase auth: service account JSON (FIREBASEMANNYDOORS)"
+          elif [ -n "$FIREBASE_MANNYDOORS" ] && [ "${FIREBASE_MANNYDOORS#\{}" = "$FIREBASE_MANNYDOORS" ]; then
+            echo "method=token" >> "$GITHUB_OUTPUT"
+            echo "Firebase auth: CI token (FIREBASEMANNYDOORS)"
+          elif [ -n "$FIREBASE_TOKEN_LEGACY" ]; then
+            echo "method=token" >> "$GITHUB_OUTPUT"
+            echo "Firebase auth: CI token (FIREBASE_TOKEN)"
+          else
+            echo "method=none" >> "$GITHUB_OUTPUT"
+            echo "::error title=Hosting deploy blocked::Add FIREBASEMANNYDOORS (firebase login:ci token or service-account JSON)."
+          fi
+
+      - uses: actions/checkout@v4
+        if: steps.creds.outputs.method != 'none'
+
+      - uses: actions/setup-node@v4
+        if: steps.creds.outputs.method != 'none'
+        with:
+          node-version: '20'
+
+      - id: auth
+        if: steps.creds.outputs.method == 'sa'
+        uses: google-github-actions/auth@v2
+        with:
+          credentials_json: ${{ secrets.FIREBASEMANNYDOORS }}
+
+      - uses: google-github-actions/setup-gcloud@v2
+        if: steps.creds.outputs.method == 'sa'
+
+      - name: Install Firebase CLI
+        if: steps.creds.outputs.method != 'none'
+        run: npm install -g firebase-tools@14.11.0
+
+      - name: Build site
+        if: steps.creds.outputs.method != 'none'
+        env:
+          VITE_PM_BASE_PATH: /
+          VITE_PM_SITE_URL: https://www.manydoorsai.com
+          VITE_PM_SUPPORT_EMAIL: info@manydoorsai.com
+          VITE_PM_CHAT_URL: https://us-central1-property-managment-a5ed3.cloudfunctions.net/pmGatewayChat
+          VITE_PM_FIREBASE_API_KEY: AIzaSyAuYn4nm9jTIcdFeNStmLF_Ky8qgwe4R2M
+          VITE_PM_FIREBASE_AUTH_DOMAIN: property-managment-a5ed3.firebaseapp.com
+          VITE_PM_FIREBASE_PROJECT_ID: property-managment-a5ed3
+          VITE_PM_FIREBASE_STORAGE_BUCKET: property-managment-a5ed3.firebasestorage.app
+          VITE_PM_FIREBASE_MESSAGING_SENDER_ID: '742597343666'
+          VITE_PM_FIREBASE_APP_ID: '1:742597343666:web:d04e9435b5fdaafa048cab'
+          VITE_PM_FIRESTORE_DB: property-managment
+        run: |
+          npm ci
+          npm run build
+
+      - name: Deploy hosting (service account)
+        if: steps.creds.outputs.method == 'sa'
+        run: firebase deploy --only hosting --project property-managment-a5ed3 --non-interactive
+
+      - name: Deploy hosting (CI token)
+        if: steps.creds.outputs.method == 'token'
+        env:
+          FIREBASE_MANNYDOORS: ${{ secrets.FIREBASEMANNYDOORS }}
+          FIREBASE_TOKEN_LEGACY: ${{ secrets.FIREBASE_TOKEN }}
+        run: |
+          if [ -n "$FIREBASE_MANNYDOORS" ] && [ "${FIREBASE_MANNYDOORS#\{}" = "$FIREBASE_MANNYDOORS" ]; then
+            export FIREBASE_TOKEN="$FIREBASE_MANNYDOORS"
+          else
+            export FIREBASE_TOKEN="$FIREBASE_TOKEN_LEGACY"
+          fi
+          firebase deploy --only hosting --project property-managment-a5ed3 --non-interactive
+
+      - name: Fail when no Firebase credentials
+        if: steps.creds.outputs.method == 'none'
+        run: exit 1

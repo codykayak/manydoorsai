@@ -36,7 +36,7 @@ jobs:
         env:
           PROJECT_ID: ${{ secrets.GCP_PROJECT_ID || steps.auth.outputs.project_id }}
         run: |
-          gcloud builds submit --config cloudbuild.yaml --project "${PROJECT_ID}"
+          gcloud builds submit --config cloudbuild.yaml --project "${PROJECT_ID}" --substitutions SHORT_SHA=$(git rev-parse --short HEAD)
 
       - name: Verify live site updated
         if: steps.creds.outputs.present == 'true'

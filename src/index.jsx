@@ -17,6 +17,7 @@ import FeaturePage from './pages/FeaturePage';
 import FaqPage from './pages/FaqPage';
 import LocationPage from './pages/LocationPage';
 import LocationsIndexPage from './pages/LocationsIndexPage';
+import RoiCalculatorPage from './pages/RoiCalculatorPage';
 import Dashboard from './pages/Dashboard';
 import OwnerPortal from './pages/OwnerPortal';
 import Communications from './pages/Communications';
@@ -58,10 +59,12 @@ function hrefFor(base, route) {
 function isGatewayPath(pathname, basePath) {
   const base = normalizeBase(basePath);
   if (pathname === base || pathname === `${base}/`) return true;
+  const prefix = base === '/' ? '' : base;
   return (
-    pathname.startsWith(`${base}/features`)
-    || pathname.startsWith(`${base}/faq`)
-    || pathname.startsWith(`${base}/locations`)
+    pathname.startsWith(`${prefix}/features`)
+    || pathname.startsWith(`${prefix}/faq`)
+    || pathname.startsWith(`${prefix}/locations`)
+    || pathname.startsWith(`${prefix}/roi-calculator`)
   );
 }
 
@@ -178,6 +181,7 @@ function ModuleInner() {
             <Route path="faq" element={<FaqPage />} />
             <Route path="locations" element={<LocationsIndexPage />} />
             <Route path="locations/:citySlug" element={<LocationPage />} />
+            <Route path="roi-calculator" element={<RoiCalculatorPage />} />
             {features.map((f) => {
               if (!f.route) return null;
               const Page = PAGE_MAP[f.id];

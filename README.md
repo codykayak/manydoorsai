@@ -51,6 +51,18 @@ Smoke test after deploy:
 
 Or GCP Console → **Cloud Build** → trigger **`manydoorsai`** → **Run** on branch `main`. Then confirm Cloud Run → **manydoorsai** → latest revision has **100% traffic**.
 
+**Builds succeed but the live site never changes?** Traffic is pinned to an old revision, so new revisions deploy with **0% traffic**. `cloudbuild.yaml` now runs `update-traffic --to-latest` after every deploy, but to recover an already-stuck service immediately:
+
+```bash
+gcloud run services update-traffic manydoorsai --region us-west1 --to-latest
+```
+
+Verify the live nginx `index.html` is fresh (the `last-modified` header should be recent):
+
+```bash
+curl -sI https://www.manydoorsai.com/ | grep -i last-modified
+```
+
 ### Firebase Functions (site chat)
 
 Uses project **`property-managment-a5ed3`** and GitHub secret **`FIREBASEMANNYDOORS`**:

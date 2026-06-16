@@ -21,6 +21,7 @@ const CONFIGURED = SERVICE_ID && TEMPLATE_ID && PUBLIC_KEY;
  * @param {string} data.bestTime
  * @param {string} data.cityState
  * @param {string} [data.name]
+ * @param {string} [data.summary] Optional extra context (e.g. ROI calculator output).
  */
 export async function submitPmContact(data, supportEmail = CONTACT_EMAIL) {
   const message = [
@@ -30,6 +31,7 @@ export async function submitPmContact(data, supportEmail = CONTACT_EMAIL) {
     `Phone: ${data.phone || '—'}`,
     `Email: ${data.email || '—'}`,
     data.name ? `Name: ${data.name}` : null,
+    data.summary ? `\n${data.summary}` : null,
   ]
     .filter(Boolean)
     .join('\n');

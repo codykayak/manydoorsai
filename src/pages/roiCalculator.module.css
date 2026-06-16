@@ -1,0 +1,324 @@
+.layout {
+  display: grid;
+  grid-template-columns: 0.85fr 1.15fr;
+  gap: 24px;
+  align-items: start;
+}
+
+@media (max-width: 920px) {
+  .layout {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* ── Inputs panel ──────────────────────────────────────────────────────────── */
+.controls {
+  position: sticky;
+  top: 76px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  padding: 22px;
+  background: var(--pm-panel, #11161d);
+  border: 1px solid var(--pm-border, #232b36);
+  border-radius: 14px;
+}
+
+@media (max-width: 920px) {
+  .controls {
+    position: static;
+  }
+}
+
+.controlsTitle {
+  font-size: 15px;
+  font-weight: 700;
+  margin: 0;
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.fieldHead {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.fieldLabel {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--pm-text, #e6edf3);
+}
+
+.fieldValue {
+  font-size: 15px;
+  font-weight: 750;
+  color: var(--pm-accent, #00d2d3);
+  font-variant-numeric: tabular-nums;
+}
+
+.fieldHint {
+  font-size: 11px;
+  color: var(--pm-muted, #8b97a7);
+}
+
+.range {
+  width: 100%;
+  accent-color: var(--pm-accent, #00d2d3);
+  cursor: pointer;
+}
+
+.numberInput {
+  width: 100%;
+  padding: 10px 12px;
+  border-radius: 10px;
+  border: 1px solid var(--pm-border, #232b36);
+  background: var(--pm-bg, #0b0f14);
+  color: var(--pm-text, #e6edf3);
+  font-size: 14px;
+  font-variant-numeric: tabular-nums;
+}
+
+.numberInput:focus {
+  outline: none;
+  border-color: var(--pm-accent, #00d2d3);
+}
+
+.resetBtn {
+  align-self: flex-start;
+  padding: 8px 14px;
+  font-size: 12px;
+  font-weight: 600;
+  border-radius: 8px;
+  border: 1px solid var(--pm-border, #232b36);
+  background: transparent;
+  color: var(--pm-muted, #8b97a7);
+  cursor: pointer;
+  transition: border-color 0.15s, color 0.15s;
+}
+
+.resetBtn:hover {
+  border-color: var(--pm-accent, #00d2d3);
+  color: var(--pm-text, #e6edf3);
+}
+
+/* ── Results ───────────────────────────────────────────────────────────────── */
+.results {
+  display: flex;
+  flex-direction: column;
+  gap: 22px;
+}
+
+.headlineCard {
+  padding: 24px;
+  border-radius: 14px;
+  background: var(--pm-accent-soft, rgba(0, 210, 211, 0.1));
+  border: 1px solid rgba(0, 210, 211, 0.35);
+}
+
+.headlineLabel {
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--pm-muted, #8b97a7);
+}
+
+.headlineValue {
+  font-size: clamp(36px, 6vw, 52px);
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  color: var(--pm-accent, #00d2d3);
+  margin: 4px 0 2px;
+  font-variant-numeric: tabular-nums;
+}
+
+.headlineSub {
+  font-size: 13px;
+  color: var(--pm-muted, #8b97a7);
+}
+
+.kpiRow {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+}
+
+@media (max-width: 560px) {
+  .kpiRow {
+    grid-template-columns: 1fr;
+  }
+}
+
+.kpiBox {
+  padding: 16px;
+  background: var(--pm-panel, #11161d);
+  border: 1px solid var(--pm-border, #232b36);
+  border-radius: 12px;
+}
+
+.kpiBoxValue {
+  font-size: 24px;
+  font-weight: 750;
+  letter-spacing: -0.02em;
+  font-variant-numeric: tabular-nums;
+}
+
+.kpiBoxLabel {
+  font-size: 12px;
+  color: var(--pm-muted, #8b97a7);
+  margin-top: 4px;
+}
+
+/* ── Breakdown table ───────────────────────────────────────────────────────── */
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+}
+
+.table th {
+  text-align: left;
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--pm-muted, #8b97a7);
+  padding: 8px 10px;
+  border-bottom: 1px solid var(--pm-border, #232b36);
+}
+
+.table th.num,
+.table td.num {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+.table td {
+  padding: 11px 10px;
+  border-bottom: 1px solid var(--pm-border, #232b36);
+  vertical-align: top;
+}
+
+.leverLabel {
+  font-weight: 600;
+  color: var(--pm-text, #e6edf3);
+}
+
+.leverDetail {
+  font-size: 11px;
+  color: var(--pm-muted, #8b97a7);
+  margin-top: 2px;
+}
+
+.totalRow td {
+  font-weight: 750;
+  border-bottom: none;
+  border-top: 2px solid var(--pm-border, #232b36);
+  color: var(--pm-text, #e6edf3);
+}
+
+.totalRow .num {
+  color: var(--pm-accent, #00d2d3);
+}
+
+/* ── Email capture ─────────────────────────────────────────────────────────── */
+.capture {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  padding: 22px;
+  border-radius: 14px;
+  background: var(--pm-panel, #11161d);
+  border: 1px solid var(--pm-border, #232b36);
+}
+
+.captureForm {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.captureInput {
+  flex: 1 1 200px;
+  padding: 12px 14px;
+  border-radius: 10px;
+  border: 1px solid var(--pm-border, #232b36);
+  background: var(--pm-bg, #0b0f14);
+  color: var(--pm-text, #e6edf3);
+  font-size: 14px;
+}
+
+.captureInput:focus {
+  outline: none;
+  border-color: var(--pm-accent, #00d2d3);
+}
+
+.captureBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 22px;
+  font-size: 14px;
+  font-weight: 700;
+  border: none;
+  border-radius: 10px;
+  cursor: pointer;
+  background: linear-gradient(135deg, var(--pm-accent, #00d2d3) 0%, #00b8b9 100%);
+  color: #042424;
+  white-space: nowrap;
+  transition: filter 0.15s, transform 0.15s;
+}
+
+.captureBtn:hover {
+  filter: brightness(1.06);
+  transform: translateY(-1px);
+}
+
+.captureBtn:disabled {
+  opacity: 0.6;
+  cursor: default;
+  transform: none;
+}
+
+.captureNote {
+  font-size: 12px;
+  color: var(--pm-muted, #8b97a7);
+}
+
+.captureError {
+  font-size: 13px;
+  color: #f85149;
+}
+
+.captureSuccess {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 14px;
+  color: var(--pm-text, #e6edf3);
+}
+
+.captureSuccess svg {
+  color: var(--pm-accent, #00d2d3);
+  flex-shrink: 0;
+}
+
+.disclaimer {
+  font-size: 12px;
+  line-height: 1.6;
+  color: var(--pm-muted, #8b97a7);
+}
+
+.assumptions {
+  margin: 8px 0 0;
+  padding-left: 18px;
+  font-size: 12px;
+  line-height: 1.6;
+  color: var(--pm-muted, #8b97a7);
+}

@@ -28,6 +28,12 @@ export const APP_CONFIG = {
   supportPhone: env.VITE_PM_SUPPORT_PHONE || '541-321-2630',
   salesPhone: env.VITE_PM_SALES_PHONE || '541-321-2630',
   supportAddress: env.VITE_PM_SUPPORT_ADDRESS || 'Eugene, OR',
+  /**
+   * Optional self-serve scheduling link (e.g. Calendly / Cal.com / HubSpot).
+   * When set, "Book a demo" CTAs open this URL in a new tab; otherwise they
+   * open the on-site contact request widget.
+   */
+  bookingUrl: env.VITE_PM_BOOKING_URL || '',
 };
 
 export default APP_CONFIG;

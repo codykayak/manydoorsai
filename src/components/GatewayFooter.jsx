@@ -69,6 +69,9 @@ export default function GatewayFooter({ showFaqLink = true }) {
             © {new Date().getFullYear()} {config.companyName}. {address}
           </span>
           <div className={ft.footLinks}>
+            <Link to={hrefFor(base, 'roi-calculator')} className={ft.faqLink}>
+              ROI calculator
+            </Link>
             <Link to={hrefFor(base, 'locations')} className={ft.faqLink}>
               All service areas
             </Link>

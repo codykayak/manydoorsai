@@ -18,6 +18,8 @@ import {
   FEATURE_PAGES,
   gatewayJsonLd,
 } from '../content/gatewayContent';
+import { TRUST_SIGNALS, TESTIMONIALS, CLIENT_LOGOS } from '../content/socialProof';
+import { requestDemo } from '../lib/contactCta';
 import GatewayFooter from '../components/GatewayFooter';
 import EnterprisePitchSection from '../components/pitch/EnterprisePitchSection';
 import PitchModuleCard from '../components/pitch/PitchModuleCard';
@@ -60,6 +62,7 @@ export default function GatewayPage() {
   }));
 
   const enter = () => navigate(hrefFor(base, 'dashboard'));
+  const bookDemo = () => requestDemo(config.bookingUrl);
 
   useEffect(() => {
     const v = videoRef.current;
@@ -106,17 +109,46 @@ export default function GatewayPage() {
             24/7 resident communication, automated leasing, and maintenance triage — with owner-grade
             NOI reporting and U.S.-based support on call.
           </p>
-          <button type="button" className={gw.enterBtn} onClick={enter}>
-            Enter platform
-            <Icon name="bolt" size={22} />
-          </button>
+          <div className={gw.ctaRow}>
+            <button type="button" className={gw.bookBtn} onClick={bookDemo}>
+              Book a 15-min demo
+              <Icon name="calendar" size={20} />
+            </button>
+            <button type="button" className={gw.enterBtnGhost} onClick={enter}>
+              Explore live demo
+              <Icon name="bolt" size={20} />
+            </button>
+          </div>
           <p className={gw.enterHint}>
-            Live demo · {tenant?.name || 'Demo tenant'} · explore the full platform with sample portfolio data
+            No rip-and-replace · works on top of Yardi, RealPage, AppFolio & Entrata · U.S.-based team
           </p>
         </div>
       </section>
 
       <div className={gw.gatewayInner}>
+        <section className={gw.trustStrip} aria-label="Why operators trust ManyDoors AI">
+          {TRUST_SIGNALS.map((t) => (
+            <div key={t.label} className={gw.trustItem}>
+              <Icon name={t.icon} size={22} className={gw.trustIcon} />
+              <div>
+                <div className={gw.trustLabel}>{t.label}</div>
+                <div className={gw.trustSub}>{t.sub}</div>
+              </div>
+            </div>
+          ))}
+        </section>
+
+        {CLIENT_LOGOS.length > 0 && (
+          <section className={gw.logoStrip} aria-label="Operators using ManyDoors AI">
+            <span className={gw.logoStripLabel}>Trusted by multifamily operators</span>
+            <div className={gw.logoStripRow}>
+              {CLIENT_LOGOS.map((logo) => (
+                <img key={logo.name} src={logo.src} alt={logo.name} className={gw.clientLogo} loading="lazy" />
+              ))}
+            </div>
+          </section>
+        )}
+
         <section className={gw.softwareSection} aria-labelledby="software-heading">
           <div className={gw.softwareCopy}>
             <h2 id="software-heading" className={gw.sectionTitle}>
@@ -181,11 +213,38 @@ export default function GatewayPage() {
           </div>
         </section>
 
+        {TESTIMONIALS.length > 0 && (
+          <section aria-label="What operators say">
+            <div className={gw.sectionHead}>
+              <h2 className={gw.sectionTitle}>What operators say</h2>
+              <p className={gw.sectionSub}>Results from teams running ManyDoors AI on top of their PMS.</p>
+            </div>
+            <div className={gw.testimonialGrid}>
+              {TESTIMONIALS.map((t) => (
+                <figure key={`${t.name}-${t.company}`} className={gw.testimonialCard}>
+                  <Icon name="star" size={18} className={gw.testimonialStar} />
+                  <blockquote className={gw.testimonialQuote}>“{t.quote}”</blockquote>
+                  <figcaption className={gw.testimonialMeta}>
+                    <span className={gw.testimonialName}>{t.name}</span>
+                    {(t.title || t.company) && (
+                      <span className={gw.testimonialRole}>
+                        {[t.title, t.company].filter(Boolean).join(', ')}
+                        {t.units ? ` · ${t.units}` : ''}
+                      </span>
+                    )}
+                  </figcaption>
+                </figure>
+              ))}
+            </div>
+          </section>
+        )}
+
         <section>
           <div className={gw.sectionHead}>
             <h2 className={gw.sectionTitle}>Where the ROI comes from</h2>
             <p className={gw.sectionSub}>
-              Illustrative model for a {units.toLocaleString()}-unit portfolio — replace with pilot metrics after 30–60 days.
+              Illustrative model for a {units.toLocaleString()}-unit portfolio — replace with pilot metrics after 30–60 days.{' '}
+              <Link to={hrefFor(base, 'roi-calculator')}>Run your own numbers in the ROI calculator →</Link>
             </p>
           </div>
           <div className={gw.chartGrid}>
@@ -257,10 +316,16 @@ export default function GatewayPage() {
         </section>
 
         <footer className={gw.footerCta}>
-          <button type="button" className={gw.enterBtn} onClick={enter}>
-            Enter {config.productName}
-            <Icon name="bolt" size={22} />
-          </button>
+          <div className={gw.ctaRow}>
+            <button type="button" className={gw.bookBtn} onClick={bookDemo}>
+              Book a 15-min demo
+              <Icon name="calendar" size={20} />
+            </button>
+            <button type="button" className={gw.enterBtnGhost} onClick={enter}>
+              Enter {config.productName}
+              <Icon name="bolt" size={20} />
+            </button>
+          </div>
         </footer>
       </div>
 

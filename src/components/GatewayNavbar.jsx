@@ -2,6 +2,7 @@ import { NavLink, useNavigate } from 'react-router-dom';
 import { usePm } from '../context/PmContext';
 import Icon from './Icon';
 import { FEATURE_PAGES } from '../content/gatewayContent';
+import { requestDemo } from '../lib/contactCta';
 import nav from './gatewayNavbar.module.css';
 
 function hrefFor(base, route) {
@@ -56,10 +57,20 @@ export default function GatewayNavbar({ onEnter }) {
           ))}
         </nav>
 
-        <button type="button" className={nav.enterBtn} onClick={enter}>
-          Enter platform
-          <Icon name="bolt" size={16} />
-        </button>
+        <div className={nav.actions}>
+          <button
+            type="button"
+            className={nav.bookBtn}
+            onClick={() => requestDemo(config.bookingUrl)}
+          >
+            Book a demo
+            <Icon name="calendar" size={16} />
+          </button>
+          <button type="button" className={nav.enterBtn} onClick={enter}>
+            Enter platform
+            <Icon name="bolt" size={16} />
+          </button>
+        </div>
       </div>
     </header>
   );

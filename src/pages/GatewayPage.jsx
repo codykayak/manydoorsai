@@ -243,7 +243,8 @@ export default function GatewayPage() {
           <div className={gw.sectionHead}>
             <h2 className={gw.sectionTitle}>Where the ROI comes from</h2>
             <p className={gw.sectionSub}>
-              Illustrative model for a {units.toLocaleString()}-unit portfolio — replace with pilot metrics after 30–60 days.
+              Illustrative model for a {units.toLocaleString()}-unit portfolio — replace with pilot metrics after 30–60 days.{' '}
+              <Link to={hrefFor(base, 'roi-calculator')}>Run your own numbers in the ROI calculator →</Link>
             </p>
           </div>
           <div className={gw.chartGrid}>

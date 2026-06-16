@@ -55,6 +55,13 @@ export default function GatewayNavbar({ onEnter }) {
               <span className={nav.linkLabel}>{f.title.split(' ').slice(0, 2).join(' ')}</span>
             </NavLink>
           ))}
+          <NavLink
+            to={hrefFor(base, 'roi-calculator')}
+            className={({ isActive }) => `${nav.link} ${isActive ? nav.linkActive : ''}`}
+          >
+            <Icon name="chart" size={16} />
+            <span className={nav.linkLabel}>ROI Calculator</span>
+          </NavLink>
         </nav>
 
         <div className={nav.actions}>

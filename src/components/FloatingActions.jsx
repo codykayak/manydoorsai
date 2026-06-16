@@ -1,6 +1,7 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import ContactUsWidget from './ContactUsWidget';
 import SiteChatbot from './SiteChatbot';
+import { OPEN_CONTACT_EVENT } from '../lib/contactCta';
 import fa from './floatingActions.module.css';
 
 /**
@@ -20,6 +21,12 @@ export default function FloatingActions() {
     setChatOpen(open);
     if (open) setContactOpen(false);
   };
+
+  useEffect(() => {
+    const handler = () => openContact(true);
+    window.addEventListener(OPEN_CONTACT_EVENT, handler);
+    return () => window.removeEventListener(OPEN_CONTACT_EVENT, handler);
+  }, []);
 
   return (
     <div className={fa.dock} aria-label="Help and contact">

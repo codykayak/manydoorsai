@@ -11,6 +11,7 @@ substitutions:
   _VITE_PM_SITE_URL: https://www.manydoorsai.com
   _VITE_PM_SUPPORT_EMAIL: info@manydoorsai.com
   _VITE_PM_CHAT_URL: https://us-central1-property-managment-a5ed3.cloudfunctions.net/pmGatewayChat
+  _VITE_PM_SOCIAL_API_URL: https://us-central1-property-managment-a5ed3.cloudfunctions.net/pmSocialPosts
   _VITE_PM_FIREBASE_API_KEY: AIzaSyAuYn4nm9jTIcdFeNStmLF_Ky8qgwe4R2M
   _VITE_PM_FIREBASE_AUTH_DOMAIN: property-managment-a5ed3.firebaseapp.com
   _VITE_PM_FIREBASE_PROJECT_ID: property-managment-a5ed3
@@ -38,6 +39,8 @@ steps:
       - VITE_PM_SUPPORT_EMAIL=${_VITE_PM_SUPPORT_EMAIL}
       - --build-arg
       - VITE_PM_CHAT_URL=${_VITE_PM_CHAT_URL}
+      - --build-arg
+      - VITE_PM_SOCIAL_API_URL=${_VITE_PM_SOCIAL_API_URL}
       - --build-arg
       - VITE_PM_FIREBASE_API_KEY=${_VITE_PM_FIREBASE_API_KEY}
       - --build-arg

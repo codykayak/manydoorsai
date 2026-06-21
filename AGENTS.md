@@ -17,6 +17,17 @@ git push -u origin main
 | `FIREBASEMANNYDOORS` | `firebase login:ci` token **or** service-account JSON for `property-managment-a5ed3` Functions only |
 | `GCP_PROJECT_ID` | Optional GCP project override |
 
+### Firebase Functions secrets (`property-managment-a5ed3`)
+
+Set in Firebase Console or `firebase functions:secrets:set`:
+
+| Secret | Purpose |
+|--------|---------|
+| `GEMINI_API_KEY` | Site chat + daily social post generation |
+| `SOCIAL_ADMIN_API_KEY` | Developer Admin → Social posts API auth |
+| `TWILIO_ACCOUNT_SID` / `TWILIO_AUTH_TOKEN` / `TWILIO_FROM_NUMBER` | Daily SMS when posts are ready |
+| `SOCIAL_NOTIFY_PHONE` | Phone for daily alerts (default `+15413212630`) |
+
 ## Deploy
 
 Production is **Cloud Run only** (`manydoorsai` service, `us-west1`). Site is not hosted on Firebase Hosting.

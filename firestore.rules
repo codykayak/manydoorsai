@@ -78,5 +78,14 @@ service cloud.firestore {
       allow read:  if signedIn() && request.auth.uid == uid;
       allow write: if false; // maintained by the Admin SDK
     }
+
+    // Daily social post bundles — server (Admin SDK) only; admin UI uses Cloud Functions API.
+    match /socialPosts/{postId} {
+      allow read, write: if false;
+    }
+
+    match /socialConfig/{docId} {
+      allow read, write: if false;
+    }
   }
 }

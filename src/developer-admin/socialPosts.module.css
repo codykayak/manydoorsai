@@ -1,0 +1,256 @@
+.socialWrap {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.socialHeader {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.socialActions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.statusBadge {
+  display: inline-block;
+  padding: 3px 10px;
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.statusPending {
+  background: rgba(245, 166, 35, 0.15);
+  color: #f5a623;
+}
+
+.statusApproved {
+  background: rgba(58, 181, 176, 0.15);
+  color: #3ab5b0;
+}
+
+.statusPosted {
+  background: rgba(72, 187, 120, 0.15);
+  color: #48bb78;
+}
+
+.statusRejected {
+  background: rgba(245, 101, 101, 0.15);
+  color: #f56565;
+}
+
+.postCard {
+  border-radius: 12px;
+  border: 1px solid #1e2a3a;
+  background: #0f1419;
+  overflow: hidden;
+}
+
+.postCardHead {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 16px 18px;
+  border-bottom: 1px solid #1e2a3a;
+  background: #141a22;
+}
+
+.postDate {
+  font-size: 18px;
+  font-weight: 700;
+  color: #f0f3f7;
+}
+
+.postTopic {
+  font-size: 13px;
+  color: #9aa5b5;
+  margin-top: 4px;
+}
+
+.articleLink {
+  font-size: 12px;
+  color: var(--pm-accent, #3ab5b0);
+  text-decoration: none;
+  display: inline-block;
+  margin-top: 6px;
+}
+
+.articleLink:hover {
+  text-decoration: underline;
+}
+
+.platformTabs {
+  display: flex;
+  gap: 4px;
+  padding: 12px 18px 0;
+  border-bottom: 1px solid #1e2a3a;
+}
+
+.platformTab {
+  padding: 8px 14px;
+  border: none;
+  border-radius: 8px 8px 0 0;
+  background: transparent;
+  color: #9aa5b5;
+  font-size: 13px;
+  cursor: pointer;
+}
+
+.platformTabActive {
+  padding: 8px 14px;
+  border: none;
+  border-radius: 8px 8px 0 0;
+  background: #1a222d;
+  color: #f0f3f7;
+  font-size: 13px;
+  cursor: pointer;
+  border-bottom: 2px solid var(--pm-accent, #3ab5b0);
+}
+
+.postBody {
+  display: grid;
+  grid-template-columns: 280px 1fr;
+  gap: 20px;
+  padding: 18px;
+}
+
+@media (max-width: 800px) {
+  .postBody {
+    grid-template-columns: 1fr;
+  }
+}
+
+.imagePreview {
+  border-radius: 10px;
+  overflow: hidden;
+  border: 1px solid #2d3748;
+  background: #1a222d;
+  aspect-ratio: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.imagePreview img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.imagePlaceholder {
+  color: #6b7785;
+  font-size: 13px;
+  padding: 20px;
+  text-align: center;
+}
+
+.captionArea {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.captionLabel {
+  font-size: 12px;
+  color: #8b97a7;
+  font-weight: 600;
+}
+
+.captionTextarea {
+  width: 100%;
+  min-height: 200px;
+  padding: 12px;
+  border-radius: 8px;
+  border: 1px solid #2d3748;
+  background: #1a222d;
+  color: #e6edf3;
+  font-size: 14px;
+  line-height: 1.55;
+  resize: vertical;
+  font-family: inherit;
+}
+
+.charCount {
+  font-size: 11px;
+  color: #6b7785;
+  text-align: right;
+}
+
+.postFooter {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  padding: 0 18px 18px;
+}
+
+.settingsCard {
+  padding: 18px;
+  border-radius: 12px;
+  border: 1px solid #1e2a3a;
+  background: #0f1419;
+}
+
+.settingsGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 14px;
+  margin-top: 12px;
+}
+
+.emptyState {
+  padding: 40px 20px;
+  text-align: center;
+  color: #9aa5b5;
+  border-radius: 12px;
+  border: 1px dashed #2d3748;
+}
+
+.spinner {
+  display: inline-block;
+  width: 16px;
+  height: 16px;
+  border: 2px solid #2d3748;
+  border-top-color: var(--pm-accent, #3ab5b0);
+  border-radius: 50%;
+  animation: spin 0.7s linear infinite;
+  vertical-align: middle;
+  margin-right: 6px;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+.errorBanner {
+  padding: 12px 14px;
+  border-radius: 8px;
+  background: rgba(245, 101, 101, 0.1);
+  border: 1px solid rgba(245, 101, 101, 0.35);
+  color: #feb2b2;
+  font-size: 13px;
+}
+
+.setupNote {
+  font-size: 12px;
+  color: #6b7785;
+  line-height: 1.5;
+  margin-top: 10px;
+}
+
+.setupNote code {
+  background: #1a222d;
+  padding: 2px 5px;
+  border-radius: 4px;
+  font-size: 11px;
+}

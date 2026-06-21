@@ -77,6 +77,11 @@ jobs:
         working-directory: functions
         env:
           GEMINI_API_KEY: ci-smoke-test
+          SOCIAL_ADMIN_API_KEY: ci-smoke-test
+          TWILIO_ACCOUNT_SID: ci-smoke-test
+          TWILIO_AUTH_TOKEN: ci-smoke-test
+          TWILIO_FROM_NUMBER: '+10000000000'
+          SOCIAL_NOTIFY_PHONE: '+15413212630'
         run: node -e "import('./index.js').then(() => console.log('functions index ok'))"
 
       - name: Deploy functions and Firestore rules (service account)

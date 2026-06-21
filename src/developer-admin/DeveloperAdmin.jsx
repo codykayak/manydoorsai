@@ -1,4 +1,4 @@
-import { useState, useMemo, useCallback, lazy, Suspense } from 'react';
+import { useState, useMemo, useCallback, lazy, Suspense, useEffect } from 'react';
 import { usePm } from '../context/PmContext';
 import Page from '../components/Page';
 import Icon from '../components/Icon';
@@ -21,8 +21,10 @@ import {
 } from './triagePlayground';
 import APP_CONFIG from '../config/appConfig';
 const PitchPage = lazy(() => import('./PitchPage'));
+const SocialPostsPanel = lazy(() => import('./SocialPostsPanel'));
 
 const TABS = [
+  { id: 'social', label: 'Social posts' },
   { id: 'pitch', label: 'Enterprise pitch' },
   { id: 'docs', label: 'Knowledge base' },
   { id: 'assistant', label: 'AI assistant' },
@@ -41,7 +43,13 @@ const SUGGESTED_QUESTIONS = [
 
 export default function DeveloperAdmin() {
   const { config, featureMap, integrations, workOrders } = usePm();
-  const [tab, setTab] = useState('docs');
+  const [tab, setTab] = useState(() => {
+    if (typeof window !== 'undefined') {
+      const params = new URLSearchParams(window.location.search);
+      if (params.get('tab') === 'social') return 'social';
+    }
+    return 'docs';
+  });
   const [articleId, setArticleId] = useState(KNOWLEDGE_ARTICLES[0]?.id || '00-overview');
   const [chat, setChat] = useState([]);
   const [question, setQuestion] = useState('');
@@ -130,6 +138,14 @@ ${(article?.body ?? '').slice(0, 4000)}
 
   const triageResult = triageWithOverrides(triageText, featureMap.maintenance?.config || {});
 
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    const url = new URL(window.location.href);
+    if (tab === 'social') url.searchParams.set('tab', 'social');
+    else url.searchParams.delete('tab');
+    window.history.replaceState({}, '', url.pathname + url.search);
+  }, [tab]);
+
   return (
     <Page
       title="Developer Admin"
@@ -157,6 +173,12 @@ ${(article?.body ?? '').slice(0, 4000)}
             </button>
           ))}
         </div>
+
+        {tab === 'social' && (
+          <Suspense fallback={<div className={styles.hint}>Loading social posts…</div>}>
+            <SocialPostsPanel />
+          </Suspense>
+        )}
 
         {tab === 'pitch' && (
           <Suspense fallback={<div className={styles.hint}>Loading enterprise pitch…</div>}>

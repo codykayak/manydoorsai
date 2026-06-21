@@ -86,7 +86,7 @@ jobs:
 
       - name: Deploy functions and Firestore rules (service account)
         if: steps.creds.outputs.method == 'sa'
-        run: firebase deploy --only functions,firestore:rules --project property-managment-a5ed3 --non-interactive
+        run: firebase deploy --only functions,firestore:rules,firestore:indexes --project property-managment-a5ed3 --non-interactive
 
       - name: Deploy functions and Firestore rules (CI token)
         if: steps.creds.outputs.method == 'token'
@@ -99,4 +99,4 @@ jobs:
           else
             export FIREBASE_TOKEN="$FIREBASE_TOKEN_LEGACY"
           fi
-          firebase deploy --only functions,firestore:rules --project property-managment-a5ed3 --non-interactive
+          firebase deploy --only functions,firestore:rules,firestore:indexes --project property-managment-a5ed3 --non-interactive

@@ -7,6 +7,12 @@ const DEFAULT_URL =
 
 const STORAGE_KEY = 'pm:social:adminKey';
 
+export const PLATFORMS = [
+  { id: 'facebook', label: 'Facebook', aspect: 'landscape', charLimit: 63206 },
+  { id: 'instagram', label: 'Instagram', aspect: 'portrait', charLimit: 2200 },
+  { id: 'x', label: 'X', aspect: 'landscape', charLimit: 280 },
+];
+
 export function getSocialApiUrl() {
   return (import.meta.env.VITE_PM_SOCIAL_API_URL || DEFAULT_URL).replace(/\/$/, '');
 }
@@ -83,13 +89,47 @@ export function updateSocialConfig(config) {
   return request('POST', { action: 'updateConfig', body: config });
 }
 
+export function resendSocialNotify(postId) {
+  return request('POST', { action: 'resendNotify', body: { postId } });
+}
+
+export function sendTestSms(phone) {
+  return request('POST', { action: 'testSms', body: { phone } });
+}
+
 export function copyPostBundle(post, platform) {
   const p = post[platform];
   if (!p) return '';
   const lines = [p.caption];
   if (p.link && !p.caption?.includes(p.link)) lines.push('', p.link);
   if (platform === 'instagram' && p.hashtags?.length) {
-    lines.push('', p.hashtags.join(' '));
+    const tagLine = p.hashtags.join(' ');
+    if (!p.caption?.includes(tagLine)) lines.push('', tagLine);
   }
-  return lines.join('\n');
+  return lines.join('\n').trim();
+}
+
+export function copyAllPlatforms(post) {
+  return PLATFORMS.map((pl) => {
+    const text = copyPostBundle(post, pl.id);
+    return `=== ${pl.label.toUpperCase()} ===\n${text}`;
+  }).join('\n\n');
+}
+
+export function todayKey() {
+  return new Date().toISOString().slice(0, 10);
+}
+
+export function formatPostDate(dateStr) {
+  try {
+    const d = new Date(`${dateStr}T12:00:00`);
+    return d.toLocaleDateString('en-US', {
+      weekday: 'long',
+      month: 'long',
+      day: 'numeric',
+      year: 'numeric',
+    });
+  } catch {
+    return dateStr;
+  }
 }

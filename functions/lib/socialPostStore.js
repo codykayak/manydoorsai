@@ -1,9 +1,11 @@
-import { getFirestore, Timestamp } from 'firebase-admin/firestore';
+import { createHash, timingSafeEqual } from 'crypto';
+import { getFirestore, Timestamp, FieldValue } from 'firebase-admin/firestore';
 import { getStorage } from 'firebase-admin/storage';
 
 const DB_ID = process.env.FIRESTORE_DATABASE_ID || 'property-managment';
 const POSTS_COLLECTION = 'socialPosts';
 const CONFIG_DOC = 'socialConfig/settings';
+const LOCK_TTL_MS = 12 * 60 * 1000;
 
 function db() {
   return getFirestore(DB_ID);
@@ -56,6 +58,59 @@ export async function savePost(postId, data) {
   return { id: snap.id, ...snap.data() };
 }
 
+/** Merge caption edits without wiping imageUrl / link / hashtags. */
+export async function patchPostCaptions(postId, updates) {
+  const ref = db().collection(POSTS_COLLECTION).doc(postId);
+  const snap = await ref.get();
+  if (!snap.exists) throw new Error(`Post ${postId} not found.`);
+
+  const existing = snap.data();
+  const patch = { updatedAt: Timestamp.now() };
+
+  for (const platform of ['facebook', 'instagram', 'x']) {
+    if (updates[platform]?.caption !== undefined) {
+      patch[platform] = {
+        ...(existing[platform] || {}),
+        caption: String(updates[platform].caption).slice(0, 8000),
+      };
+    }
+  }
+
+  await ref.set(patch, { merge: true });
+  const updated = await ref.get();
+  return { id: updated.id, ...updated.data() };
+}
+
+/**
+ * Prevent duplicate concurrent generation for the same day.
+ * @returns {{ acquired: boolean, reason?: string, post?: object }}
+ */
+export async function acquireGenerationLock(dateKey) {
+  const ref = db().collection(POSTS_COLLECTION).doc(dateKey);
+  const snap = await ref.get();
+  const existing = snap.exists ? snap.data() : null;
+
+  if (existing?.status === 'generating') {
+    const started = existing.generationStartedAt?.toDate?.() || new Date(0);
+    const age = Date.now() - started.getTime();
+    if (age < LOCK_TTL_MS) {
+      return { acquired: false, reason: 'in_progress', post: { id: dateKey, ...existing } };
+    }
+  }
+
+  await ref.set(
+    {
+      date: dateKey,
+      status: 'generating',
+      generationStartedAt: Timestamp.now(),
+      updatedAt: Timestamp.now(),
+    },
+    { merge: true },
+  );
+
+  return { acquired: true, post: existing };
+}
+
 export async function uploadSocialImage(postId, platform, buffer, contentType = 'image/png') {
   const bucket = getStorage().bucket();
   const path = `social-posts/${postId}/${platform}.png`;
@@ -70,7 +125,7 @@ export async function uploadSocialImage(postId, platform, buffer, contentType = 
     console.warn('[socialPostStore] makePublic failed, using signed URL', e.message);
     const [signedUrl] = await file.getSignedUrl({
       action: 'read',
-      expires: Date.now() + 7 * 24 * 60 * 60 * 1000,
+      expires: Date.now() + 30 * 24 * 60 * 60 * 1000,
     });
     return signedUrl;
   }
@@ -80,8 +135,23 @@ export async function uploadSocialImage(postId, platform, buffer, contentType = 
 export function serializePost(post) {
   if (!post) return null;
   const out = { ...post };
-  for (const key of ['createdAt', 'updatedAt', 'approvedAt', 'postedAt', 'notifiedAt']) {
+  for (const key of [
+    'createdAt',
+    'updatedAt',
+    'approvedAt',
+    'postedAt',
+    'notifiedAt',
+    'generationStartedAt',
+    'failedAt',
+  ]) {
     if (out[key]?.toDate) out[key] = out[key].toDate().toISOString();
   }
   return out;
+}
+
+export function safeCompareKeys(provided, expected) {
+  if (!provided || !expected) return false;
+  const a = createHash('sha256').update(String(provided)).digest();
+  const b = createHash('sha256').update(String(expected)).digest();
+  return timingSafeEqual(a, b);
 }

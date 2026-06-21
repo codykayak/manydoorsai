@@ -10,7 +10,7 @@ function normalizePhone(phone) {
   return `+${digits}`;
 }
 
-async function sendTwilioSms(to, body) {
+export async function sendTwilioSms(to, body) {
   const sid = process.env.TWILIO_ACCOUNT_SID;
   const token = process.env.TWILIO_AUTH_TOKEN;
   const from = process.env.TWILIO_FROM_NUMBER;
@@ -40,27 +40,31 @@ async function sendTwilioSms(to, body) {
 }
 
 /**
- * @param {{ topic: { title: string }, sourceArticle?: { title: string }, adminBaseUrl: string }} post
+ * @param {{ date?: string, topic?: { title: string }, sourceArticle?: { title: string }, adminBaseUrl: string }} post
  * @param {string} phone
  */
 export async function notifyPostReady(post, phone) {
   const topic = post.topic?.title || 'Social post';
-  const headline = post.sourceArticle?.title
-    ? post.sourceArticle.title.slice(0, 60)
-    : topic;
-  const adminUrl = post.adminBaseUrl || 'https://www.manydoorsai.com/developer-admin';
+  const date = post.date || new Date().toISOString().slice(0, 10);
+  const adminUrl = `${post.adminBaseUrl || 'https://www.manydoorsai.com/developer-admin'}?tab=social`;
 
   const body = [
-    `ManyDoors AI — today's social posts are ready 📱`,
-    ``,
-    `Topic: ${topic}`,
-    `Angle: ${headline}${headline.length >= 60 ? '…' : ''}`,
-    ``,
-    `Review & approve:`,
-    `${adminUrl}?tab=social`,
-    ``,
-    `FB · IG · X captions + images bundled.`,
+    `ManyDoors AI — ${date} posts ready`,
+    topic,
+    '',
+    adminUrl,
+    '',
+    'FB · IG · X ready to review',
   ].join('\n');
 
+  return sendTwilioSms(phone, body);
+}
+
+export async function sendTestSms(phone) {
+  const body = [
+    'ManyDoors AI social factory — test OK',
+    'You will get a text like this every morning when posts are ready.',
+    'https://www.manydoorsai.com/developer-admin?tab=social',
+  ].join('\n');
   return sendTwilioSms(phone, body);
 }

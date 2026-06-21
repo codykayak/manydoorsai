@@ -75,11 +75,22 @@ Images: `social-posts/{date}/{facebook|instagram|x}.png` in bucket `property-man
 
 ## Workflow
 
-1. **7 AM** — scheduler runs, SMS hits your phone
-2. Open admin panel from the link in the text
-3. Preview images + captions for each platform
-4. Edit captions if needed → **Approve** → **Copy caption** → paste into FB/IG/X
-5. **Mark as posted** when done
+1. **7 AM PT** — scheduler runs, SMS hits your phone with a link to `?tab=social`
+2. Open admin panel — stats bar shows today's status
+3. Preview images + captions per platform (FB 16:9, IG 4:5, X 16:9)
+4. **Copy caption** or **Copy all** → paste into FB/IG/X
+5. **Download image** if needed for native upload
+6. **Approve** → **Mark as posted** when live
+
+### Admin API actions
+
+| Action | Purpose |
+|--------|---------|
+| `generate` | Create today's bundle (`force: true` to overwrite) |
+| `approve` / `reject` / `markPosted` | Workflow status |
+| `update` | Edit captions (merges safely — won't wipe images) |
+| `resendNotify` | Resend SMS for a post |
+| `testSms` | Send test text to verify Twilio |
 
 Phase 2 (not built yet): direct Meta Graph API auto-posting.
 

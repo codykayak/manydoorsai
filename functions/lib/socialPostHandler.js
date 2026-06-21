@@ -1,12 +1,17 @@
 import { Timestamp } from 'firebase-admin/firestore';
-import { generateDailySocialPost } from './socialPostGenerator.js';
+import { generateDailySocialPost, resendPostNotification } from './socialPostGenerator.js';
+import { sendTestSms } from './socialPostNotify.js';
 import {
   getConfig,
+  getPostByDate,
   listPosts,
+  patchPostCaptions,
   saveConfig,
   savePost,
+  safeCompareKeys,
   serializePost,
 } from './socialPostStore.js';
+import { todayDateKey } from './socialPostTopics.js';
 
 const ALLOWED_ORIGINS = [
   'https://www.macrorei.com',
@@ -41,10 +46,28 @@ function checkAdminKey(req) {
     return { ok: false, error: 'SOCIAL_ADMIN_API_KEY is not configured on the server.' };
   }
   const provided = req.get('X-Social-Admin-Key') || req.get('x-social-admin-key') || '';
-  if (provided !== expected) {
+  if (!safeCompareKeys(provided, expected)) {
     return { ok: false, error: 'Invalid admin API key.' };
   }
   return { ok: true };
+}
+
+function computeStats(posts) {
+  const today = todayDateKey();
+  const counts = { pending: 0, approved: 0, posted: 0, failed: 0, generating: 0 };
+  let todayPost = null;
+
+  for (const p of posts) {
+    const status = p.status || 'pending_review';
+    if (status === 'pending_review') counts.pending += 1;
+    else if (status === 'approved') counts.approved += 1;
+    else if (status === 'posted') counts.posted += 1;
+    else if (status === 'failed') counts.failed += 1;
+    else if (status === 'generating') counts.generating += 1;
+    if (p.date === today || p.id === today) todayPost = p;
+  }
+
+  return { counts, today, todayPost: todayPost ? serializePost(todayPost) : null };
 }
 
 export async function handleSocialPosts(req, res) {
@@ -68,13 +91,27 @@ export async function handleSocialPosts(req, res) {
       if (action === 'list') {
         const limit = Math.min(Number(req.query?.limit) || 30, 100);
         const posts = await listPosts(limit);
-        res.status(200).json({ posts: posts.map(serializePost) });
+        const serialized = posts.map(serializePost);
+        res.status(200).json({
+          posts: serialized,
+          stats: computeStats(posts),
+        });
         return;
       }
 
       if (action === 'config') {
         const config = await getConfig();
         res.status(200).json({ config });
+        return;
+      }
+
+      if (action === 'get' && req.query?.postId) {
+        const post = await getPostByDate(req.query.postId);
+        if (!post) {
+          res.status(404).json({ error: 'Post not found.' });
+          return;
+        }
+        res.status(200).json({ post: serializePost(post) });
         return;
       }
 
@@ -127,14 +164,22 @@ export async function handleSocialPosts(req, res) {
     }
 
     if (action === 'update' && postId && updates) {
-      const allowed = {};
-      for (const platform of ['facebook', 'instagram', 'x']) {
-        if (updates[platform]?.caption !== undefined) {
-          allowed[platform] = { caption: String(updates[platform].caption).slice(0, 8000) };
-        }
-      }
-      const post = await savePost(postId, allowed);
+      const post = await patchPostCaptions(postId, updates);
       res.status(200).json({ post: serializePost(post) });
+      return;
+    }
+
+    if (action === 'resendNotify' && postId) {
+      const post = await resendPostNotification(postId);
+      res.status(200).json({ post: serializePost(post) });
+      return;
+    }
+
+    if (action === 'testSms') {
+      const config = await getConfig();
+      const phone = req.body?.phone || config.notifyPhone;
+      const result = await sendTestSms(phone);
+      res.status(200).json({ ok: true, result });
       return;
     }
 

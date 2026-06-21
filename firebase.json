@@ -26,6 +26,7 @@
   },
   "firestore": {
     "rules": "firestore.rules",
+    "indexes": "firestore.indexes.json",
     "database": "property-managment"
   },
   "functions": [

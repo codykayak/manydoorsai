@@ -29,17 +29,15 @@ jobs:
           fi
 
       - uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
 
       - uses: actions/setup-node@v4
         with:
           node-version: '20'
 
-      - name: Build export zip
+      - name: Verify export zip
         run: |
-          chmod +x scripts/build-social-post-export.sh
-          ./scripts/build-social-post-export.sh downloads/social-post-factory.zip
+          test -f downloads/social-post-factory.zip
+          ls -lh downloads/social-post-factory.zip
 
       - id: auth
         if: steps.creds.outputs.method == 'sa'

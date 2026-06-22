@@ -1,0 +1,66 @@
+name: Upload social-post-factory export
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - 'scripts/build-social-post-export.sh'
+      - 'scripts/upload-social-post-export.mjs'
+      - '.github/workflows/upload-social-post-export.yml'
+
+jobs:
+  upload:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Resolve Firebase credentials
+        id: creds
+        env:
+          FIREBASE_MANNYDOORS: ${{ secrets.FIREBASEMANNYDOORS }}
+        run: |
+          is_sa_json() {
+            printf '%s' "${1:-}" | python3 -c "import json,sys; d=json.load(sys.stdin); exit(0 if d.get('type')=='service_account' else 1)" 2>/dev/null
+          }
+          if is_sa_json "$FIREBASE_MANNYDOORS"; then
+            echo "method=sa" >> "$GITHUB_OUTPUT"
+          else
+            echo "method=none" >> "$GITHUB_OUTPUT"
+            echo "::warning::FIREBASEMANNYDOORS service-account JSON required for Storage upload."
+          fi
+
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Build export zip
+        run: |
+          chmod +x scripts/build-social-post-export.sh
+          ./scripts/build-social-post-export.sh downloads/social-post-factory.zip
+
+      - id: auth
+        if: steps.creds.outputs.method == 'sa'
+        uses: google-github-actions/auth@v2
+        with:
+          credentials_json: ${{ secrets.FIREBASEMANNYDOORS }}
+
+      - name: Install firebase-admin
+        if: steps.creds.outputs.method == 'sa'
+        run: npm install firebase-admin@13
+
+      - name: Upload to Firebase Storage + Firestore
+        if: steps.creds.outputs.method == 'sa'
+        env:
+          FIREBASE_STORAGE_BUCKET: property-managment-a5ed3.firebasestorage.app
+          FIRESTORE_DATABASE_ID: property-managment
+        run: node scripts/upload-social-post-export.mjs downloads/social-post-factory.zip
+
+      - name: Upload zip as GitHub artifact (fallback)
+        uses: actions/upload-artifact@v4
+        with:
+          name: social-post-factory
+          path: downloads/social-post-factory.zip
+          retention-days: 30

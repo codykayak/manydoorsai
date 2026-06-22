@@ -1,0 +1,23 @@
+[
+  {
+    "slug": "product",
+    "title": "Product update",
+    "angle": "highlighting your latest product or feature news",
+    "siteLink": "https://example.com",
+    "searchQueries": ["industry news this week", "technology trends"]
+  },
+  {
+    "slug": "tips",
+    "title": "Tips & how-to",
+    "angle": "actionable advice for your audience",
+    "siteLink": "https://example.com/blog",
+    "searchQueries": ["best practices", "how to improve workflow"]
+  },
+  {
+    "slug": "industry",
+    "title": "Industry news",
+    "angle": "commentary on relevant industry headlines",
+    "siteLink": "https://example.com",
+    "searchQueries": ["industry news today", "market trends"]
+  }
+]

@@ -1,0 +1,2 @@
+AiBhive social post factory — customize this file with your brand, product, and audience context.
+The AI uses this text when writing captions. Replace with your real site copy, FAQs, and value props.

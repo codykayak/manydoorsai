@@ -1,0 +1,12 @@
+{
+  "name": "AiBhive",
+  "siteUrl": "https://example.com",
+  "adminBaseUrl": "http://localhost:5174",
+  "colors": {
+    "primary": "navy blue (#0d1b2a)",
+    "accent": "teal (#00d2d3)",
+    "highlight": "violet (#8b5cf6)"
+  },
+  "voice": "Professional, confident, helpful. Not salesy. U.S. English.",
+  "imageStyle": "Modern social marketing graphic. Clean corporate design. No fake logos, no copyrighted brand names, no celebrity faces. Subtle gradient background."
+}

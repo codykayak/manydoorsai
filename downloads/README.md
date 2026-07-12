@@ -36,3 +36,30 @@ unzip social-post-factory.zip -d /path/to/AiBhive/
 ```
 
 See `social-post-factory/README.md` inside the zip for Firebase secrets and admin UI setup.
+
+---
+
+# Communal Library expansion — download
+
+90 public-domain seed plates (10 categories × 10 items) for **AiBhive Research Lab** [Communal Library](https://aibhive.com/research-lab/communal-library).
+
+Categories: hieroglyphics, cuneiform, mud flood, tartarian, orphan trains, legal research, homeopathic cures, mycology, quantum physics.
+
+## Download
+
+Raw zip from this repo:
+
+https://github.com/codykayak/manydoorsai/raw/main/downloads/communal-library.zip
+
+Or build locally:
+
+```bash
+./scripts/build-communal-library-export.sh
+```
+
+## Install into AiBhive
+
+```bash
+unzip communal-library.zip -d /path/to/AiBhive/
+# Follow AiBhive/communal-library/README.md — copy images + merge seed data, then redeploy.
+```

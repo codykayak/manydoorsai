@@ -20,12 +20,24 @@ fi
 
 html="$(curl -fsSL "$SITE/")"
 bundle="$(echo "$html" | grep -oE 'assets/index-[^"]+\.js' | head -1)"
+css="$(echo "$html" | grep -oE 'assets/index-[^"]+\.css' | head -1)"
 if [ -z "$bundle" ]; then
   echo "FAIL could not find index bundle in HTML"
   exit 1
 fi
 
 echo "Bundle: $bundle"
+if [ -n "$css" ]; then
+  echo "CSS: $css"
+  css_body="$(curl -fsSL "$SITE/$css")"
+  if echo "$css_body" | grep -qE 'html,body,#root|html,body'; then
+    echo "OK  CSS includes full-bleed html/body reset"
+  else
+    echo "FAIL CSS missing html/body/#root reset (white page border risk)"
+    fail=1
+  fi
+fi
+
 js="$(curl -fsSL "$SITE/$bundle")"
 if echo "$js" | grep -q "Multifamily community"; then
   echo "FAIL bundle still has old illustrative image markup"

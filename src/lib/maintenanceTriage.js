@@ -59,9 +59,11 @@ export function triageRequest(text, config = {}) {
     priority,
     isEmergency,
     selfHelp,
+    onCallTech: onCall?.name || null,
+    onCallTechId: onCall?.id || null,
     recommendedStatus: isEmergency ? 'dispatched' : selfHelp ? 'self-help-sent' : 'open',
     routing: isEmergency
-      ? 'Escalate now: on-call emergency maintenance + notify property manager.'
+      ? `Escalate now: SMS on-call ${onCall?.name || 'tech'} + PMS work-order write-back.`
       : `Route to ${category} queue (${priority} priority).`,
   };
 }

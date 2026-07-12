@@ -13,9 +13,12 @@ export default function OnboardingWizard({ open, onClose, onComplete, defaultTec
   const [propertyName, setPropertyName] = useState('');
   const [propertyUnits, setPropertyUnits] = useState('');
   const [spreadsheetName, setSpreadsheetName] = useState('');
+  const [spreadsheetFile, setSpreadsheetFile] = useState(null);
+  const [importError, setImportError] = useState('');
   const [techInput, setTechInput] = useState('');
   const [technicians, setTechnicians] = useState(defaultTechnicians || []);
   const [onCallTechId, setOnCallTechId] = useState(defaultTechnicians?.[0]?.id || '');
+  const [saving, setSaving] = useState(false);
 
   if (!open) return null;
 
@@ -38,24 +41,30 @@ export default function OnboardingWizard({ open, onClose, onComplete, defaultTec
     if (onCallTechId === id) setOnCallTechId(next[0]?.id || '');
   }
 
-  function finish() {
-    onComplete({
-      companyName: companyName.trim() || 'My Portfolio',
-      contactName: contactName.trim(),
-      phone: phone.trim(),
-      email: email.trim(),
-      spreadsheetName: spreadsheetName.trim(),
-      properties: propertyName.trim()
-        ? [{ name: propertyName.trim(), units: Number(propertyUnits) || 0 }]
-        : [],
-      technicians,
-      onCallTechId: onCallTechId || technicians[0]?.id || null,
-    });
-    onClose();
+  async function finish() {
+    setSaving(true);
+    try {
+      await onComplete({
+        companyName: companyName.trim() || 'My Portfolio',
+        contactName: contactName.trim(),
+        phone: phone.trim(),
+        email: email.trim(),
+        spreadsheetName: spreadsheetName.trim(),
+        spreadsheetFile,
+        properties: propertyName.trim()
+          ? [{ name: propertyName.trim(), units: Number(propertyUnits) || 0 }]
+          : [],
+        technicians,
+        onCallTechId: onCallTechId || technicians[0]?.id || null,
+      });
+      onClose();
+    } finally {
+      setSaving(false);
+    }
   }
 
   return (
-    <div className={styles.overlay} role="dialog" aria-modal="true" aria-label="Onboarding">
+    <div className={styles.modalOverlay} role="dialog" aria-modal="true" aria-label="Onboarding">
       <div className={styles.modal} style={{ maxWidth: 560 }}>
         <div className={styles.modalHead}>
           <div>
@@ -77,11 +86,11 @@ export default function OnboardingWizard({ open, onClose, onComplete, defaultTec
               </li>
               <li>
                 <strong>Emergency forwarding</strong> — When a request mentions gas, fire, flooding, no heat, etc.,
-                calls are forwarded to the tech you select as <strong>On-call tech</strong>, labeled <strong>EMERGENCY</strong>.
+                SMS + PMS write-back receipts fire for the tech you select as <strong>On-call</strong>.
               </li>
               <li>
-                <strong>Sample data</strong> — Upload a spreadsheet or enter a property name so the dashboard reflects
-                your portfolio during the demo.
+                <strong>Your data</strong> — Add a property or upload a resident spreadsheet so the dashboard reflects
+                your portfolio. Data saves in this browser and can sync to the cloud from Settings.
               </li>
             </ul>
             <button type="button" className={`${styles.btn} ${styles.btnPrimary}`} onClick={() => setStep(1)}>
@@ -120,7 +129,7 @@ export default function OnboardingWizard({ open, onClose, onComplete, defaultTec
         {stepId === 'data' && (
           <>
             <p className={styles.hint} style={{ marginBottom: 12 }}>
-              Add a sample property or upload a resident/unit spreadsheet (.csv, .xlsx). Data stays in this browser until you connect Firebase.
+              Add a sample property or upload a resident/unit spreadsheet (.csv, .xlsx). Import replaces the demo resident roster.
             </p>
             <div className={`${styles.grid} ${styles.cols2}`}>
               <div className={styles.field}>
@@ -138,9 +147,15 @@ export default function OnboardingWizard({ open, onClose, onComplete, defaultTec
                 className={styles.input}
                 type="file"
                 accept=".csv,.xlsx,.xls,.xlsm"
-                onChange={(e) => setSpreadsheetName(e.target.files?.[0]?.name || '')}
+                onChange={(e) => {
+                  const file = e.target.files?.[0] || null;
+                  setSpreadsheetFile(file);
+                  setSpreadsheetName(file?.name || '');
+                  setImportError('');
+                }}
               />
-              {spreadsheetName && <p className={styles.hint} style={{ marginTop: 6 }}>Selected: {spreadsheetName}</p>}
+              {spreadsheetName && <p className={styles.hint} style={{ marginTop: 6 }}>Selected: {spreadsheetName} — will import on finish</p>}
+              {importError && <p className={styles.hint} style={{ marginTop: 6, color: 'var(--pm-red)' }}>{importError}</p>}
             </div>
             <div className={styles.rowWrap} style={{ marginTop: 16 }}>
               <button type="button" className={`${styles.btn} ${styles.btnPrimary}`} onClick={() => setStep(3)}>Next →</button>
@@ -152,8 +167,8 @@ export default function OnboardingWizard({ open, onClose, onComplete, defaultTec
         {stepId === 'maintenance' && (
           <>
             <p className={styles.hint} style={{ marginBottom: 12 }}>
-              Add maintenance technicians, then choose who is <strong>on call</strong>. Emergency maintenance calls
-              will be forwarded to that person and labeled <strong>EMERGENCY</strong>.
+              Add maintenance technicians, then choose who is <strong>on call</strong>. Emergency maintenance triggers
+              SMS + PMS write-back action receipts for that person.
             </p>
             <div className={styles.rowWrap} style={{ marginBottom: 12 }}>
               <input
@@ -195,8 +210,7 @@ export default function OnboardingWizard({ open, onClose, onComplete, defaultTec
               <div className={`${styles.banner} ${styles.bannerRed}`} style={{ marginTop: 12 }}>
                 <Icon name="alert" size={16} style={{ marginTop: 1 }} />
                 <div>
-                  Emergency calls will be forwarded to <strong>{onCall.name}</strong> and labeled{' '}
-                  <strong>EMERGENCY</strong> for immediate dispatch.
+                  Emergency calls will notify <strong>{onCall.name}</strong> and open a PMS work order with an audit receipt.
                 </div>
               </div>
             )}
@@ -213,11 +227,11 @@ export default function OnboardingWizard({ open, onClose, onComplete, defaultTec
           <>
             <div className={styles.onboardDoneIcon}>✓</div>
             <p style={{ fontSize: 15, lineHeight: 1.5, marginBottom: 16 }}>
-              <strong>{companyName || 'Your portfolio'}</strong> is ready. Explore the dashboard, try maintenance
-              triage with an emergency phrase, and connect integrations in Settings when you are ready.
+              <strong>{companyName || 'Your portfolio'}</strong> is ready. Next we&apos;ll walk through a short guided
+              tour of the live demo — then you can switch between Property Manager and Owner views anytime.
             </p>
-            <button type="button" className={`${styles.btn} ${styles.btnPrimary}`} onClick={finish}>
-              Go to dashboard
+            <button type="button" className={`${styles.btn} ${styles.btnPrimary}`} onClick={finish} disabled={saving}>
+              {saving ? 'Saving…' : 'Save & start tour'}
             </button>
           </>
         )}

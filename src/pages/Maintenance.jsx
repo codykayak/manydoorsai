@@ -1,8 +1,9 @@
-import { useState } from 'react';
+import { Fragment, useState } from 'react';
 import { usePm } from '../context/PmContext';
 import Page from '../components/Page';
 import Icon from '../components/Icon';
 import { triageRequest } from '../lib/maintenanceTriage';
+import { formatReceiptTime } from '../lib/actionReceipts';
 import styles from '../pm.module.css';
 
 const PRIORITY_BADGE = {
@@ -18,6 +19,14 @@ const STATUS_LABEL = {
   closed: 'Closed',
 };
 
+const RECEIPT_STATUS = {
+  sent: styles.badgeGreen,
+  simulated: styles.badgeBlue,
+  queued: styles.badgeAmber,
+  failed: styles.badgeRed,
+  recorded: styles.badgeGray,
+};
+
 export default function Maintenance() {
   const { workOrders, upsertWorkOrder, residents, featureMap, setFeatureConfig } = usePm();
   const cfg = featureMap.maintenance?.config || {};
@@ -29,6 +38,7 @@ export default function Maintenance() {
   const [issue, setIssue] = useState('');
   const [preview, setPreview] = useState(null);
   const [newTechName, setNewTechName] = useState('');
+  const [expanded, setExpanded] = useState(null);
 
   function runTriage(text) {
     setIssue(text);
@@ -55,7 +65,7 @@ export default function Maintenance() {
     e.preventDefault();
     if (!issue.trim()) return;
     const t = triageRequest(issue, cfg);
-    upsertWorkOrder({
+    const saved = upsertWorkOrder({
       resident,
       unit,
       issue: issue.trim(),
@@ -68,6 +78,7 @@ export default function Maintenance() {
       createdAt: Date.now(),
     });
     setIssue(''); setPreview(null); setAdding(false);
+    if (saved?.id) setExpanded(saved.id);
   }
 
   function setStatus(wo, status) {
@@ -80,11 +91,11 @@ export default function Maintenance() {
       subtitle="Auto-classify, detect emergencies, deflect with self-help, and route to the on-call tech"
       actions={<button className={`${styles.btn} ${styles.btnPrimary}`} onClick={() => setAdding((v) => !v)}><Icon name="plus" size={15} /> New request</button>}
     >
-      <div className={styles.card} style={{ marginBottom: 18 }}>
+      <div className={styles.card} style={{ marginBottom: 18 }} data-tour="tour-maintenance">
         <div className={styles.cardTitle}>On-call maintenance</div>
         <p className={styles.hint} style={{ marginBottom: 12 }}>
-          Select who receives <strong>emergency</strong> calls. When AI detects gas, fire, flooding, no heat, or
-          similar issues, calls are forwarded to this technician labeled <strong>EMERGENCY</strong>.
+          Select who receives <strong>emergency</strong> alerts. Dispatched work orders attach SMS + PMS write-back
+          action receipts (live Twilio when cloud ops key is set in Settings).
         </p>
         <div className={`${styles.grid} ${styles.cols2}`}>
           <div className={styles.field}>
@@ -119,7 +130,7 @@ export default function Maintenance() {
           <div className={`${styles.banner} ${styles.bannerRed}`} style={{ marginTop: 12 }}>
             <Icon name="alert" size={16} style={{ marginTop: 1 }} />
             <div>
-              Emergency calls will be forwarded to <strong>{onCall.name}</strong>
+              Emergency calls will notify <strong>{onCall.name}</strong>
               {onCall.phone ? ` at ${onCall.phone}` : ''} — labeled <strong>EMERGENCY</strong>.
             </div>
           </div>
@@ -170,22 +181,54 @@ export default function Maintenance() {
           <tbody>
             {workOrders.length === 0 && <tr><td colSpan={6}><div className={styles.empty}>No work orders.</div></td></tr>}
             {workOrders.map((wo) => (
-              <tr key={wo.id}>
-                <td><strong>{wo.unit}</strong><div className={styles.itemSub}>{wo.resident}</div></td>
-                <td style={{ maxWidth: 300 }}>
-                  {wo.issue}
-                  {wo.onCallTech && <div className={styles.hint} style={{ marginTop: 4 }}>On-call: {wo.onCallTech}</div>}
-                  {wo.selfHelp && <div className={styles.hint} style={{ marginTop: 4 }}>Self-help sent to resident.</div>}
-                </td>
-                <td>{wo.category}</td>
-                <td><span className={`${styles.badge} ${PRIORITY_BADGE[wo.priority] || styles.badgeGray}`}>{wo.priority}</span></td>
-                <td><span className={`${styles.badge} ${wo.status === 'closed' ? styles.badgeGreen : styles.badgeGray}`}>{STATUS_LABEL[wo.status] || wo.status}</span></td>
-                <td>
-                  {wo.status !== 'closed'
-                    ? <button className={`${styles.btn} ${styles.btnSm}`} onClick={() => setStatus(wo, 'closed')}>Close</button>
-                    : <button className={`${styles.btn} ${styles.btnSm} ${styles.btnGhost}`} onClick={() => setStatus(wo, 'open')}>Reopen</button>}
-                </td>
-              </tr>
+              <Fragment key={wo.id}>
+                <tr>
+                  <td><strong>{wo.unit}</strong><div className={styles.itemSub}>{wo.resident}</div></td>
+                  <td style={{ maxWidth: 300 }}>
+                    {wo.issue}
+                    {wo.onCallTech && <div className={styles.hint} style={{ marginTop: 4 }}>On-call: {wo.onCallTech}</div>}
+                    {wo.selfHelp && <div className={styles.hint} style={{ marginTop: 4 }}>Self-help sent to resident.</div>}
+                    {(wo.receipts || []).length > 0 && (
+                      <button
+                        type="button"
+                        className={`${styles.btn} ${styles.btnSm} ${styles.btnGhost}`}
+                        style={{ marginTop: 6 }}
+                        onClick={() => setExpanded(expanded === wo.id ? null : wo.id)}
+                      >
+                        <Icon name="doc" size={12} /> {wo.receipts.length} receipt{wo.receipts.length > 1 ? 's' : ''}
+                      </button>
+                    )}
+                  </td>
+                  <td>{wo.category}</td>
+                  <td><span className={`${styles.badge} ${PRIORITY_BADGE[wo.priority] || styles.badgeGray}`}>{wo.priority}</span></td>
+                  <td><span className={`${styles.badge} ${wo.status === 'closed' ? styles.badgeGreen : styles.badgeGray}`}>{STATUS_LABEL[wo.status] || wo.status}</span></td>
+                  <td>
+                    {wo.status !== 'closed'
+                      ? <button className={`${styles.btn} ${styles.btnSm}`} onClick={() => setStatus(wo, 'closed')}>Close</button>
+                      : <button className={`${styles.btn} ${styles.btnSm} ${styles.btnGhost}`} onClick={() => setStatus(wo, 'open')}>Reopen</button>}
+                  </td>
+                </tr>
+                {expanded === wo.id && (wo.receipts || []).length > 0 && (
+                  <tr>
+                    <td colSpan={6}>
+                      <div className={styles.receiptPanel}>
+                        <div className={styles.cardTitle} style={{ marginBottom: 8 }}>Action receipts</div>
+                        {(wo.receipts || []).map((r) => (
+                          <div key={r.id} className={styles.receiptRow}>
+                            <span className={`${styles.badge} ${RECEIPT_STATUS[r.status] || styles.badgeGray}`}>{r.status}</span>
+                            <strong style={{ textTransform: 'uppercase', fontSize: 11 }}>{r.provider || r.channel}</strong>
+                            <span className={styles.hint}>{r.action?.replace(/_/g, ' ')}</span>
+                            <span style={{ flex: 1 }}>{r.detail}</span>
+                            {r.to && <span className={styles.hint}>→ {r.to}</span>}
+                            {r.externalId && <code className={styles.receiptId}>{r.externalId}</code>}
+                            <span className={styles.hint}>{formatReceiptTime(r.at)}</span>
+                          </div>
+                        ))}
+                      </div>
+                    </td>
+                  </tr>
+                )}
+              </Fragment>
             ))}
           </tbody>
         </table>
@@ -197,7 +240,7 @@ export default function Maintenance() {
           <div>
             Emergency detection is <strong>on</strong>: requests mentioning gas, fire, flooding, no-heat, sewage, or
             lockouts are flagged <span className={`${styles.badge} ${styles.badgeRed}`}>emergency</span> and routed to
-            the on-call tech.
+            the on-call tech with SMS + PMS receipts.
           </div>
         </div>
       )}

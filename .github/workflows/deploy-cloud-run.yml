@@ -42,21 +42,30 @@ jobs:
         if: steps.creds.outputs.present == 'true'
         run: |
           set -euo pipefail
+          SITE="https://www.manydoorsai.com"
+          RUN_URL="https://manydoorsai-886711655757.us-west1.run.app"
+          ok=0
           for i in 1 2 3 4 5 6; do
             sleep 20
-            if ! curl -fsI "https://www.manydoorsai.com/manydoors-ai-property-managment-automation.mp4" | grep -q "200"; then
-              echo "Pitch video not yet 200 (attempt $i/6)"
-              continue
+            site_lm="$(curl -fsI "$SITE/" | awk -F': ' 'tolower($1)=="last-modified" {print $2}' | tr -d '\r')"
+            run_lm="$(curl -fsI "$RUN_URL/" | awk -F': ' 'tolower($1)=="last-modified" {print $2}' | tr -d '\r')"
+            html="$(curl -fsSL "$SITE/")"
+            css="$(echo "$html" | grep -oE 'assets/index-[^"]+\.css' | head -1)"
+            if [ -n "$css" ]; then
+              css_body="$(curl -fsSL "$SITE/$css")"
+              if echo "$css_body" | grep -qE 'html,body,#root|html,body'; then
+                echo "OK  $SITE CSS includes full-bleed html/body reset"
+                ok=1
+                break
+              fi
             fi
-            html="$(curl -fsSL https://www.manydoorsai.com/)"
-            if echo "$html" | grep -q "Multifamily community"; then
-              echo "Live bundle still contains old pitch image alt text (attempt $i/6)"
-              continue
-            fi
-            echo "Deploy verified: pitch video and bundle look current."
-            exit 0
+            echo "Attempt $i/6: site Last-Modified=${site_lm:-unknown} run.app Last-Modified=${run_lm:-unknown}"
           done
-          echo "::warning title=Post-deploy check inconclusive::Cloud Run may still be rolling out. Run ./scripts/verify-live-deploy.sh"
+          if [ "$ok" != 1 ]; then
+            echo "::warning title=Custom domain may be stale::Deploy succeeded on Cloud Run but $SITE still lacks the html/body CSS reset. Check domain mapping and run: gcloud run services update-traffic manydoorsai --region us-west1 --to-latest"
+            exit 0
+          fi
+          echo "Deploy verified on custom domain."
 
       - name: Fail when no GCP credentials
         if: steps.creds.outputs.present != 'true'

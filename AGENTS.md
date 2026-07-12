@@ -37,6 +37,16 @@ Production is **Cloud Run only** (`manydoorsai` service, `us-west1`). Site is no
 
 If pitch video shows a broken image, production is stale. Run `./scripts/verify-live-deploy.sh`.
 
+**Custom domain vs run.app:** After deploy, confirm `https://www.manydoorsai.com/` shows a recent `last-modified` header and the CSS bundle includes the `html,body,#root` reset. The service URL `https://manydoorsai-886711655757.us-west1.run.app/` may update before the custom domain if traffic/domain mapping is stuck — run `gcloud run services update-traffic manydoorsai --region us-west1 --to-latest` in the deploy project.
+
 ## PRs
 
 Base branch: **`main`**
+
+**Agent workflow (default):** After code changes are pushed, **merge the PR into `main` immediately** (do not leave draft PRs open). Merging triggers **Deploy to Cloud Run** and **Deploy Firebase Hosting** on push to `main`. Then:
+
+1. Watch the deploy workflow: `gh run list --workflow=deploy-cloud-run.yml --limit 1` and `gh run watch <id>`
+2. Run `./scripts/verify-live-deploy.sh` against `https://www.manydoorsai.com`
+3. If verify fails but `manydoorsai-886711655757.us-west1.run.app` is fresh, report a custom-domain / traffic-routing issue (not a code issue)
+
+Use `gh pr merge <number> --squash --delete-branch` when the PR is ready.

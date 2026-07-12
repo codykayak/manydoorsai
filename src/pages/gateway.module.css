@@ -1,6 +1,8 @@
 .gateway {
   min-height: 100vh;
+  min-height: 100dvh;
   width: 100%;
+  max-width: 100%;
   overflow-x: hidden;
   background: radial-gradient(ellipse 120% 80% at 50% -20%, rgba(0, 210, 211, 0.1), transparent 55%),
     var(--pm-bg, #0b0f14);
@@ -273,6 +275,8 @@
 /* ── Video hero ─────────────────────────────────────────────────────────── */
 .videoHero {
   position: relative;
+  width: 100%;
+  min-height: min(72vh, 640px);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -281,8 +285,12 @@
 }
 
 .videoBg {
+  position: absolute;
+  inset: 0;
   width: 100%;
-  height: auto;
+  height: 100%;
+  object-fit: cover;
+  object-position: center center;
   display: block;
 }
 

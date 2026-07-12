@@ -23,6 +23,8 @@ export function seedSettings() {
     features: defaultFeatureState(),
     onboardingComplete: false,
     companyProfile: null,
+    demoRole: 'pm',
+    tourComplete: false,
   };
 }
 

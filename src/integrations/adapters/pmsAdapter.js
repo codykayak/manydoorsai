@@ -1,19 +1,8 @@
 /**
- * Common PMS adapter interface + a stub factory.
- *
- * Every PMS integration (Yardi, RealPage, AppFolio, Entrata) implements this
- * same shape, so the rest of the app calls `pms.getResidents()` without caring
- * which system is underneath. Real adapters get wired up once a design partner
- * provides sandbox credentials; until then `createStubAdapter` returns a
- * provider that reports "not connected" but proves the interface end-to-end.
- *
- * @typedef {Object} PmsAdapter
- * @property {() => Promise<{ok:boolean, message:string}>} testConnection
- * @property {() => Promise<Array>} getResidents
- * @property {() => Promise<Array>} getLeases
- * @property {(payload:object) => Promise<object>} createWorkOrder
- * @property {string[]} capabilities
+ * Common PMS / messaging adapter interface + stub + Twilio live health check.
  */
+
+import { getStoredOpsKey, twilioHealth } from '../../lib/opsApi';
 
 export function createStubAdapter(manifest) {
   const notReady = async () => {
@@ -25,8 +14,6 @@ export function createStubAdapter(manifest) {
     id: manifest.id,
     capabilities: manifest.capabilities || [],
     async testConnection() {
-      // A real adapter would ping the provider API here. The stub simulates a
-      // "credentials saved, awaiting partner approval" state.
       return {
         ok: false,
         message: `${manifest.name}: credentials captured. Live sync activates once the integration is approved.`,
@@ -38,9 +25,47 @@ export function createStubAdapter(manifest) {
   };
 }
 
+/** Twilio adapter — verifies server-side secrets via pmOps when an ops key is present. */
+export function createTwilioAdapter(manifest) {
+  return {
+    id: manifest.id,
+    capabilities: manifest.capabilities || [],
+    async testConnection(values = {}) {
+      if (!getStoredOpsKey()) {
+        // Without ops key, accept field shape and mark pending so demo receipts can still simulate.
+        const hasFields = values.accountSid && values.authToken && values.fromNumber;
+        return {
+          ok: false,
+          message: hasFields
+            ? 'Credentials captured locally. Add your Ops Admin API key under Persistence to verify live Twilio on the server.'
+            : 'Enter Account SID, Auth Token, and From Number — or use Settings → Test Twilio with the Ops Admin key.',
+        };
+      }
+      try {
+        const res = await twilioHealth();
+        if (res.configured) {
+          return {
+            ok: true,
+            message: `Twilio live on server (from ${res.fromNumber}). Emergency dispatch will send real SMS.`,
+          };
+        }
+        return {
+          ok: false,
+          message: 'Ops API reachable but TWILIO_* secrets are not configured on Cloud Functions yet.',
+        };
+      } catch (e) {
+        return { ok: false, message: e.message };
+      }
+    },
+    async sendSms() {
+      throw new Error('SMS send happens server-side via pmOps dispatch — not from the browser.');
+    },
+  };
+}
+
 /** Resolve an adapter for a given manifest id. */
 export function getAdapter(manifest) {
-  // When real adapters land, switch on manifest.id here and return them.
+  if (manifest?.id === 'twilio') return createTwilioAdapter(manifest);
   return createStubAdapter(manifest);
 }
 

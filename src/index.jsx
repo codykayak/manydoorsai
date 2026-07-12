@@ -1,17 +1,18 @@
 /**
  * Property Management module — entry point.
  *
- * Gateway landing at `/property-management`; operations app at sub-routes.
+ * Gateway landing at index; operations app at sub-routes with PM vs Owner roles.
  */
 
 import { lazy, Suspense, useState } from 'react';
-import { Routes, Route, NavLink, Navigate, useLocation } from 'react-router-dom';
+import { Routes, Route, NavLink, Navigate, useLocation, useNavigate } from 'react-router-dom';
 import { PmProvider, usePm } from './context/PmContext';
 import { FEATURE_CATEGORIES } from './config/featureRegistry';
 import Icon from './components/Icon';
 import ErrorBoundary from './components/ErrorBoundary';
 import OnboardingBanner from './components/OnboardingBanner';
 import OnboardingWizard from './components/OnboardingWizard';
+import GuidedTour from './components/GuidedTour';
 import GatewayPage from './pages/GatewayPage';
 import FeaturePage from './pages/FeaturePage';
 import FaqPage from './pages/FaqPage';
@@ -20,6 +21,7 @@ import LocationsIndexPage from './pages/LocationsIndexPage';
 import RoiCalculatorPage from './pages/RoiCalculatorPage';
 import Dashboard from './pages/Dashboard';
 import OwnerPortal from './pages/OwnerPortal';
+import OwnerHome from './pages/OwnerHome';
 import Communications from './pages/Communications';
 import Leasing from './pages/Leasing';
 import Maintenance from './pages/Maintenance';
@@ -43,6 +45,16 @@ const PAGE_MAP = {
   knowledge: KnowledgeBase,
   settings: Settings,
 };
+
+const OWNER_NAV = [
+  { id: 'owner-home', name: 'Owner Home', icon: 'home', route: 'owner-home' },
+  { id: 'owner', name: 'Portfolio Analytics', icon: 'chart', route: 'owner' },
+  { id: 'settings', name: 'Settings & Integrations', icon: 'settings', route: 'settings' },
+];
+
+const PM_FEATURE_IDS = new Set([
+  'dashboard', 'communications', 'leasing', 'maintenance', 'residents', 'knowledge', 'settings', 'owner',
+]);
 
 function normalizeBase(basePath) {
   const b = (basePath || '/').replace(/\/$/, '');
@@ -68,8 +80,39 @@ function isGatewayPath(pathname, basePath) {
   );
 }
 
+function RoleSwitcher() {
+  const { demoRole, setDemoRole, config } = usePm();
+  const navigate = useNavigate();
+
+  function switchRole(role) {
+    setDemoRole(role);
+    navigate(hrefFor(config.basePath, role === 'owner' ? 'owner-home' : 'dashboard'));
+  }
+
+  return (
+    <div className={styles.roleSwitch} data-tour="tour-role">
+      <button
+        type="button"
+        className={`${styles.roleBtn} ${demoRole === 'pm' ? styles.roleBtnActive : ''}`}
+        onClick={() => switchRole('pm')}
+      >
+        Property Manager
+      </button>
+      <button
+        type="button"
+        className={`${styles.roleBtn} ${demoRole === 'owner' ? styles.roleBtnActive : ''}`}
+        onClick={() => switchRole('owner')}
+      >
+        Owner
+      </button>
+    </div>
+  );
+}
+
 function Sidebar() {
-  const { config, tenant, features } = usePm();
+  const {
+    config, tenant, features, demoRole, startTour, syncStatus, onboardingComplete,
+  } = usePm();
   const enabled = features.filter((f) => f.enabled);
   const base = config.basePath;
 
@@ -100,6 +143,8 @@ function Sidebar() {
         <span>{tenant?.name || 'Demo Tenant'}</span>
       </div>
 
+      <RoleSwitcher />
+
       <NavLink
         to={hrefFor(base, '')}
         end
@@ -109,27 +154,51 @@ function Sidebar() {
         <span>Gateway home</span>
       </NavLink>
 
-      {order.map((cat) => {
-        const items = enabled.filter((f) => f.category === cat);
-        if (!items.length) return null;
-        return (
-          <div key={cat}>
-            <div className={styles.sectionTitle} style={{ margin: '14px 0 6px', paddingLeft: 8 }}>{cat}</div>
-            {items.map((f) => (
-              <NavLink
-                key={f.id}
-                to={hrefFor(base, f.route)}
-                className={({ isActive }) => `${styles.navItem} ${isActive ? styles.navActive : ''}`}
-              >
-                <Icon name={f.icon} size={18} className={styles.navIcon} />
-                <span>{f.name}</span>
-              </NavLink>
-            ))}
-          </div>
-        );
-      })}
+      {demoRole === 'owner' ? (
+        <div>
+          <div className={styles.sectionTitle} style={{ margin: '14px 0 6px', paddingLeft: 8 }}>Owner portal</div>
+          {OWNER_NAV.map((f) => (
+            <NavLink
+              key={f.id}
+              to={hrefFor(base, f.route)}
+              data-tour={f.id === 'owner-home' ? 'tour-owner-home' : undefined}
+              className={({ isActive }) => `${styles.navItem} ${isActive ? styles.navActive : ''}`}
+            >
+              <Icon name={f.icon} size={18} className={styles.navIcon} />
+              <span>{f.name}</span>
+            </NavLink>
+          ))}
+        </div>
+      ) : (
+        order.map((cat) => {
+          const items = enabled.filter((f) => f.category === cat && PM_FEATURE_IDS.has(f.id));
+          if (!items.length) return null;
+          return (
+            <div key={cat}>
+              <div className={styles.sectionTitle} style={{ margin: '14px 0 6px', paddingLeft: 8 }}>{cat}</div>
+              {items.map((f) => (
+                <NavLink
+                  key={f.id}
+                  to={hrefFor(base, f.route)}
+                  data-tour={`tour-${f.id}`}
+                  className={({ isActive }) => `${styles.navItem} ${isActive ? styles.navActive : ''}`}
+                >
+                  <Icon name={f.icon} size={18} className={styles.navIcon} />
+                  <span>{f.name}</span>
+                </NavLink>
+              ))}
+            </div>
+          );
+        })
+      )}
 
       <div className={styles.navSpacer} />
+      {onboardingComplete && (
+        <button type="button" className={`${styles.navItem} ${styles.navButton}`} onClick={startTour}>
+          <Icon name="spark" size={18} className={styles.navIcon} />
+          <span>Guided demo tour</span>
+        </button>
+      )}
       {DEV_ADMIN_ENABLED && DevAdminRoute && (
         <NavLink
           to={hrefFor(base, 'developer-admin')}
@@ -142,7 +211,14 @@ function Sidebar() {
       )}
       <div className={styles.sidebarFoot}>
         {config.productName} · {config.futureSite}
-        <br />Data is local to this browser until Firebase is connected.
+        <br />
+        {syncStatus.mode === 'cloud'
+          ? (syncStatus.pending
+            ? 'Syncing to cloud…'
+            : syncStatus.lastSyncedAt
+              ? `Cloud synced · ${new Date(syncStatus.lastSyncedAt).toLocaleTimeString()}`
+              : 'Cloud sync ready')
+          : 'Saved in this browser · enable cloud sync in Settings'}
       </div>
     </aside>
   );
@@ -157,7 +233,10 @@ function DevAdminFallback() {
 }
 
 function ModuleInner() {
-  const { config, features, onboardingComplete, completeOnboarding, featureMap } = usePm();
+  const {
+    config, features, onboardingComplete, completeOnboarding, featureMap,
+    tourOpen, setTourOpen, completeTour, demoRole,
+  } = usePm();
   const location = useLocation();
   const enabledIds = new Set(features.filter((f) => f.enabled).map((f) => f.id));
   const [onboardingOpen, setOnboardingOpen] = useState(false);
@@ -182,8 +261,17 @@ function ModuleInner() {
             <Route path="locations" element={<LocationsIndexPage />} />
             <Route path="locations/:citySlug" element={<LocationPage />} />
             <Route path="roi-calculator" element={<RoiCalculatorPage />} />
+            <Route path="owner-home" element={<OwnerHome />} />
+            <Route
+              path="dashboard"
+              element={
+                demoRole === 'owner'
+                  ? <Navigate to={hrefFor(config.basePath, 'owner-home')} replace />
+                  : <Dashboard />
+              }
+            />
             {features.map((f) => {
-              if (!f.route) return null;
+              if (!f.route || f.id === 'dashboard') return null;
               const Page = PAGE_MAP[f.id];
               if (!Page || !enabledIds.has(f.id)) return null;
               return <Route key={f.id} path={f.route} element={<Page />} />;
@@ -211,6 +299,14 @@ function ModuleInner() {
           onClose={() => setOnboardingOpen(false)}
           onComplete={completeOnboarding}
           defaultTechnicians={defaultTechs}
+        />
+      )}
+
+      {!gateway && (
+        <GuidedTour
+          open={tourOpen}
+          onClose={() => setTourOpen(false)}
+          onComplete={completeTour}
         />
       )}
     </div>

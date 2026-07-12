@@ -3,6 +3,7 @@ import { usePm } from '../context/PmContext';
 import Page from '../components/Page';
 import Icon from '../components/Icon';
 import { prescreenApplicant } from '../lib/prescreen';
+import { formatReceiptTime } from '../lib/actionReceipts';
 import styles from '../pm.module.css';
 
 const STAGES = [
@@ -19,11 +20,20 @@ const DECISION_BADGE = {
   declined: styles.badgeRed,
 };
 
+const AUDIT_CHECKS = [
+  { id: 'id', label: 'Government ID match' },
+  { id: 'income', label: 'Pay stub vs bank deposits' },
+  { id: 'employer', label: 'Employer verification' },
+  { id: 'pdf', label: 'PDF tamper / edit flags' },
+  { id: 'credit', label: 'Credit / eviction pull' },
+];
+
 export default function Leasing() {
   const { leasingLeads, upsertLeasingLead, featureMap } = usePm();
   const cfg = useMemo(() => featureMap.leasing?.config || {}, [featureMap]);
   const [adding, setAdding] = useState(false);
   const [form, setForm] = useState({ name: '', unitType: '1BR', income: '', credit: '', rent: '', pets: false });
+  const [auditLeadId, setAuditLeadId] = useState(null);
 
   const screened = useMemo(
     () => leasingLeads.map((l) => ({
@@ -86,7 +96,7 @@ export default function Leasing() {
         </form>
       )}
 
-      <div className={styles.pipeline}>
+      <div className={styles.pipeline} data-tour="tour-leasing">
         {STAGES.map((stage) => {
           const items = screened.filter((l) => l.stage === stage.id);
           return (
@@ -100,6 +110,38 @@ export default function Leasing() {
                   </div>
                   <div className={styles.itemSub}>{lead.unitType} · ${Number(lead.income).toLocaleString()}/mo · {lead.credit || '—'} credit</div>
                   <div className={styles.hint} style={{ margin: '6px 0' }}>{lead.screen.summary}</div>
+                  {lead.tourSlot && (
+                    <div className={styles.tourSlot}>
+                      <Icon name="calendar" size={12} /> Tour hold: <strong>{lead.tourSlot.label}</strong>
+                      <div className={styles.hint}>{lead.tourSlot.location}</div>
+                    </div>
+                  )}
+                  {(lead.history || []).length > 0 && (
+                    <div className={styles.hint} style={{ marginBottom: 6 }}>
+                      Last: {(lead.history[lead.history.length - 1].from || '—')} → {lead.history[lead.history.length - 1].to}
+                      {' · '}{formatReceiptTime(lead.history[lead.history.length - 1].at)}
+                    </div>
+                  )}
+                  {stage.id === 'application' && (
+                    <button
+                      type="button"
+                      className={`${styles.btn} ${styles.btnSm} ${styles.btnGhost}`}
+                      style={{ width: '100%', marginBottom: 6 }}
+                      onClick={() => setAuditLeadId(auditLeadId === lead.id ? null : lead.id)}
+                    >
+                      <Icon name="shield" size={12} /> Application audit
+                    </button>
+                  )}
+                  {auditLeadId === lead.id && (
+                    <ul className={styles.auditList}>
+                      {AUDIT_CHECKS.map((c) => (
+                        <li key={c.id}>
+                          <Icon name="check" size={12} /> {c.label}
+                          <span className={`${styles.badge} ${styles.badgeAmber}`}>pending</span>
+                        </li>
+                      ))}
+                    </ul>
+                  )}
                   {stage.id !== 'leased' && (
                     <button className={`${styles.btn} ${styles.btnSm}`} style={{ width: '100%' }} onClick={() => advance(lead)}>
                       Advance →
@@ -116,10 +158,8 @@ export default function Leasing() {
       <div className={styles.sectionTitle}>Application audit (fraud screening)</div>
       <div className={styles.card}>
         <div className={styles.hint}>
-          When a real screening provider (e.g. TransUnion SmartMove) is connected in <strong>Settings → Integrations</strong>,
-          this is where verified credit/criminal/eviction results and <strong>document-fraud checks</strong> appear —
-          cross-checking pay stubs against bank deposits, validating employers, and flagging edited PDFs or identity
-          mismatches before a human ever reviews the file.
+          Advance a lead to <strong>Application</strong> and open the audit checklist on the card. When TransUnion SmartMove
+          is connected in Settings, credit/criminal/eviction results and document-fraud checks populate here automatically.
         </div>
       </div>
     </Page>

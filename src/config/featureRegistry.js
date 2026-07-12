@@ -83,6 +83,8 @@ export const FEATURES = [
     config: {
       selfHelpDeflection: true,
       emergencyAlerts: true,
+      technicians: [],
+      onCallTechId: null,
     },
   },
   {

@@ -5,6 +5,7 @@ import { defineSecret } from 'firebase-functions/params';
 import { handlePmGatewayChat } from './lib/pmGatewayChatHandler.js';
 import { handleSocialPosts } from './lib/socialPostHandler.js';
 import { runScheduledSocialPost } from './lib/socialPostScheduler.js';
+import { handlePmOps } from './lib/opsHandler.js';
 
 const geminiApiKey = defineSecret('GEMINI_API_KEY');
 const socialAdminApiKey = defineSecret('SOCIAL_ADMIN_API_KEY');
@@ -51,4 +52,10 @@ export const pmSocialPostScheduler = onSchedule(
     memory: '1GiB',
   },
   runScheduledSocialPost,
+);
+
+/** Tenant cloud sync + Twilio maintenance dispatch (ops demo / owner portal) */
+export const pmOps = onRequest(
+  { region: REGION, invoker: 'public', secrets: socialSecrets, timeoutSeconds: 60 },
+  handlePmOps,
 );

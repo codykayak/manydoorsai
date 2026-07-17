@@ -50,3 +50,18 @@ Base branch: **`main`**
 3. If verify fails but `manydoorsai-886711655757.us-west1.run.app` is fresh, report a custom-domain / traffic-routing issue (not a code issue)
 
 Use `gh pr merge <number> --squash --delete-branch` when the PR is ready.
+
+## Cursor Cloud specific instructions
+
+Node 20+ (repo pins Node 20 via `Dockerfile`/`functions`; Node 22 works). Package manager is **npm** (`package-lock.json`). The update script runs `npm ci` in both the root and `functions/`.
+
+**Frontend SPA (the product):** the only service you normally need for dev/testing.
+- Run: `npm run dev` (Vite, http://localhost:5173/). Lint: `npm run lint`. Build: `npm run build`. Preview: `npm run preview` (4173).
+- The demo operations app (`/dashboard`, `/maintenance`, `/residents`, `/leasing`, `/communications`, `/knowledge`, `/settings`, `/owner`) runs **fully standalone with browser-local demo data** — no backend, Firebase, or API keys required. AI features like Maintenance Triage are client-side heuristics (`src/lib/`), so they work offline.
+- `npm run build` (not `dev`) fails unless the two `public/*.mp4` pitch videos exist (enforced by `scripts/check-site-assets.mjs`); both are committed.
+
+**Known non-blocking:** `npm run lint` currently reports pre-existing errors in committed code (e.g. `react-hooks/set-state-in-effect`, unused vars). These are not from environment setup — do not "fix" them as part of setup.
+
+**Firebase Functions (`functions/`, optional):** only power the site AI chat + social-post admin. Not needed to run/test the SPA (it targets the deployed function URLs by default). Running them locally (`npm run serve` → `firebase emulators:start`) requires the Firebase CLI plus `GEMINI_API_KEY`/`SOCIAL_ADMIN_API_KEY`/Twilio secrets — leave off unless specifically working on chat/social backend.
+
+**AiBhive/communal-library** is static content for a separate external product — not runnable here.

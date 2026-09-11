@@ -1,0 +1,10 @@
+.git
+.github
+node_modules
+functions/node_modules
+dist
+*.md
+.env
+.env.*
+scripts/.auth-configured
+public/*.source.mp4

@@ -1,0 +1,118 @@
+# Cloud Build → Cloud Run for manydoorsai.com
+# Connect repo codykayak/manydoorsai with a trigger named "manydoorsai" (branch: main).
+#
+# Optional trigger substitutions (EmailJS — same account as macrorei.com):
+#   _VITE_EMAILJS_SERVICE_ID, _VITE_EMAILJS_TEMPLATE_ID, _VITE_EMAILJS_PUBLIC_KEY
+
+substitutions:
+  _SERVICE_NAME: manydoorsai
+  _REGION: us-west1
+  _VITE_PM_BASE_PATH: /
+  _VITE_PM_SITE_URL: https://www.manydoorsai.com
+  _VITE_PM_SUPPORT_EMAIL: info@manydoorsai.com
+  _VITE_PM_CHAT_URL: https://us-central1-property-managment-a5ed3.cloudfunctions.net/pmGatewayChat
+  _VITE_PM_SOCIAL_API_URL: https://us-central1-property-managment-a5ed3.cloudfunctions.net/pmSocialPosts
+  _VITE_PM_FIREBASE_API_KEY: AIzaSyAuYn4nm9jTIcdFeNStmLF_Ky8qgwe4R2M
+  _VITE_PM_FIREBASE_AUTH_DOMAIN: property-managment-a5ed3.firebaseapp.com
+  _VITE_PM_FIREBASE_PROJECT_ID: property-managment-a5ed3
+  _VITE_PM_FIREBASE_STORAGE_BUCKET: property-managment-a5ed3.firebasestorage.app
+  _VITE_PM_FIREBASE_MESSAGING_SENDER_ID: '742597343666'
+  _VITE_PM_FIREBASE_APP_ID: '1:742597343666:web:d04e9435b5fdaafa048cab'
+  _VITE_PM_FIRESTORE_DB: property-managment
+  _VITE_EMAILJS_SERVICE_ID: ''
+  _VITE_EMAILJS_TEMPLATE_ID: ''
+  _VITE_EMAILJS_PUBLIC_KEY: ''
+
+options:
+  logging: CLOUD_LOGGING_ONLY
+
+steps:
+  - name: gcr.io/cloud-builders/docker
+    id: build
+    args:
+      - build
+      - --build-arg
+      - VITE_PM_BASE_PATH=${_VITE_PM_BASE_PATH}
+      - --build-arg
+      - VITE_PM_SITE_URL=${_VITE_PM_SITE_URL}
+      - --build-arg
+      - VITE_PM_SUPPORT_EMAIL=${_VITE_PM_SUPPORT_EMAIL}
+      - --build-arg
+      - VITE_PM_CHAT_URL=${_VITE_PM_CHAT_URL}
+      - --build-arg
+      - VITE_PM_SOCIAL_API_URL=${_VITE_PM_SOCIAL_API_URL}
+      - --build-arg
+      - VITE_PM_FIREBASE_API_KEY=${_VITE_PM_FIREBASE_API_KEY}
+      - --build-arg
+      - VITE_PM_FIREBASE_AUTH_DOMAIN=${_VITE_PM_FIREBASE_AUTH_DOMAIN}
+      - --build-arg
+      - VITE_PM_FIREBASE_PROJECT_ID=${_VITE_PM_FIREBASE_PROJECT_ID}
+      - --build-arg
+      - VITE_PM_FIREBASE_STORAGE_BUCKET=${_VITE_PM_FIREBASE_STORAGE_BUCKET}
+      - --build-arg
+      - VITE_PM_FIREBASE_MESSAGING_SENDER_ID=${_VITE_PM_FIREBASE_MESSAGING_SENDER_ID}
+      - --build-arg
+      - VITE_PM_FIREBASE_APP_ID=${_VITE_PM_FIREBASE_APP_ID}
+      - --build-arg
+      - VITE_PM_FIRESTORE_DB=${_VITE_PM_FIRESTORE_DB}
+      - --build-arg
+      - VITE_EMAILJS_SERVICE_ID=${_VITE_EMAILJS_SERVICE_ID}
+      - --build-arg
+      - VITE_EMAILJS_TEMPLATE_ID=${_VITE_EMAILJS_TEMPLATE_ID}
+      - --build-arg
+      - VITE_EMAILJS_PUBLIC_KEY=${_VITE_EMAILJS_PUBLIC_KEY}
+      - -t
+      - gcr.io/$PROJECT_ID/${_SERVICE_NAME}:$SHORT_SHA
+      - -t
+      - gcr.io/$PROJECT_ID/${_SERVICE_NAME}:latest
+      - .
+
+  - name: gcr.io/cloud-builders/docker
+    id: push
+    args:
+      - push
+      - --all-tags
+      - gcr.io/$PROJECT_ID/${_SERVICE_NAME}
+
+  - name: gcr.io/google.com/cloudsdktool/cloud-sdk:slim
+    id: deploy
+    entrypoint: gcloud
+    args:
+      - run
+      - deploy
+      - ${_SERVICE_NAME}
+      - --image
+      - gcr.io/$PROJECT_ID/${_SERVICE_NAME}:$SHORT_SHA
+      - --region
+      - ${_REGION}
+      - --platform
+      - managed
+      - --allow-unauthenticated
+      - --port
+      - "8080"
+      - --project
+      - $PROJECT_ID
+
+  # Force 100% of traffic onto the revision we just deployed. Without this, a
+  # service whose traffic was previously pinned to a specific revision keeps
+  # serving the old one — new revisions get 0% traffic and the live site never
+  # updates even though every build "succeeds".
+  - name: gcr.io/google.com/cloudsdktool/cloud-sdk:slim
+    id: route-traffic
+    entrypoint: gcloud
+    args:
+      - run
+      - services
+      - update-traffic
+      - ${_SERVICE_NAME}
+      - --region
+      - ${_REGION}
+      - --platform
+      - managed
+      - --to-latest
+      - --project
+      - $PROJECT_ID
+
+images:
+  - gcr.io/$PROJECT_ID/${_SERVICE_NAME}:$SHORT_SHA
+  - gcr.io/$PROJECT_ID/${_SERVICE_NAME}:latest

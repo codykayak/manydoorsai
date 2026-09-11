@@ -1,0 +1,19 @@
+{
+  "name": "manydoorsai-functions",
+  "description": "ManyDoors AI site chat (Grok) + Grok Voice Agent session tokens",
+  "type": "module",
+  "main": "index.js",
+  "engines": {
+    "node": "20"
+  },
+  "scripts": {
+    "serve": "firebase emulators:start --only functions",
+    "deploy": "firebase deploy --only functions"
+  },
+  "dependencies": {
+    "@google/generative-ai": "^0.24.0",
+    "firebase-admin": "^13.0.2",
+    "firebase-functions": "^6.3.2",
+    "ws": "^8.21.3"
+  }
+}

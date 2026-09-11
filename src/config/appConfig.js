@@ -1,0 +1,48 @@
+/**
+ * White-label application config for the Property Management module.
+ * Defaults to ManyDoors AI branding. Override per deployment via VITE_PM_* env vars.
+ */
+
+import { CONTACT_EMAIL } from './contactEmail.js';
+import { GROK_VOICE_PHONE_DISPLAY, GROK_VOICE_PHONE_E164 } from './voiceContact.js';
+
+const env = import.meta.env ?? {};
+
+export const PM_BASE_PATH = env.VITE_PM_BASE_PATH || '/';
+
+export const APP_CONFIG = {
+  productName: env.VITE_PM_PRODUCT_NAME || 'ManyDoors AI',
+  productTagline:
+    env.VITE_PM_PRODUCT_TAGLINE ||
+    'AI-powered property operations — maintenance triage, leasing, and resident communications',
+  logo: env.VITE_PM_LOGO || '/manydoors-logo-mark.svg',
+  /** Combined mark + wordmark for navbar / sidebar (cropped from menu JPG). */
+  logoMenu:
+    env.VITE_PM_LOGO_MENU ||
+    '/manydoors-ai-logo-menu.png',
+  logoWordmark: env.VITE_PM_LOGO_WORDMARK || '/manydoors-ai-logo-menu.png',
+  logoWordmarkPrint: env.VITE_PM_LOGO_WORDMARK_PRINT || '/manydoors-logo.svg',
+  heroImage: env.VITE_PM_HERO_IMAGE || '/manydoors-ai-software-property-management.png',
+  companyName: env.VITE_PM_COMPANY_NAME || 'ManyDoors AI',
+  futureSite: env.VITE_PM_FUTURE_SITE || 'manydoorsai.com',
+  accent: env.VITE_PM_ACCENT || '#00d2d3',
+  accentSoft: env.VITE_PM_ACCENT_SOFT || 'rgba(58, 181, 176, 0.14)',
+  basePath: PM_BASE_PATH,
+  siteUrl: env.VITE_PM_SITE_URL || 'https://www.manydoorsai.com',
+  defaultTenantId: env.VITE_PM_DEFAULT_TENANT || 'demo',
+  supportEmail: env.VITE_PM_SUPPORT_EMAIL || CONTACT_EMAIL,
+  supportPhone: env.VITE_PM_SUPPORT_PHONE || '541-321-2630',
+  salesPhone: env.VITE_PM_SALES_PHONE || '541-321-2630',
+  /** Grok Voice Agent inbound number (temporary 251; local swap later). */
+  voicePhone: env.VITE_PM_VOICE_PHONE || GROK_VOICE_PHONE_DISPLAY,
+  voicePhoneE164: env.VITE_PM_VOICE_PHONE_E164 || GROK_VOICE_PHONE_E164,
+  supportAddress: env.VITE_PM_SUPPORT_ADDRESS || 'Eugene, OR',
+  /**
+   * Optional self-serve scheduling link (e.g. Calendly / Cal.com / HubSpot).
+   * When set, "Book a demo" CTAs open this URL in a new tab; otherwise they
+   * open the on-site contact request widget.
+   */
+  bookingUrl: env.VITE_PM_BOOKING_URL || '',
+};
+
+export default APP_CONFIG;

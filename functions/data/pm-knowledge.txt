@@ -3,9 +3,11 @@ Live demo: https://www.manydoorsai.com
 Tagline: AI-powered property operations — maintenance triage, leasing, and resident communications.
 Support email: info@manydoorsai.com
 Support phone: 541-321-2630
+Grok voice agent phone (public demo line, temporary): (251) 572-5783. Callers reach the same live Grok voice agent as the site Call button. A local Oregon number will replace this. Office/support remains 541-321-2630.
 Headquarters: Eugene, OR (serving Oregon multifamily operators; expanding nationally).
 U.S.-based support teams with continuous platform updates.
-Five modules: AI Resident Communication, Automated Leasing, AI Maintenance Triage, Owner Portal & NOI, U.S. Support & Updates.
+Five modules: AI Resident Communication, Automated Leasing, AI Maintenance Triage, Owner Portal & NOI, Savings & ROI calculator.
+AiBhive Pros (/pros): field service HQ for HVAC, plumbing, electrical, pool, property maintenance, and fiber teams.
 Target outcomes: 50-70% inquiry deflection, 15-25% maintenance truck-roll avoidance, 2+ vacancy-days saved per lease (illustrative), one-click owner PDF reports.
 Integrations: Yardi, RealPage, AppFolio, Entrata, Twilio SMS, file import CSV/XLS/XLSX.
 Compliance: Fair Housing escalation, TCPA SMS, FCRA screening path, tenant-isolated data.
@@ -23,7 +25,7 @@ Q: Who is ManyDoors AI built for?
 A: Regional operators, third-party managers, and owner-operators running midsize to enterprise multifamily portfolios. It is designed for teams that want to protect NOI, reduce staff overtime, and prove ROI to owners without replacing their core PMS.
 
 Q: Where is ManyDoors AI located? Which markets do you serve?
-A: ManyDoors AI is headquartered in Eugene, OR (541-321-2630, info@manydoorsai.com). We actively market to multifamily operators in Portland, Eugene, Salem, Corvallis, and Bend, Oregon — see /locations for metro-specific pages. The platform is built to scale nationally as portfolios expand.
+A: ManyDoors AI is headquartered in Eugene, OR (541-321-2630, info@manydoorsai.com). We actively market to multifamily operators in Portland, Eugene, Salem, Corvallis, Bend, and the Oregon Coast — see /locations. Operator briefings live at /insights. The platform is built to scale nationally as portfolios expand.
 
 Q: Does ManyDoors AI replace my PMS?
 A: No. ManyDoors is a connective AI layer — not a ledger replacement. Your PMS remains the system of record for rent roll, GL, and work orders. ManyDoors reads (and eventually writes back) operational data while handling high-volume resident and prospect interactions.
@@ -32,7 +34,10 @@ Q: What makes ManyDoors different from generic ChatGPT?
 A: Every answer is grounded in your per-property knowledge base and optional live PMS data — not the open internet. Sensitive topics (Fair Housing, legal, emergencies) always escalate to staff. Human-in-the-loop controls let your team approve, edit, or override every AI action.
 
 Q: Is there a live demo?
-A: Yes. Visit manydoorsai.com and click Enter platform to explore the full build-and-pitch demo on local sample data — dashboard, communications, leasing, maintenance, owner portal, and knowledge base.
+A: Yes. Visit manydoorsai.com and click Enter platform to explore the full build-and-pitch demo on local sample data — dashboard, communications, leasing, maintenance, owner portal, and knowledge base. You can also talk to Grok live: hit Call in the site chat, or dial (251) 572-5783 (temporary number; a local Oregon line is coming).
+
+Q: What phone number reaches the Grok voice agent?
+A: Call (251) 572-5783 to speak with the live Grok voice agent — the same agent as the Call button in site chat. That 251 number is temporary until a local Oregon DID is ready. Office and sales remain 541-321-2630 / info@manydoorsai.com.
 
 Q: What is the relationship between ManyDoors AI and MacroREI?
 A: ManyDoors AI is the product brand at manydoorsai.com. MacroREI (macrorei.com) is our Oregon cash-home-buyer site — a separate business. Production PM deployments are white-labeled per operator with isolated Firebase tenants.
@@ -164,7 +169,7 @@ Q: Is enterprise SLA available?
 A: Yes — SLA-backed response for large portfolios is on the enterprise roadmap. Discuss during sales conversations.
 
 Q: How do I get help during the demo?
-A: Use the site chat assistant (powered by Gemini) for questions about the product, or email info@manydoorsai.com. Phone and office details are in the site footer.
+A: Use the site chat assistant (powered by Grok) for questions about the product — or general real estate and tech topics. Hit Call in the chat, or dial (251) 572-5783 for the live Grok voice agent. Email info@manydoorsai.com for account help. Office phone is 541-321-2630.
 
 
 ## FAQ: Security & compliance
@@ -209,7 +214,7 @@ Q: What URL is the demo on?
 A: https://www.manydoorsai.com — gateway home with Enter platform into the operations app.
 
 Q: What are the feature detail page URLs?
-A: /features/communications, /leasing, /maintenance, /owner-portal, and /us-support — each explains time/money savings and U.S. support.
+A: /features/communications, /leasing, /maintenance, /owner-portal, /features/savings, and /pros — each explains time/money savings, ROI modeling, and field-service tools.
 
 Q: What is Developer Admin?
 A: Internal engineering tools: pitch deck, ROI calculator, competitor matrix, compliance checklist, and maintenance on-call configuration. Enabled by default in demo; set VITE_PM_DEV_ADMIN=false to hide.
@@ -218,10 +223,10 @@ Q: Can I white-label the module?
 A: Yes — VITE_PM_PRODUCT_NAME, VITE_PM_LOGO, VITE_PM_ACCENT, and related env vars rebrand the entire module without code forks.
 
 Q: What stack is ManyDoors built on?
-A: React 19, Vite, Firebase (optional), Twilio SMS, and Gemini for the marketing site chatbot. PMS adapters use manifest-driven integration registry.
+A: React 19, Vite, Firebase (optional), Twilio SMS, and Grok (xAI) for the marketing site chatbot. PMS adapters use manifest-driven integration registry.
 
 Q: How does the site chatbot work?
-A: The floating assistant sends your question to a Gemini-powered API backed by the full site knowledge corpus (this FAQ, feature pages, product modules, and ROI models). It answers only from that content.
+A: The floating assistant sends your question to a Grok-powered API with the full site knowledge corpus (FAQ, feature pages, modules, ROI models). It answers product questions from that content and can also help with general topics outside the site.
 
 
 ## FAQ: Competitive positioning
@@ -247,29 +252,126 @@ SLA-backed response for enterprise portfolios (roadmap)
 
 
 ## Service areas — Oregon multifamily
-We are headquartered in Eugene, OR and market heavily across Oregon's core multifamily metros. Each page below describes how AI operations — resident communication, leasing, and maintenance — maps to local operator realities. Expanding to additional states; contact us for portfolio pricing outside these markets.
+We are headquartered in Eugene, OR and market across Oregon's core multifamily metros plus the coast. Each page maps resident communication, leasing, and maintenance to local operator realities — and the value adds we will defend in a pilot. Expanding nationally; contact us for portfolio pricing outside Oregon.
 HQ: Eugene, OR
 
 ### Portland, Oregon
 ManyDoors AI helps Portland-area multifamily operators deflect resident inquiries, automate leasing, and triage maintenance — without replacing Yardi, RealPage, or AppFolio.
 The Portland metro carries some of Oregon's densest multifamily inventory — and some of the tightest onsite labor. Operators with 2,000–20,000 units compete for leasing and maintenance staff while residents expect sub-hour text replies. Statewide rent-policy attention and insurance volatility mean owners scrutinize NOI line by line; slow speed-to-lead and manual screening still burn vacancy days.
 
+Software: Metro Portland portfolios are often mixed-PMS after acquisitions — Voyager at the core asset, AppFolio or Entrata on a 200-unit add. One AI layer across those ledgers is the value add.
+
+Local value adds: After-hours SMS volume in the metro is answering-service expensive. 24/7 deflection is the first NOI conversation. Speed-to-lead vs national ILS competitors (Apartments.com, Zillow Rentals) — minutes, not next-morning callbacks. Owner packets for out-of-state capital: itemize AI impact instead of a narrative about “we’re working on it.”
+
 ### Eugene, Oregon
 ManyDoors AI for Eugene and Lane County multifamily: 24/7 resident communication, automated leasing, and maintenance triage. HQ in Eugene, OR. Live demo available.
 Eugene–Springfield blends university-driven demand with a regional hub for healthcare and public-sector employment. Multifamily operators here often manage a mix of 1970s–2000s stock and newer infill — with seasonal turnover and student-adjacent leasing spikes. Teams of 50–150 staff support thousands of units; after-hours texts and maintenance photos do not wait for Monday morning.
+
+Software: Lane County shops are frequently AppFolio or Yardi Breeze/Voyager. Student-adjacent turnover spikes the same three tickets: leases, HVAC, and “is the disposal jammed?”
+
+Local value adds: Academic-calendar leasing: AI covers the 10pm ILS lead when the office is closed. Older stock → GFCI / disposal / thermostat self-help before a truck roll. HQ is here — a 15-minute demo is a real meeting, not a Zoom from another coast.
 
 ### Salem, Oregon
 ManyDoors AI for Salem-area property managers: speed-to-lead, resident deflection, and maintenance triage for midsize multifamily portfolios in the Willamette Valley.
 Salem's economy anchors on government, healthcare, and logistics — steady rental demand with less hype than Portland, but the same operational math: vacancy days hurt, fraud risk is rising, and site teams answer the same resident questions hundreds of times per month. Operators stretching from West Salem to Keizer and into Polk County need scalable communication without proportional headcount.
 
+Software: Capital-region operators often run AppFolio or RealPage on suburban garden product. Labor is cheaper than Portland; missed vacancy days are not.
+
+Local value adds: Steady government/healthcare demand still loses leases to slow follow-up. Application audit for document tampering — manual review does not scale at 1,500–5,000 units. Owner NOI vs budget without hiring a Portland-priced analyst.
+
 ### Corvallis, Oregon
 ManyDoors AI for Corvallis multifamily: AI resident replies, leasing automation, and maintenance triage for Benton County operators running lean onsite teams.
 Corvallis multifamily is shaped by university cycles, a tight local hiring pool, and a buyer/renter market smaller than Eugene or Portland. Operators often run dual roles — regional manager plus onsite lead — which makes after-hours coverage and speed-to-lead especially painful. One slow weekend response can mean a lost lease in a market with limited backup inventory.
+
+Software: Benton County teams are small. If the leasing consultant is also the after-hours phone, you do not have a process — you have a hero. AI is the second shift.
+
+Local value adds: University-cycle spikes without a call-center contract. FAQ deflection (parking, packages, amenities) so the onsite person can tour. Emergency vs self-help so the one maintenance tech is not chasing resets.
 
 ### Bend, Oregon
 ManyDoors AI for Bend and Central Oregon multifamily: maintenance triage, leasing automation, and resident AI — built for fast-growth markets with thin onsite staffing.
 Bend and Deschutes County saw rapid multifamily development and migration-driven demand — then the same insurance, turnover, and labor pressures as the rest of Oregon. Seasonal fluctuations and second-home adjacency mean some communities see burst traffic; operators still run on lean teams. Remote owners expect institutional-grade reporting from regional PMCs.
 
+Software: Central Oregon growth assets often sit on Entrata or Yardi with remote owners who expect institutional reporting from a regional PMC.
+
+Local value adds: Growth without proportional leasing headcount. Heat/water emergencies mixed with tourist-season “how-to” volume — triage first. Owner-grade PDFs for California/Seattle capital that will not fly to Bend for the quarterly.
+
+### Oregon Coast, Oregon
+ManyDoors AI for Oregon Coast property managers: workforce housing, condos, and mixed STR/long-term portfolios in Newport, Lincoln City, Florence, Cannon Beach, and Coos Bay.
+The Oregon Coast is not one market. Cannon Beach and Lincoln City lean visitor-driven; Newport and Coos Bay carry year-round workforce and healthcare demand; Florence sits in both Lane County and coast logistics. Salt, moisture, and older wood stock mean HVAC, plumbing, and building-envelope tickets never really stop. Offices are small. After-hours is often one on-call phone. Vacation-rental platforms already own a lot of STR mindshare — conventional multifamily and HOA/condo operators still need a PMS-agnostic operations layer that does not pretend every door is a Saturday checkout.
+
+Software: Coast operators may run AppFolio or Rent Manager for long-term doors and a separate STR stack for vacation homes. ManyDoors is for the multifamily / condo operations inbox — we do not claim to replace STR channel managers.
+
+Local value adds: Stop paying a message-taking service for “what time is check-in / is the dryer broken?” A leak at 11pm in a stacked condo is an insurance event — emergency routing beats voicemail. Owner reports that work for a Portland investor who owns six doors in Newport and never drives over.
+
+
+## Operator knowledge pages (/insights)
+
+### How property management companies actually work
+How third-party multifamily PMCs get paid, what site teams actually do all day, and why missed calls and truck rolls show up in NOI.
+A third-party PMC is hired by the owner (or the GP of a fund) to run the asset. The PMC does not usually own the building. The scoreboard is NOI — net operating income — because that number drives valuations, loan covenants, and whether the management agreement gets renewed.
+
+### The software PMCs already pay for
+Yardi, RealPage, AppFolio, Entrata, and the rest — what each is for, and why ManyDoors AI is a system of action rather than a ledger replacement.
+Property management software is two markets sold as one word. The ledger (PMS) is the system of record. Everything else — phones, chat, ILS, inspections, vendor apps — is a system of action. ManyDoors sits in the second layer on purpose.
+
+### Value adds — what we keep coming back to
+The value adds ManyDoors AI brings to multifamily operators: deflection, speed-to-lead, maintenance triage, owner NOI, and a PMS-agnostic layer.
+Every demo, every voice call, every owner meeting should land on a concrete add — not a feature list. These are the ones we will defend with a 30–60 day pilot.
+
+
+
+## How property management companies work (vetted brief)
+A third-party PMC is hired by the owner (or the GP of a fund) to run the asset. The PMC does not usually own the building. The scoreboard is NOI — net operating income — because that number drives valuations, loan covenants, and whether the management agreement gets renewed.
+The org chart on a typical community: Community / property manager, assistant, leasing consultants, and a maintenance tech or two. Regional managers cover 4–12 sites. Corporate has accounting, compliance, and owner reporting. Midsize Oregon shops often run dual roles — the same person is leasing and taking work orders after 4pm.
+How the PMC gets paid: Management fee as a percent of collected rent (often 3–8% depending on asset and market), plus leasing commissions, renewal fees, markups on maintenance, and admin fees. If occupancy or collections slip, the PMC’s fee slips. That is why vacancy days, delinquencies, and avoidable truck rolls are not “ops trivia” — they are the business model.
+The daily work that eats the day: Resident texts and calls (hours, packages, parking, rent, noise). Maintenance intake and vendor dispatch. ILS/website leads, tours, applications, screening. Delinquency outreach. Owner packets. Inspections and turns. Industry surveys routinely put tenant communications near 40% of a manager’s time, with maintenance as the largest slice.
+Why phones still fail: Multifamily lines miss a large share of inbound calls — published estimates often land around 50–60%, and many of those callers never try again. A missed leasing call can be a full vacancy month. A delayed leak can turn a $1,200 plumber into an $8,000 unit-below claim. Answering services take messages; they rarely triage, write a work order, or book a tour.
+What “good” looks like to an owner: Occupancy and collections, expense control vs budget, clean turns, low skip/eviction, and a report they can forward to their lender without a follow-up call. AI that cannot show up as a line item on that report does not survive the next budget meeting.
+
+## PMS / software stack (vetted brief)
+Property management software is two markets sold as one word. The ledger (PMS) is the system of record. Everything else — phones, chat, ILS, inspections, vendor apps — is a system of action. ManyDoors sits in the second layer on purpose.
+Yardi Voyager — Enterprise / institutional, complex accounting, multi-entity,  mixed-use. Long implementations, deep GL. ManyDoors: Do not replace Voyager. Read operational data; handle resident/leasing/maintenance conversations Voyager was not built to answer at 9pm.
+RealPage (OneSite and modules) — Large multifamily operators; historically strong in revenue management and resident ecosystem. Operators should treat pricing-module legal news as a compliance conversation, not a sales talking point we invent. ManyDoors: Same rule: PMS stays. ManyDoors covers after-hours comms, triage, and owner-facing AI impact.
+AppFolio — SMB to mid-market multifamily. Fastest modern UX; typical 1k–15k unit sweet spot. Strong portals and day-to-day ops. ManyDoors: AppFolio teams still drown in SMS/ILS volume. ManyDoors is the 24/7 layer and triage brain.
+Entrata — Growth multifamily operators who want leasing CRM, payments, and resident engagement in one suite. ManyDoors: Entrata is a resident platform. ManyDoors is the AI operations layer that still works if the next acquisition is on Yardi.
+MRI, ResMan, Buildium, Rent Manager — MRI for institutional/commercial-heavy accounting. ResMan/Buildium/Rent Manager for smaller residential shops. ManyDoors: If they already have a ledger, we layer. If they are on spreadsheets, we still demo — integration comes after the pilot.
+Most PMS products intake a maintenance request. Few classify emergency vs self-help, walk a GFCI reset, push the tech a Diagnose job, and put the avoided truck roll on the owner PDF. That gap is the ManyDoors value add.
+
+## Value adds (primary conversation theme)
+### 24/7 resident deflection
+Most PMCs still pay an answering service to take messages. ManyDoors answers from the property knowledge base.
+Target 50–70% deflection on FAQ-style volume (pool hours, packages, pets, rent due dates). Sensitive topics always escalate.
+Owner line: Cuts overtime and answering-service invoices without going dark after 5pm.
+### Speed-to-lead that actually books tours
+ILS and website leads go cold in minutes. Industry missed-call rates on multifamily lines often sit near 50–60%.
+ManyDoors instant-replies and pre-screens. Illustrative model: ~2+ vacancy-days saved per lease from faster response.
+Owner line: Vacancy is rent you never collect. Speed is NOI, not a nice-to-have.
+### Maintenance triage that protects the building
+Coordinators mix true emergencies with “how do I reset the GFCI?” Truck rolls are $100–$300+ loaded.
+Category + priority + emergency fast-track. Self-help for disposal, GFCI, thermostat. Target 15–25% avoidable rolls (~$145 illustrative).
+Owner line: Fewer after-hours vendor callouts. Faster true emergencies. Cleaner owner stories.
+### Field HQ with AiBhive Pros
+Triage without a shop playbook still dumps work on the same three vendors.
+Pros HQ + Diagnose give HVAC, plumbing, electrical, pool, property, and fiber teams a living knowledge base. Voice agent can walk a ticket with those playbooks.
+Owner line: The operations layer talks to the truck — not another siloed chatbot.
+### Owner-grade NOI, not a pretty dashboard
+Renewals fail when the PMC cannot itemize what AI (or staff) actually saved.
+NOI MTD/YTD vs budget vs prior year, AI impact lines, one-click PDF. White-label for investor packets.
+Owner line: Defends the management agreement in the owner meeting.
+### Stay on Yardi, RealPage, AppFolio, or Entrata
+Ripping out the ledger is a 6–18 month science project. Operators will not do it for a chatbot.
+ManyDoors is a system of action on top of the PMS. Read-sync in pilot; write-back on the enterprise roadmap. CSV/XLS import meanwhile.
+Owner line: No rip-and-replace. One AI layer across acquisitions on different systems.
+### Human-in-the-loop where it is legally required
+Generic ChatGPT on a resident line is a Fair Housing and TCPA incident waiting to happen.
+Fair Housing, legal, eviction, discrimination, and life-safety always escalate. TCPA STOP/HELP path. Tenant-isolated data.
+Owner line: AI that knows when to shut up is a feature, not a limitation.
+### Oregon-local, U.S. support
+Midsize Oregon PMCs (roughly 100–5,000 units) sit between spreadsheets and REIT call centers.
+HQ in Eugene. Markets: Portland, Eugene, Salem, Corvallis, Bend, and the Oregon Coast. 541-321-2630 / info@manydoorsai.com.
+Owner line: A team that understands Willamette Valley and Central Oregon operating realities.
+
+Industry figures (missed calls ~50–60%, communications ~40% of manager time, answering-service replacement often cited around $8k–$15k per community per year, turn costs often $3k–$5k+) are directional public ranges. ManyDoors ROI numbers on the site are illustrative until a 30–60 day pilot replaces them. Do not invent pricing for ManyDoors or competitors.
 
 ## Feature pages
 
@@ -341,19 +443,71 @@ NOI visibility: MTD/YTD (vs budget & prior year)
 
 AI impact: Itemized (labor, vacancy, maintenance)
 
-### U.S. Support & Always-On Updates
-Real people, constant improvements, no stale software
-ManyDoors AI is supported by U.S.-based teams with on-call escalation, continuous platform updates, and compliance-aware releases for multifamily operators.
+### Savings & ROI
+Model time and money impact with your real portfolio inputs
+ManyDoors AI savings calculator — estimate monthly net impact from AI call handling, leasing lift, and maintenance efficiency using your unit count, calls, applications, and maintenance volume.
 
 Time saved: Faster go-live with guided onboarding (days, not months)
-Money impact: Avoid legacy PMS add-on lock-in with an agnostic AI layer
+Money impact: Illustrative net savings modeled in the interactive calculator
 
-U.S.-based support teams on call: ManyDoors AI is built and supported in the United States. Your portfolio gets a dedicated onboarding specialist, live chat during business hours, and an on-call escalation path for production issues — not an offshore ticket queue.
+Transparent unit economics: Enter your unit count, estimated monthly calls, rental applications, and maintenance volume. Tabs show monthly trends and a side-by-side cost comparison versus traditional staffing.
 
-Shipped updates, not annual releases: New deflection models, connector improvements, and Fair Housing guardrails land continuously. Your knowledge base and integrations improve over time without a rip-and-replace project.
+Pre-filled from onboarding: Complete onboarding once and your Savings calculator, AI assistant, and owner reports all use the same property profile — pool hours, leasing hours, and availability stay in sync.
 
-Support: U.S. (onboarding & escalation)
+Inputs: 4 sliders (units, calls, apps, maintenance)
 
-Updates: Continuous (models & integrations)
+Charts: 3 tabs (calculator, monthly, comparison)
 
-Compliance: Built-in (FHA, TCPA, FCRA paths)
+Updates: Live (graphs refresh as you type)
+
+
+
+## AiBhive Pros (field service HQ)
+Pros lives at https://www.manydoorsai.com/pros and the live HQ app at /maintenance?panel=pros.
+Trades: HVAC, plumbing, electrical, pool, property maintenance, fiber/low voltage.
+Diagnose is the Android field app. Techs capture voice/photo notes; managers dispatch from Pros HQ.
+Voice demos: use triage_maintenance for resident tickets, then lookup_pros_playbook for tech-side advice.
+
+### HVAC
+Cooling, heating, airflow, and controls. Diagnose on the truck; ManyDoors triages the resident call first.
+First questions: Is it no heat, no cooling, or weak airflow? Does the indoor fan run? Any unusual noise or burning smell? Have they checked the thermostat mode, setpoint, and batteries? Filter last changed? Outdoor unit blocked by debris?
+Self-help: Thermostat set to HEAT or COOL (not OFF/FAN), setpoint past room temp, fresh batteries. Replace a clogged filter — the most common “AC not cooling” ticket in multifamily. Clear 2 ft around the outdoor condenser; straighten bent fins only if safe. If the fan runs but no temperature change, dispatch HVAC — likely refrigerant, capacitor, or control board.
+Escalate: Gas smell, carbon monoxide alarm, burning smell, or smoke from the unit. No heat in freezing weather (life-safety in many jurisdictions). Water pouring from the air handler (overflow pan / condensate clog can damage units below).
+
+### Plumbing
+Drains, water heaters, fixtures, and leaks. Stop the water first, then decide self-help vs truck roll.
+First questions: Is water actively leaking, or is it a slow drip / clog? Which fixture — toilet, sink, tub, water heater, or in-wall? Can they shut the fixture stop or unit shutoff? Any sewage smell or water on the floor of a unit below?
+Self-help: Running toilet: jiggle the handle; if it keeps filling, lift the tank lid and seat the flapper — often stops a 24/7 water waste ticket. Garbage disposal humming: power OFF, then press the red RESET on the underside; hex key in the bottom center to free a jam. Slow drain: plunger first. Do not mix drain chemicals if a plumber may snake the line.
+Escalate: Burst pipe, flooding, or water entering electrical areas. Sewage backup. No water to the building or a suspected main-line break. Gas water heater with gas odor.
+
+### Electrical
+Outlets, breakers, lighting, and GFCI. Residents never open panels beyond a labeled breaker reset.
+First questions: One outlet, one room, or the whole unit? Any GFCI buttons (TEST/RESET) in kitchen, bath, garage, or patio? Did a breaker trip? Any burning smell, scorch marks, or buzzing?
+Self-help: Dead kitchen/bath/garage outlet: find a nearby GFCI and press RESET. Check the breaker panel for a tripped breaker (center position — fully OFF then ON). Whole-unit outage: confirm neighbors still have power before dispatching; may be utility.
+Escalate: Sparks, smoke, burning smell, scorched outlets, or buzzing in the panel. Water + electricity. Repeated breaker trips after a reset — do not keep resetting.
+
+### Pool Service
+Pumps, chemistry, heaters, and equipment. ManyDoors answers amenity hours from the property profile; Pros handles equipment.
+First questions: Is this hours/rules, cloudy water, a pump that will not prime, or a heater that will not fire? Any alarm on the equipment pad? Is the pump running?
+Self-help: Hours and guest rules come from the property knowledge base — do not invent closing times. Cloudy water: do not tell residents to dump chemicals. Log it for the pool tech (filter, sanitizer, CYA). Pump running dry or loud grinding: shut it off and dispatch — do not run a dry pump.
+Escalate: Green/cloudy water with scheduled parties (health risk). Gas heater odor. Electrical faults at the pad.
+
+### Property Maintenance
+Appliances, unit turns, locks, and punch lists. This is the default queue when the trade is unclear.
+First questions: Which unit and which room? Appliance make/model if visible? Can the resident stay in the unit safely?
+Self-help: Fridge not cold: confirm it is plugged in, condenser coils not packed with dust, and door seals close. Washer will not drain: check the coin trap / drain hose kink before a full appliance call. Minor cosmetic items (drip, scuff, slow closer) can wait for a bundled make-ready unless they create a trip/slip or lockout.
+Escalate: Lockout, failed lock, or break-in. No heat, flood, fire, gas, or sewage — reclassify to the emergency trade.
+
+### Fiber & Low Voltage
+Structured cabling, access control, cameras, and ISP drops. Do not guess ISP outages as in-unit wiring.
+First questions: Is it one unit, one closet, or the whole building? Did the ISP already confirm their side is up? Any recent construction, unit turn, or access-control change?
+Self-help: Power-cycle ONT/router 60 seconds. Confirm other devices on Wi-Fi vs Ethernet. Building-wide outage: check the MDF/IDF first; do not send six techs to six units.
+Escalate: Access control failure that locks residents out of the building. Life-safety cameras/intercoms down at a controlled entry.
+
+
+## Maintenance triage demo rules
+Classify tickets into HVAC, Plumbing, Electrical, Appliance, Locks/Doors, Pest, or General.
+Emergencies (gas, CO, fire, smoke, flood, burst pipe, sewage, sparks, lockout, no heat in winter) escalate immediately — never delay with self-help.
+Self-help only when safe: GFCI reset, disposal jam/reset, thermostat batteries/mode, clogged filter.
+Illustrative savings: 15–25% truck-roll avoidance, ~$145 per avoided roll (replace with pilot data).
+On-call routing: emergencies go to the on-call tech + property manager.

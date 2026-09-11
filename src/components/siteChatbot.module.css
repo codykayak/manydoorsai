@@ -30,6 +30,95 @@
   background: rgba(0, 0, 0, 0.2);
 }
 
+.headActions {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-shrink: 0;
+}
+
+.call,
+.hangup,
+.iconBtn {
+  border: none;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  font-size: 12px;
+  font-weight: 700;
+  font-family: inherit;
+}
+
+.call {
+  height: 30px;
+  padding: 0 10px;
+  border-radius: 999px;
+  background: var(--pm-accent, #00d2d3);
+  color: #042424;
+}
+
+.call:disabled {
+  opacity: 0.6;
+  cursor: wait;
+}
+
+.hangup {
+  height: 30px;
+  padding: 0 10px;
+  border-radius: 999px;
+  background: #f85149;
+  color: #fff;
+}
+
+.iconBtn {
+  width: 30px;
+  height: 30px;
+  border-radius: 8px;
+  background: transparent;
+  color: var(--pm-muted, #8b97a7);
+}
+
+.iconBtn[aria-pressed='true'] {
+  color: #f85149;
+  background: rgba(248, 81, 73, 0.12);
+}
+
+.callBar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 14px;
+  font-size: 12px;
+  color: var(--pm-muted, #8b97a7);
+  border-bottom: 1px solid var(--pm-border, #232b36);
+  background: rgba(0, 210, 211, 0.06);
+}
+
+.callDot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--pm-accent, #00d2d3);
+  box-shadow: 0 0 0 0 rgba(0, 210, 211, 0.6);
+  animation: pulse 1.4s ease-out infinite;
+}
+
+.callBar_speaking .callDot {
+  background: #7ee787;
+}
+
+.callBar_connecting .callDot {
+  background: #d29922;
+}
+
+@keyframes pulse {
+  0% { box-shadow: 0 0 0 0 rgba(0, 210, 211, 0.55); }
+  70% { box-shadow: 0 0 0 8px rgba(0, 210, 211, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(0, 210, 211, 0); }
+}
+
 .title {
   font-size: 14px;
   font-weight: 700;
@@ -39,6 +128,17 @@
   font-size: 11px;
   color: var(--pm-muted, #8b97a7);
   margin-top: 2px;
+}
+
+.dial {
+  color: var(--pm-accent, #00d2d3);
+  text-decoration: none;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.dial:hover {
+  text-decoration: underline;
 }
 
 .close {
@@ -80,6 +180,20 @@
   align-self: flex-end;
   background: var(--pm-accent-soft, rgba(58, 181, 176, 0.2));
   border: 1px solid rgba(58, 181, 176, 0.35);
+}
+
+.bubbleVoice {
+  position: relative;
+}
+
+.voiceTag {
+  display: inline-block;
+  margin-right: 6px;
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--pm-accent, #00d2d3);
 }
 
 .typing {
@@ -154,4 +268,9 @@
 .fab:hover {
   transform: scale(1.05);
   filter: brightness(1.06);
+}
+
+.fabLive {
+  background: linear-gradient(135deg, #f85149, #da3633);
+  color: #fff;
 }

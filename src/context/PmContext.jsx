@@ -14,6 +14,12 @@ import { createStore } from '../data/store';
 import { resolveFeatures } from '../config/featureRegistry';
 import APP_CONFIG from '../config/appConfig';
 import {
+  loadLocalPropertyProfile,
+  saveLocalPropertyProfile,
+  profileFromOnboarding,
+  DEFAULT_PROPERTY_PROFILE,
+} from '../lib/propertyProfile';
+import {
   seedSettings, seedKnowledge, seedResidents,
   seedConversations, seedLeasingLeads, seedWorkOrders,
 } from '../data/seed';
@@ -138,11 +144,103 @@ export function PmProvider({ children }) {
     });
   }, [store]);
 
+  const [propertyProfile, setPropertyProfile] = useState(
+    () => settings?.propertyProfile || loadLocalPropertyProfile(),
+  );
+
+  const syncKnowledgeFromProfile = useCallback((profile) => {
+    if (!profile) return;
+    const poolAnswer = profile.pool?.enabled
+      ? `The pool is open ${profile.pool.daysOpen} from ${profile.pool.openTime} to ${profile.pool.closeTime} (${profile.pool.seasonLabel}). ${profile.pool.rules}`
+      : 'The pool is closed for the season.';
+    const officeAnswer = `Leasing office hours: Mon–Fri ${profile.leasing?.weekdays}, Sat ${profile.leasing?.saturday}, Sun ${profile.leasing?.sunday}. Phone: ${profile.leasing?.phone || profile.phone || 'see leasing office'}.`;
+
+    const patchKb = (question, answer, tags) => {
+      const list = store.knowledge();
+      const existing = list.find((k) => k.question.toLowerCase() === question.toLowerCase());
+      if (existing) {
+        store.upsert('knowledge', { ...existing, answer, tags });
+      } else {
+        store.upsert('knowledge', { question, answer, tags, createdAt: Date.now() });
+      }
+    };
+
+    patchKb('What are the pool hours?', poolAnswer, ['pool', 'amenity', 'hours']);
+    patchKb('What are the office hours?', officeAnswer, ['office', 'hours', 'leasing']);
+    if (profile.petPolicy) patchKb('What is the pet policy?', profile.petPolicy, ['pet', 'policy']);
+    if (profile.amenities) {
+      patchKb('What amenities are available?', profile.amenities, ['amenity', 'fitness', 'pool']);
+    }
+    setKnowledge(store.knowledge());
+  }, [store]);
+
+  const savePropertyProfile = useCallback((next) => {
+    const merged = { ...DEFAULT_PROPERTY_PROFILE, ...next, updatedAt: Date.now() };
+    saveLocalPropertyProfile(merged);
+    setPropertyProfile(merged);
+    setSettings((prev) => {
+      const settingsNext = { ...prev, propertyProfile: merged };
+      store.saveSettings(settingsNext);
+      return settingsNext;
+    });
+    syncKnowledgeFromProfile(merged);
+    return merged;
+  }, [store, syncKnowledgeFromProfile]);
+
+  const completeOnboarding = useCallback((payload) => {
+    const profile = profileFromOnboarding(payload, propertyProfile);
+    savePropertyProfile(profile);
+
+    setSettings((prev) => {
+      const techs = payload.technicians || prev.features?.maintenance?.config?.technicians || [];
+      const onCallTechId = payload.onCallTechId || techs[0]?.id || null;
+      const tenant = {
+        ...prev.tenant,
+        name: payload.companyName || prev.tenant?.name,
+        properties: payload.properties?.length
+          ? payload.properties.map((p, i) => ({
+            id: p.id || `p_onboard_${i}`,
+            name: p.name,
+            units: Number(p.units) || 0,
+            city: p.city || profile.city || '',
+            state: p.state || profile.state || 'OR',
+          }))
+          : prev.tenant?.properties,
+      };
+      const next = {
+        ...prev,
+        tenant,
+        onboardingComplete: true,
+        onboardedAt: Date.now(),
+        features: {
+          ...prev.features,
+          maintenance: {
+            ...prev.features?.maintenance,
+            config: {
+              ...(prev.features?.maintenance?.config || {}),
+              technicians: techs,
+              onCallTechId,
+            },
+          },
+        },
+        propertyProfile: profile,
+      };
+      store.saveSettings(next);
+      return next;
+    });
+  }, [propertyProfile, savePropertyProfile, store]);
+
+  const onboardingComplete = Boolean(settings?.onboardingComplete);
+
   const value = {
     config: APP_CONFIG,
     tenant: settings?.tenant ?? null,
     settings,
     saveSettings,
+    propertyProfile,
+    savePropertyProfile,
+    onboardingComplete,
+    completeOnboarding,
     features,
     featureMap,
     setFeatureEnabled,

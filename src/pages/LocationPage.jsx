@@ -93,6 +93,22 @@ export default function LocationPage() {
             </ul>
           </section>
 
+          {location.pmsReality && (
+            <section>
+              <h2 className={gw.locationH2}>Software on the ground</h2>
+              <p className={gw.locationProse}>{location.pmsReality}</p>
+            </section>
+          )}
+
+          {location.valueAdds?.length > 0 && (
+            <section>
+              <h2 className={gw.locationH2}>Value adds we lead with in {location.name}</h2>
+              <ul className={gw.bulletList}>
+                {location.valueAdds.map((p) => <li key={p}>{p}</li>)}
+              </ul>
+            </section>
+          )}
+
           <p className={gw.locationNeighborhoods}>
             <strong>Coverage:</strong> {location.neighborhoods}
           </p>
@@ -101,12 +117,13 @@ export default function LocationPage() {
             <Link to={hrefFor(base, 'features/communications')}>AI resident communication →</Link>
             <Link to={hrefFor(base, 'features/leasing')}>Automated leasing →</Link>
             <Link to={hrefFor(base, 'features/maintenance')}>Maintenance triage →</Link>
+            <Link to={hrefFor(base, 'insights/value-adds')}>Value adds →</Link>
           </div>
         </article>
 
         <p className={gw.locationOtherMarkets}>
           Other Oregon markets:{' '}
-          <Link to={hrefFor(base, 'locations')}>Portland, Eugene, Salem, Corvallis & Bend</Link>
+          <Link to={hrefFor(base, 'locations')}>Portland, Eugene, Salem, Corvallis, Bend &amp; the Coast</Link>
         </p>
       </div>
 

@@ -23,12 +23,22 @@ export const FEATURES = [
   {
     id: 'dashboard',
     name: 'Operations Dashboard',
-    description: 'ROI metrics: deflection rate, time saved, pipeline, open work orders.',
+    description: 'Quick View Command Center: priority alerts, after-hours AI log, vacancy tracker, and document inbox.',
     category: FEATURE_CATEGORIES.CORE,
     icon: 'grid',
     route: 'dashboard',
     defaultEnabled: true,
     locked: true,
+  },
+  {
+    id: 'compliance',
+    name: 'Compliance & Audit',
+    description:
+      'Immutable audit trail: fair housing guardrails, maintenance SLA tracking, escalation logs, and TCPA opt-out records.',
+    category: FEATURE_CATEGORIES.ADMIN,
+    icon: 'shield',
+    route: 'compliance',
+    defaultEnabled: true,
   },
   {
     id: 'owner',
@@ -73,9 +83,9 @@ export const FEATURES = [
   },
   {
     id: 'maintenance',
-    name: 'AI Maintenance Triage',
+    name: 'Maintenance',
     description:
-      'Triage tickets by category/urgency, detect emergencies, suggest resident self-help, and route to the right tech or vendor.',
+      'Triage tickets by category/urgency, detect emergencies, suggest resident self-help, and route to the right tech or vendor — plus ManyDoors AI Pros HQ for field dispatch.',
     category: FEATURE_CATEGORIES.OPERATIONS,
     icon: 'wrench',
     route: 'maintenance',

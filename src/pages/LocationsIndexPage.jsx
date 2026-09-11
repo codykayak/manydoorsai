@@ -26,7 +26,7 @@ export default function LocationsIndexPage() {
         title={`${LOCATIONS_INDEX.title} | ${config.productName}`}
         description={LOCATIONS_INDEX.metaDescription}
         path={path}
-        keywords="ManyDoors AI, Oregon property management software, Portland, Eugene, Salem, Corvallis, Bend, multifamily AI"
+        keywords="ManyDoors AI, Oregon property management software, Portland, Eugene, Salem, Corvallis, Bend, Oregon Coast, multifamily AI"
         jsonLd={[
           {
             '@context': 'https://schema.org',

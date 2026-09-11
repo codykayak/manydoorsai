@@ -7,6 +7,7 @@
     "dev": "vite",
     "build": "node scripts/check-site-assets.mjs && node scripts/build-pm-knowledge.mjs && vite build",
     "build:pm-knowledge": "node scripts/build-pm-knowledge.mjs",
+    "generate:bg": "node scripts/generate-page-backgrounds.mjs",
     "lint": "eslint .",
     "preview": "vite preview"
   },

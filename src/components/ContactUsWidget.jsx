@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { usePm } from '../context/PmContext';
 import Icon from './Icon';
 import { submitPmContact } from '../lib/pmSubmitContact';
+import { GROK_VOICE_PHONE_DISPLAY, GROK_VOICE_PHONE_E164 } from '../config/voiceContact';
 import cu from './contactUsWidget.module.css';
 
 const PORTFOLIO_OPTIONS = [
@@ -141,6 +142,10 @@ export default function ContactUsWidget({ open, onOpenChange }) {
                 <a href={`tel:${SALES_TEL}`} className={cu.btnCall}>
                   <Icon name="phone" size={16} />
                   Call now · {SALES_PHONE}
+                </a>
+                <a href={`tel:${GROK_VOICE_PHONE_E164}`} className={cu.btnCall}>
+                  <Icon name="phone" size={16} />
+                  Talk to Grok · {GROK_VOICE_PHONE_DISPLAY}
                 </a>
               </div>
             </form>

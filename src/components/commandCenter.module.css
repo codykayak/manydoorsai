@@ -1,0 +1,250 @@
+/* Command center — cyan-accented panels for operations & compliance UI */
+
+.cyanIcon { color: #00d2d3; flex-shrink: 0; }
+
+/* Priority alerts */
+.alertBox {
+  background: linear-gradient(135deg, rgba(0, 210, 211, 0.08) 0%, var(--pm-panel) 60%);
+  border: 1px solid rgba(0, 210, 211, 0.35);
+  border-radius: 12px;
+  padding: 18px 20px;
+}
+.alertBoxHead {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  margin-bottom: 14px;
+}
+.alertBoxTitle {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--pm-text);
+}
+.alertChips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+.alertChip {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 4px;
+  padding: 12px 18px;
+  border-radius: 10px;
+  text-decoration: none;
+  color: var(--pm-text);
+  border: 1px solid transparent;
+  min-width: 130px;
+  position: relative;
+  transition: transform 0.12s, filter 0.12s;
+}
+.alertChip:hover {
+  transform: translateY(-2px);
+  filter: brightness(1.08);
+}
+.alertCount {
+  font-size: 28px;
+  font-weight: 800;
+  letter-spacing: -0.5px;
+  line-height: 1;
+}
+.alertLabel {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12.5px;
+  font-weight: 600;
+  opacity: 0.9;
+}
+.alertRed {
+  background: rgba(248, 81, 73, 0.14);
+  border-color: rgba(248, 81, 73, 0.4);
+}
+.alertRed .alertCount { color: var(--pm-red); }
+.alertAmber {
+  background: rgba(210, 153, 34, 0.14);
+  border-color: rgba(210, 153, 34, 0.4);
+}
+.alertAmber .alertCount { color: var(--pm-amber); }
+.alertBlue {
+  background: rgba(0, 210, 211, 0.12);
+  border-color: rgba(0, 210, 211, 0.35);
+}
+.alertBlue .alertCount { color: #00d2d3; }
+.wiredDot {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--pm-green);
+  box-shadow: 0 0 6px var(--pm-green);
+}
+
+/* After-hours log */
+.logList {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  max-height: 380px;
+  overflow-y: auto;
+}
+.logRow {
+  display: grid;
+  grid-template-columns: 72px 64px 1fr auto;
+  gap: 10px;
+  align-items: start;
+  padding: 10px 0;
+  border-bottom: 1px solid var(--pm-border);
+  font-size: 13px;
+}
+.logRow:last-child { border-bottom: none; }
+.logTime {
+  font-size: 11.5px;
+  color: var(--pm-muted);
+  font-weight: 600;
+}
+.logChannel {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 11px;
+  color: var(--pm-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+}
+.logBody { min-width: 0; }
+.logResident { font-weight: 600; font-size: 13px; }
+.logSummary { font-size: 12px; color: var(--pm-muted); margin-top: 2px; line-height: 1.4; }
+
+/* Vacancy tracker */
+.daysCritical { color: var(--pm-red); }
+.daysWarn { color: var(--pm-amber); }
+
+/* Document inbox dropzone */
+.dropzone {
+  border: 2px dashed var(--pm-border);
+  border-radius: 12px;
+  padding: 28px 24px;
+  text-align: center;
+  transition: border-color 0.15s, background 0.15s;
+}
+.dropzoneActive {
+  border-color: #00d2d3;
+  background: rgba(0, 210, 211, 0.06);
+}
+.dropzoneIcon { color: #00d2d3; margin-bottom: 10px; opacity: 0.8; }
+.dropzoneTitle { font-size: 15px; font-weight: 700; margin-bottom: 8px; }
+.dropzoneCopy {
+  font-size: 13px;
+  color: var(--pm-muted);
+  line-height: 1.55;
+  max-width: 52ch;
+  margin: 0 auto;
+}
+.uploadMsg {
+  margin-top: 12px;
+  font-size: 12.5px;
+  color: #00d2d3;
+  font-weight: 600;
+}
+.inboxList { margin-top: 4px; }
+.inboxRow {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 0;
+  border-bottom: 1px solid var(--pm-border);
+}
+.inboxRow:last-child { border-bottom: none; }
+.inboxMeta { flex: 1; min-width: 0; }
+.inboxName {
+  font-size: 13.5px;
+  font-weight: 600;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Compliance */
+.complianceIntro {
+  display: flex;
+  gap: 14px;
+  align-items: flex-start;
+  padding: 16px 18px;
+  background: rgba(0, 210, 211, 0.06);
+  border: 1px solid rgba(0, 210, 211, 0.25);
+  border-radius: 12px;
+  margin-bottom: 18px;
+  font-size: 13.5px;
+  line-height: 1.55;
+}
+.filterRow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 16px;
+}
+.filterActive {
+  background: rgba(0, 210, 211, 0.14) !important;
+  border-color: rgba(0, 210, 211, 0.4) !important;
+  color: var(--pm-text) !important;
+}
+.auditTime { font-size: 12.5px; white-space: nowrap; color: var(--pm-muted); }
+.auditActor { font-weight: 600; font-size: 13px; }
+.auditDetail { font-size: 13px; line-height: 1.45; max-width: 360px; }
+
+/* Portfolio command center (investor) */
+.portfolioCmd {
+  background: linear-gradient(135deg, rgba(0, 210, 211, 0.06) 0%, var(--pm-panel) 55%);
+  border: 1px solid rgba(0, 210, 211, 0.3);
+  border-radius: 12px;
+  padding: 20px;
+  margin-bottom: 18px;
+}
+.portfolioCmdHead {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-bottom: 16px;
+}
+.portfolioCmdTitle {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 16px;
+  font-weight: 700;
+}
+.portfolioKpi {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.portfolioKpiValue {
+  font-size: 26px;
+  font-weight: 800;
+  letter-spacing: -0.5px;
+  color: #00d2d3;
+}
+.portfolioKpiLabel {
+  font-size: 11.5px;
+  color: var(--pm-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+  font-weight: 600;
+}
+.portfolioKpiSub {
+  font-size: 12px;
+  color: var(--pm-muted);
+}
+
+@media (max-width: 900px) {
+  .logRow {
+    grid-template-columns: 1fr;
+    gap: 4px;
+  }
+}

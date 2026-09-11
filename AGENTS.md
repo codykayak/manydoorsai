@@ -23,7 +23,8 @@ Set in Firebase Console or `firebase functions:secrets:set`:
 
 | Secret | Purpose |
 |--------|---------|
-| `GEMINI_API_KEY` | Site chat + daily social post generation |
+| `XAI_API_KEY` | Site chat (Grok / xAI) — primary; also mints Grok Voice Agent ephemeral tokens |
+| `GEMINI_API_KEY` | Site chat fallback + daily social post generation |
 | `SOCIAL_ADMIN_API_KEY` | Developer Admin → Social posts API auth |
 | `TWILIO_ACCOUNT_SID` / `TWILIO_AUTH_TOKEN` / `TWILIO_FROM_NUMBER` | Daily SMS when posts are ready |
 | `SOCIAL_NOTIFY_PHONE` | Phone for daily alerts (default `+15413212630`) |

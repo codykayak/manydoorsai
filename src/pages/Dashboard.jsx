@@ -1,32 +1,53 @@
 import { useMemo } from 'react';
+import { Link } from 'react-router-dom';
 import { usePm } from '../context/PmContext';
 import Page from '../components/Page';
 import Icon from '../components/Icon';
 import HeroSection from '../components/HeroSection';
+import PriorityAlerts from '../components/PriorityAlerts';
+import AfterHoursLog from '../components/AfterHoursLog';
+import VacancyTracker from '../components/VacancyTracker';
+import DocumentInboxDropzone from '../components/DocumentInboxDropzone';
+import {
+  buildPriorityAlerts, buildAfterHoursLog, sortVacantUnits,
+} from '../lib/commandCenter';
 import styles from '../pm.module.css';
+import cc from '../components/commandCenter.module.css';
 
 export default function Dashboard() {
-  const { conversations, leasingLeads, workOrders, tenant, config, onboardingComplete } = usePm();
+  const {
+    conversations, leasingLeads, workOrders, tenant, config, onboardingComplete, featureMap,
+  } = usePm();
 
   const stats = useMemo(() => {
     const autoResolved = conversations.filter((c) => c.status === 'auto-resolved').length;
     const total = conversations.length || 1;
     const deflectionRate = Math.round((autoResolved / total) * 100);
     const openWO = workOrders.filter((w) => w.status !== 'closed').length;
-    const emergencies = workOrders.filter((w) => w.priority === 'emergency').length;
-    const selfHelp = workOrders.filter((w) => w.status === 'self-help-sent').length;
     const inPipeline = leasingLeads.filter((l) => l.stage !== 'declined' && l.stage !== 'leased').length;
-    const minutesSaved = autoResolved * 4 + inPipeline * 25 + selfHelp * 30;
-    const hoursSaved = (minutesSaved / 60).toFixed(1);
     const units = (tenant?.properties || []).reduce((s, p) => s + (p.units || 0), 0);
-    return { deflectionRate, autoResolved, total, openWO, emergencies, selfHelp, inPipeline, hoursSaved, units };
+    return { deflectionRate, autoResolved, total, openWO, inPipeline, units };
   }, [conversations, leasingLeads, workOrders, tenant]);
+
+  const alerts = useMemo(
+    () => buildPriorityAlerts({
+      leasingLeads,
+      workOrders,
+      leasingConfig: featureMap.leasing?.config || {},
+    }),
+    [leasingLeads, workOrders, featureMap],
+  );
+
+  const afterHours = useMemo(() => buildAfterHoursLog(conversations), [conversations]);
+  const vacantUnits = useMemo(() => sortVacantUnits(), []);
+
+  const base = config.basePath || '/property-management';
 
   const metric = (icon, label, value, sub, accent) => (
     <div className={styles.card}>
       <div className={styles.metric}>
         <span className={styles.metricLabel}><Icon name={icon} size={15} /> {label}</span>
-        <span className={styles.metricValue} style={accent ? { color: 'var(--pm-accent)' } : undefined}>{value}</span>
+        <span className={styles.metricValue} style={accent ? { color: '#00d2d3' } : undefined}>{value}</span>
         {sub && <span className={styles.metricSub}>{sub}</span>}
       </div>
     </div>
@@ -36,15 +57,30 @@ export default function Dashboard() {
     <>
       <HeroSection />
       <Page
-        title="Operations Dashboard"
+        title="Quick View Command Center"
         subtitle={`${tenant?.name || 'Demo'} · ${(tenant?.properties || []).length} properties · ${stats.units} units`}
+        actions={(
+          <Link to={`${base.replace(/\/$/, '')}/compliance`} className={`${styles.btn} ${styles.btnGhost}`}>
+            <Icon name="shield" size={15} /> Compliance log
+          </Link>
+        )}
       >
-        <div className={`${styles.grid} ${styles.cols4}`}>
-          {metric('chat', 'AI Deflection Rate', `${stats.deflectionRate}%`, `${stats.autoResolved} of ${stats.total} inquiries auto-resolved`, true)}
-          {metric('clock', 'Staff Time Saved', `${stats.hoursSaved} hrs`, 'This period (modeled)')}
-          {metric('key', 'Leasing Pipeline', stats.inPipeline, 'Active applicants being auto-screened')}
-          {metric('wrench', 'Open Work Orders', stats.openWO, `${stats.emergencies} emergency · ${stats.selfHelp} self-help deflected`)}
+        <PriorityAlerts alerts={alerts} basePath={base} />
+
+        <div className={`${styles.grid} ${styles.cols4}`} style={{ marginTop: 18 }}>
+          {metric('chat', 'AI Deflection', `${stats.deflectionRate}%`, `${stats.autoResolved}/${stats.total} auto-resolved`, true)}
+          {metric('key', 'Leasing Pipeline', stats.inPipeline, 'Active applicants', true)}
+          {metric('wrench', 'Open Work Orders', stats.openWO, 'Across portfolio')}
+          {metric('home', 'Vacant Units', vacantUnits.length, 'Tracked in vacancy table')}
         </div>
+
+        <div className={`${styles.grid} ${styles.cols2}`} style={{ marginTop: 16 }}>
+          <AfterHoursLog entries={afterHours} />
+          <VacancyTracker units={vacantUnits} />
+        </div>
+
+        <div className={styles.sectionTitle}>Document inbox</div>
+        <DocumentInboxDropzone />
 
         <div className={styles.sectionTitle}>Where the value comes from</div>
         <div className={`${styles.grid} ${styles.cols3}`}>
@@ -66,12 +102,12 @@ export default function Dashboard() {
         </div>
 
         <div className={styles.banner} style={{ marginTop: 22 }}>
-          <Icon name="spark" size={18} style={{ marginTop: 1, color: 'var(--pm-accent)' }} />
+          <Icon name="spark" size={18} style={{ marginTop: 1, color: '#00d2d3' }} />
           <div>
             {onboardingComplete ? (
               <>
-                <strong>{config.productName} is configured.</strong> Try Maintenance triage with an emergency phrase
-                (e.g. &quot;I smell gas&quot;) to see on-call routing. Connect PMS and messaging in <strong>Settings</strong>.
+                <strong>{config.productName} is configured.</strong> High-priority alerts pull from live leasing
+                and maintenance data. Try Maintenance triage with an emergency phrase to see on-call routing.
               </>
             ) : (
               <>

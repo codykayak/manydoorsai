@@ -21,6 +21,7 @@ import {
 import { summarize, usd } from '../lib/finance';
 import { monthLabel } from '../data/financials';
 import GatewayFooter from '../components/GatewayFooter';
+import PageBackdrop from '../components/PageBackdrop';
 import gw from './gateway.module.css';
 
 function hrefFor(base, route) {
@@ -48,6 +49,7 @@ export default function FeaturePage() {
   if (!feature) {
     return (
       <div className={gw.gateway}>
+        <PageBackdrop page="features" />
         <GatewayNavbar onEnter={enter} />
         <div className={gw.gatewayInner}>
           <h1>Feature not found</h1>
@@ -116,6 +118,7 @@ export default function FeaturePage() {
 
   return (
     <div className={gw.gateway}>
+      <PageBackdrop page="features" />
       <PmSeoHead
         title={`${feature.title} | ${config.productName}`}
         description={feature.metaDescription}

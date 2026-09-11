@@ -18,19 +18,20 @@ function loadKnowledge() {
   return knowledgeCache;
 }
 
-const SYSTEM_PROMPT = (knowledge) => `You are the ManyDoors AI website assistant on manydoorsai.com.
-Answer questions using ONLY the site knowledge below. Be concise, friendly, and accurate.
-If the answer is not in the knowledge base, say you are not sure and suggest emailing info@manydoorsai.com.
+const SYSTEM_PROMPT = (knowledge, propertyContext = '') => `You are the ManyDoors AI website assistant on manydoorsai.com.
+Answer questions using ONLY the site knowledge below and any LIVE PROPERTY CONTEXT block (operator-configured — prefer it for pool hours, leasing hours, unit availability, and policies).
+Be concise, friendly, and accurate.
+If the answer is not in the knowledge base or property context, say you are not sure and suggest emailing info@manydoorsai.com.
 Never invent pricing, legal advice, or features not described in the knowledge.
 
-SITE KNOWLEDGE:
+${propertyContext ? `LIVE PROPERTY CONTEXT (prefer for property-specific questions):\n${propertyContext}\n\n` : ''}SITE KNOWLEDGE:
 ${knowledge}`;
 
 /**
  * @param {{ role: 'user'|'assistant', content: string }[]} messages
  * @returns {Promise<string>}
  */
-export async function runPmGeminiChat(messages) {
+export async function runPmGeminiChat(messages, propertyContext = '') {
   const apiKey = process.env.GEMINI_API_KEY;
   if (!apiKey) {
     throw new Error('GEMINI_API_KEY is not configured on the server.');
@@ -57,7 +58,7 @@ export async function runPmGeminiChat(messages) {
   const genAI = new GoogleGenerativeAI(apiKey);
   const model = genAI.getGenerativeModel({
     model: process.env.GEMINI_MODEL || 'gemini-2.0-flash',
-    systemInstruction: SYSTEM_PROMPT(knowledge),
+    systemInstruction: SYSTEM_PROMPT(knowledge, propertyContext),
   });
 
   const chat = model.startChat({ history });

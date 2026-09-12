@@ -3,6 +3,7 @@ import { usePm } from '../context/PmContext';
 import Page from '../components/Page';
 import Icon from '../components/Icon';
 import { importResidentsFromFile } from '../integrations/adapters/fileImport';
+import { mergeResidents } from '../lib/portfolioData';
 import styles from '../pm.module.css';
 
 export default function Residents() {
@@ -18,16 +19,10 @@ export default function Residents() {
     setImporting(true); setMsg(null); setErr(null);
     try {
       const imported = await importResidentsFromFile(file);
-      // Merge: keep existing + append imported (deduped by name+unit)
-      const seen = new Set(residents.map((r) => `${r.name}|${r.unit}`));
-      const merged = [...residents];
-      let added = 0;
-      for (const r of imported) {
-        const k = `${r.name}|${r.unit}`;
-        if (!seen.has(k)) { merged.push(r); seen.add(k); added += 1; }
-      }
+      const merged = mergeResidents(residents, imported, { upsert: true });
+      const added = merged.length - residents.length;
       replaceResidents(merged);
-      setMsg(`Imported ${imported.length} row(s) from ${file.name} — ${added} new resident(s) added.`);
+      setMsg(`Imported ${imported.length} row(s) from ${file.name} — ${added} new, ${imported.length - added} updated.`);
     } catch (e2) {
       setErr(e2.message || 'Import failed.');
     } finally {
@@ -55,16 +50,17 @@ export default function Residents() {
       <div className={styles.card}>
         <table className={styles.table}>
           <thead>
-            <tr><th>Name</th><th>Unit</th><th>Property</th><th>Phone</th><th>Balance</th><th>Lease ends</th></tr>
+            <tr><th>Name</th><th>Unit</th><th>Property</th><th>Phone</th><th>Rent</th><th>Balance</th><th>Lease ends</th></tr>
           </thead>
           <tbody>
-            {residents.length === 0 && <tr><td colSpan={6}><div className={styles.empty}>No residents yet — import a CSV or Excel file to get started.</div></td></tr>}
+            {residents.length === 0 && <tr><td colSpan={7}><div className={styles.empty}>No residents yet — import a CSV or Excel file to get started.</div></td></tr>}
             {residents.map((r) => (
               <tr key={r.id}>
                 <td><strong>{r.name}</strong><div className={styles.itemSub}>{r.email}</div></td>
                 <td>{r.unit || '—'}</td>
                 <td>{r.property || '—'}</td>
                 <td>{r.phone || '—'}</td>
+                <td>{r.rent ? `$${Number(String(r.rent).replace(/[$,]/g, '')).toLocaleString()}` : '—'}</td>
                 <td>{Number(r.balance) > 0 ? <span className={`${styles.badge} ${styles.badgeAmber}`}>${Number(r.balance).toLocaleString()}</span> : <span className={`${styles.badge} ${styles.badgeGreen}`}>$0</span>}</td>
                 <td>{r.leaseEnd || '—'}</td>
               </tr>

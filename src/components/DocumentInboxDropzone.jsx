@@ -1,24 +1,43 @@
 import { useCallback, useState } from 'react';
+import { usePm } from '../context/PmContext';
 import Icon from './Icon';
 import {
-  listInboxItems, addInboxFile, formatFileSize, DEFAULT_INBOX_CONFIG,
+  listInboxItems, formatFileSize, DEFAULT_INBOX_CONFIG,
 } from '../lib/documentInbox';
 import styles from '../pm.module.css';
 import cc from './commandCenter.module.css';
 
 export default function DocumentInboxDropzone() {
+  const { importPortfolioFiles, portfolioSynced } = usePm();
   const [dragOver, setDragOver] = useState(false);
   const [items, setItems] = useState(() => listInboxItems());
   const [uploadMsg, setUploadMsg] = useState(null);
+  const [processing, setProcessing] = useState(false);
 
-  const handleFiles = useCallback((fileList) => {
+  const handleFiles = useCallback(async (fileList) => {
     const files = Array.from(fileList || []);
     if (!files.length) return;
-    const added = files.map((f) => addInboxFile(f));
-    setItems(listInboxItems({ includeMock: false }));
-    setUploadMsg(`${added.length} file(s) queued — AI cataloging coming soon`);
-    setTimeout(() => setUploadMsg(null), 4000);
-  }, []);
+    setProcessing(true);
+    setUploadMsg(null);
+    try {
+      const { results, snapshot } = await importPortfolioFiles(files, { source: 'manual-drop' });
+      setItems(listInboxItems());
+      const ok = results.filter((r) => r.ok && !r.skipped);
+      const failed = results.filter((r) => !r.ok);
+      if (snapshot) {
+        setUploadMsg(`Imported ${ok.length} file(s) — ${snapshot.summaryText}`);
+      } else if (failed.length) {
+        setUploadMsg(`Import failed: ${failed[0].error}`);
+      } else {
+        setUploadMsg(`${files.length} file(s) cataloged`);
+      }
+    } catch (err) {
+      setUploadMsg(err.message || 'Import failed');
+    } finally {
+      setProcessing(false);
+      setTimeout(() => setUploadMsg(null), 6000);
+    }
+  }, [importPortfolioFiles]);
 
   const onDrop = (e) => {
     e.preventDefault();
@@ -33,7 +52,9 @@ export default function DocumentInboxDropzone() {
           <Icon name="upload" size={16} className={cc.cyanIcon} />
           Document inbox
         </span>
-        <span className={`${styles.badge} ${styles.badgeAmber}`}>Coming soon</span>
+        {portfolioSynced
+          ? <span className={`${styles.badge} ${styles.badgeGreen}`}>Rent roll synced</span>
+          : <span className={`${styles.badge} ${styles.badgeBlue}`}>Drop to import</span>}
       </div>
 
       <div
@@ -43,20 +64,21 @@ export default function DocumentInboxDropzone() {
         onDrop={onDrop}
       >
         <Icon name="upload" size={32} className={cc.dropzoneIcon} />
-        <div className={cc.dropzoneTitle}>Drop Yardi exports, rent rolls & A/R PDFs</div>
+        <div className={cc.dropzoneTitle}>Drop Yardi / PMS exports & rent rolls</div>
         <p className={cc.dropzoneCopy}>
-          Nightly at <strong>{DEFAULT_INBOX_CONFIG.yardiExportTime}</strong> your Yardi Voyager daily export
-          lands here. AI sorts rent rolls, aging reports, and work-order PDFs into the right property folders —
-          no manual filing.
+          Nightly at <strong>{DEFAULT_INBOX_CONFIG.yardiExportTime}</strong> your PMS daily export
+          can auto-upload via the sync listener (Settings → PMS nightly sync). CSV and Excel rent rolls
+          update vacancy, residents, and the owner portfolio immediately.
         </p>
         <label className={`${styles.btn} ${styles.btnPrimary}`} style={{ marginTop: 12, cursor: 'pointer' }}>
           <Icon name="plus" size={15} />
-          Browse files (demo)
+          {processing ? 'Processing…' : 'Browse files'}
           <input
             type="file"
             multiple
-            accept=".pdf,.csv,.xlsx,.xls"
+            accept=".pdf,.csv,.xlsx,.xls,.xlsm"
             style={{ display: 'none' }}
+            disabled={processing}
             onChange={(e) => handleFiles(e.target.files)}
           />
         </label>
@@ -77,7 +99,12 @@ export default function DocumentInboxDropzone() {
                   {' · '}{formatFileSize(item.sizeBytes)}
                 </div>
               </div>
-              <span className={`${styles.badge} ${item.status === 'sorted' ? styles.badgeGreen : styles.badgeGray}`}>
+              <span className={`${styles.badge} ${
+                item.status === 'sorted' ? styles.badgeGreen
+                  : item.status === 'error' ? styles.badgeRed
+                    : item.status === 'processing' ? styles.badgeAmber
+                      : styles.badgeGray
+              }`}>
                 {item.status}
               </span>
             </div>

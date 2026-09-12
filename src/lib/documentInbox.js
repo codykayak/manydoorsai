@@ -1,11 +1,13 @@
 /**
- * Document inbox — scaffold for AI-sorted Yardi/PMS file drop zone.
+ * Document inbox — PMS export drop zone with rent-roll processing.
  *
- * Future: server-side OCR + classification pipeline. Today: localStorage demo
- * storage with typed records so UI and backend can wire up without refactors.
+ * Metadata is stored per-tenant in localStorage. Spreadsheet files are parsed
+ * by portfolioImport.js; PDFs are cataloged for future OCR.
  */
 
-const STORAGE_KEY = 'pm:documentInbox';
+import APP_CONFIG from '../config/appConfig';
+
+const STORAGE_KEY = `pm:${APP_CONFIG.defaultTenantId}:documentInbox`;
 
 /** @typedef {'pending' | 'processing' | 'sorted' | 'error'} InboxItemStatus */
 
@@ -15,56 +17,20 @@ const STORAGE_KEY = 'pm:documentInbox';
  * @property {string} fileName
  * @property {number} sizeBytes
  * @property {string} mimeType
- * @property {number} uploadedAt - epoch ms
+ * @property {number} uploadedAt
  * @property {InboxItemStatus} status
- * @property {string} [source] - e.g. 'yardi-daily-export', 'manual-drop'
- * @property {string} [category] - AI-assigned category when sorted
+ * @property {string} [source]
+ * @property {string} [category]
  * @property {string} [propertyId]
- * @property {string} [summary] - AI-generated one-liner
- */
-
-/**
- * @typedef {Object} DocumentInboxConfig
- * @property {boolean} enabled
- * @property {string} yardiExportTime - e.g. '18:00' local
- * @property {string[]} acceptedMimeTypes
- * @property {number} maxFileSizeMb
+ * @property {string} [summary]
  */
 
 export const DEFAULT_INBOX_CONFIG = {
-  enabled: false,
+  enabled: true,
   yardiExportTime: '18:00',
   acceptedMimeTypes: ['application/pdf', 'text/csv', 'application/vnd.ms-excel'],
   maxFileSizeMb: 25,
 };
-
-/** Demo items shown when inbox is empty (Yardi 6pm workflow illustration). */
-export const MOCK_INBOX_ITEMS = [
-  {
-    id: 'inbox_demo_1',
-    fileName: 'Yardi_RentRoll_MapleGrove_2026-09-07.pdf',
-    sizeBytes: 284000,
-    mimeType: 'application/pdf',
-    uploadedAt: Date.now() - 1000 * 60 * 60 * 14,
-    status: 'sorted',
-    source: 'yardi-daily-export',
-    category: 'Rent Roll',
-    propertyId: 'p1',
-    summary: '184 units · 6 vacant · 3 notice-to-vacate',
-  },
-  {
-    id: 'inbox_demo_2',
-    fileName: 'Yardi_ARAging_Riverbend_2026-09-07.pdf',
-    sizeBytes: 156000,
-    mimeType: 'application/pdf',
-    uploadedAt: Date.now() - 1000 * 60 * 60 * 13,
-    status: 'sorted',
-    source: 'yardi-daily-export',
-    category: 'A/R Aging',
-    propertyId: 'p2',
-    summary: '$4,280 delinquent · 2 accounts >30 days',
-  },
-];
 
 function readStore() {
   try {
@@ -88,19 +54,16 @@ export function genInboxId() {
   return `inbox_${Date.now().toString(36)}_${Math.random().toString(36).slice(2, 7)}`;
 }
 
-/** List all inbox items (user uploads + optional mock seed). */
-export function listInboxItems({ includeMock = true } = {}) {
-  const stored = readStore();
-  if (stored.length || !includeMock) return stored;
-  return MOCK_INBOX_ITEMS;
+/** List inbox items (user uploads only — no mock seed). */
+export function listInboxItems() {
+  return readStore();
 }
 
 /**
- * Add a file to the demo inbox (in-memory classification stub).
  * @param {File} file
- * @returns {DocumentInboxItem}
+ * @param {object} [meta]
  */
-export function addInboxFile(file) {
+export function addInboxFile(file, meta = {}) {
   const item = {
     id: genInboxId(),
     fileName: file.name,
@@ -108,22 +71,26 @@ export function addInboxFile(file) {
     mimeType: file.type || 'application/octet-stream',
     uploadedAt: Date.now(),
     status: 'pending',
-    source: 'manual-drop',
+    source: meta.source || 'manual-drop',
   };
-  const items = [item, ...readStore().filter((x) => !x.id.startsWith('inbox_demo'))];
-  writeStore(items);
+  writeStore([item, ...readStore()]);
   return item;
 }
 
-/** Mark item as processing (future AI pipeline hook). */
 export function updateInboxItem(id, patch) {
   const items = readStore().map((x) => (x.id === id ? { ...x, ...patch } : x));
   writeStore(items);
   return items.find((x) => x.id === id);
 }
 
-export function clearInboxDemo() {
-  writeStore(readStore().filter((x) => !x.id.startsWith('inbox_demo')));
+export function classifyInboxItem(fileName) {
+  const fn = (fileName || '').toLowerCase();
+  if (fn.includes('rent_roll') || fn.includes('rentroll')) return 'Rent Roll';
+  if (fn.includes('ar_aging') || fn.includes('aging')) return 'A/R Aging';
+  if (fn.includes('work_order') || fn.includes('wo_')) return 'Work Orders';
+  if (/\.(csv|xlsx|xls)$/.test(fn)) return 'Rent Roll';
+  if (/\.pdf$/.test(fn)) return 'PMS Export';
+  return 'Document';
 }
 
 export function formatFileSize(bytes) {

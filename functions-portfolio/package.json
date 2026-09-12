@@ -1,0 +1,12 @@
+{
+  "name": "manydoorsai-portfolio-sync",
+  "type": "module",
+  "main": "index.js",
+  "engines": { "node": "20" },
+  "dependencies": {
+    "firebase-admin": "^13.0.2",
+    "firebase-functions": "^6.3.2",
+    "papaparse": "^5.5.3",
+    "xlsx": "^0.18.5"
+  }
+}

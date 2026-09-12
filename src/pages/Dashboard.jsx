@@ -17,6 +17,7 @@ import cc from '../components/commandCenter.module.css';
 export default function Dashboard() {
   const {
     conversations, leasingLeads, workOrders, tenant, config, onboardingComplete, featureMap,
+    vacantUnits: liveVacantUnits,
   } = usePm();
 
   const stats = useMemo(() => {
@@ -39,7 +40,10 @@ export default function Dashboard() {
   );
 
   const afterHours = useMemo(() => buildAfterHoursLog(conversations), [conversations]);
-  const vacantUnits = useMemo(() => sortVacantUnits(), []);
+  const vacantUnits = useMemo(
+    () => sortVacantUnits(liveVacantUnits?.length ? liveVacantUnits : undefined),
+    [liveVacantUnits],
+  );
 
   const base = config.basePath || '/property-management';
 

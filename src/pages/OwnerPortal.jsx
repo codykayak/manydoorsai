@@ -5,8 +5,10 @@ import Icon from '../components/Icon';
 import OwnerReport from '../components/OwnerReport';
 import PortfolioCommandCenter from '../components/PortfolioCommandCenter';
 import { LineChart, GroupedBar, BarChart, PieChart } from '../components/charts/Charts';
-import { PROPERTIES, monthLabel } from '../data/financials';
-import { summarize, benchmark, maintenancePerUnit, forecastNOI, whatIf, usd, pct } from '../lib/finance';
+import { monthLabel } from '../data/financials';
+import {
+  summarize, benchmark, maintenancePerUnit, forecastNOI, whatIf, usd, pct, getDisplayProperties,
+} from '../lib/finance';
 import { computeAiImpact, aiImpactSeries } from '../lib/aiImpact';
 import styles from '../pm.module.css';
 
@@ -17,12 +19,22 @@ const RED = '#f85149';
 const PURPLE = '#bc8cff';
 
 export default function OwnerPortal() {
-  const { config, conversations, workOrders, leasingLeads } = usePm();
+  const {
+    config, conversations, workOrders, leasingLeads, tenant, portfolio, portfolioSynced,
+  } = usePm();
   const [scope, setScope] = useState('all');
   const [showReport, setShowReport] = useState(false);
 
+  const displayProperties = useMemo(
+    () => getDisplayProperties(portfolio, tenant?.properties),
+    [portfolio, tenant],
+  );
+
   const propertyIds = scope === 'all' ? null : [scope];
-  const summary = useMemo(() => summarize(propertyIds), [scope]); // eslint-disable-line react-hooks/exhaustive-deps
+  const summary = useMemo(
+    () => summarize(propertyIds, portfolioSynced ? portfolio : null),
+    [scope, portfolio, portfolioSynced], // eslint-disable-line react-hooks/exhaustive-deps
+  );
   const bench = useMemo(() => benchmark(), []);
   const maintPU = useMemo(() => maintenancePerUnit(propertyIds), [scope]); // eslint-disable-line react-hooks/exhaustive-deps
   const fc = useMemo(() => forecastNOI(propertyIds, 6), [scope]); // eslint-disable-line react-hooks/exhaustive-deps
@@ -52,10 +64,12 @@ export default function OwnerPortal() {
       subtitle={`${config.companyName} · real-time portfolio performance`}
       actions={
         <>
-          <span className={`${styles.badge} ${styles.badgeAmber}`}><Icon name="spark" size={12} /> Simulated data</span>
+          {portfolioSynced
+            ? <span className={`${styles.badge} ${styles.badgeGreen}`}><Icon name="check" size={12} /> Rent roll synced</span>
+            : <span className={`${styles.badge} ${styles.badgeAmber}`}><Icon name="spark" size={12} /> GL simulated</span>}
           <select className={styles.select} style={{ width: 190 }} value={scope} onChange={(e) => setScope(e.target.value)}>
             <option value="all">Entire Portfolio</option>
-            {PROPERTIES.map((p) => <option key={p.id} value={p.id}>{p.name}</option>)}
+            {displayProperties.map((p) => <option key={p.id} value={p.id}>{p.name}</option>)}
           </select>
           <button className={`${styles.btn} ${styles.btnPrimary}`} onClick={() => setShowReport(true)}>
             <Icon name="doc" size={15} /> Generate owner report
@@ -66,7 +80,7 @@ export default function OwnerPortal() {
       <PortfolioCommandCenter
         summary={summary}
         openWorkOrders={workOrders.filter((w) => w.status !== 'closed').length}
-        propertyCount={scope === 'all' ? PROPERTIES.length : 1}
+        propertyCount={scope === 'all' ? displayProperties.length : 1}
       />
 
       {/* Headline KPIs */}

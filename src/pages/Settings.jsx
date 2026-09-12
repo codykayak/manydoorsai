@@ -3,6 +3,7 @@ import { usePm } from '../context/PmContext';
 import Page from '../components/Page';
 import Icon from '../components/Icon';
 import SetupWizard from '../components/SetupWizard';
+import PortfolioSyncPanel from '../components/PortfolioSyncPanel';
 import { MANIFESTS, CATEGORY, manifestsByCategory } from '../integrations/registry';
 import styles from '../pm.module.css';
 
@@ -62,6 +63,8 @@ export default function Settings() {
           ))}
         </div>
       </div>
+
+      <PortfolioSyncPanel />
 
       {/* Integrations — manifest-driven */}
       <div className={styles.sectionTitle}>Integrations</div>

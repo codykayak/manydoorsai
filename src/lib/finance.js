@@ -9,6 +9,7 @@
  */
 
 import { PROPERTIES, EXPENSE_CATEGORIES, MONTHS } from '../data/financials';
+import { liveOccupancyKpis } from './portfolioData';
 
 const fmtUSD = (n, frac = 0) =>
   (n < 0 ? '-' : '') + '$' + Math.abs(Math.round(n)).toLocaleString(undefined, { maximumFractionDigits: frac });
@@ -69,8 +70,44 @@ function capital(propertyIds = null) {
   );
 }
 
+/** Properties for owner portal scope dropdown — prefers live rent-roll data. */
+export function getDisplayProperties(portfolio, tenantProperties) {
+  if (portfolio?.properties?.length) {
+    return portfolio.properties.map((p) => {
+      const synth = PROPERTIES.find((x) => x.id === p.id || x.name === p.name);
+      return synth ? { ...synth, units: p.units, occupied: p.occupied, vacant: p.vacant } : {
+        id: p.id,
+        name: p.name,
+        units: p.units,
+        monthly: buildSeries([p.id]).length ? [] : [],
+      };
+    });
+  }
+  if (tenantProperties?.length) {
+    return tenantProperties.map((p) => {
+      const synth = PROPERTIES.find((x) => x.id === p.id || x.name === p.name);
+      return synth ? { ...synth, units: p.units || synth.units } : p;
+    });
+  }
+  return PROPERTIES;
+}
+
+/** Overlay rent-roll occupancy onto synthetic GL summary. */
+export function applyLiveOccupancy(summary, portfolio) {
+  const live = liveOccupancyKpis(portfolio);
+  if (!live) return summary;
+  const cap = { ...summary.cap, units: live.totalUnits };
+  return {
+    ...summary,
+    cap,
+    vacancyRate: live.vacancyRate,
+    delinquencyRate: live.delinquencyRate,
+    liveOccupancy: live,
+  };
+}
+
 /** Headline KPIs for a property selection. */
-export function summarize(propertyIds = null) {
+export function summarize(propertyIds = null, portfolio = null) {
   const series = buildSeries(propertyIds);
   const cap = capital(propertyIds);
   const latest = series[series.length - 1];
@@ -91,7 +128,7 @@ export function summarize(propertyIds = null) {
   const incomeMTD = latest.income;
   const expenseMTD = latest.totalExpense;
 
-  return {
+  const base = {
     series,
     cap,
     latestMonth: latest.month,
@@ -117,6 +154,7 @@ export function summarize(propertyIds = null) {
       key: c.key, label: c.label, color: c.color, value: latest.expenses[c.key] || 0,
     })),
   };
+  return portfolio ? applyLiveOccupancy(base, portfolio) : base;
 }
 
 /** Per-property rows for benchmarking. */

@@ -60,6 +60,16 @@ service cloud.firestore {
       match /knowledge/{docId}     { allow read, write: if isMember(tenantId); }
       match /financials/{docId}    { allow read, write: if isMember(tenantId); }
 
+      // Rent-roll / PMS nightly sync — members read; writes via Admin SDK only.
+      match /portfolio/{docId} {
+        allow read: if isMember(tenantId);
+        allow write: if false;
+      }
+      match /portfolio/history/{importId} {
+        allow read: if isMember(tenantId);
+        allow write: if false;
+      }
+
       // Integration connection STATUS (non-secret): members read, admins write.
       match /integrations/{docId} {
         allow read:  if isMember(tenantId);

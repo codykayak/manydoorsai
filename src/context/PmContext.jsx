@@ -9,7 +9,7 @@
  * state initializers — the local store is synchronous, so no effect is needed.
  */
 
-import { createContext, useContext, useMemo, useState, useCallback } from 'react';
+import { createContext, useContext, useMemo, useState, useCallback, useEffect } from 'react';
 import { createStore } from '../data/store';
 import { resolveFeatures } from '../config/featureRegistry';
 import APP_CONFIG from '../config/appConfig';
@@ -23,6 +23,9 @@ import {
   seedSettings, seedKnowledge, seedResidents,
   seedConversations, seedLeasingLeads, seedWorkOrders,
 } from '../data/seed';
+import { emptyPortfolioSnapshot, deriveVacantUnits, buildSnapshotFromImport } from '../lib/portfolioData';
+import { processPortfolioFiles } from '../lib/portfolioImport';
+import { fetchLatestPortfolio, getStoredSyncKey } from '../lib/portfolioSyncApi';
 
 const PmContext = createContext(null);
 
@@ -57,6 +60,7 @@ function bootstrap(store) {
     workOrders: store.workOrders(),
     knowledge: store.knowledge(),
     integrations: store.getIntegrations(),
+    portfolio: store.getPortfolio() || emptyPortfolioSnapshot(),
   };
 }
 
@@ -72,6 +76,7 @@ export function PmProvider({ children }) {
   const [workOrders, setWorkOrders] = useState(snapshot.workOrders);
   const [knowledge, setKnowledge] = useState(snapshot.knowledge);
   const [integrations, setIntegrations] = useState(snapshot.integrations);
+  const [portfolio, setPortfolio] = useState(snapshot.portfolio);
 
   const features = useMemo(
     () => resolveFeatures(settings?.features || {}),
@@ -232,6 +237,78 @@ export function PmProvider({ children }) {
 
   const onboardingComplete = Boolean(settings?.onboardingComplete);
 
+  const importPortfolioFiles = useCallback(async (files, opts = {}) => {
+    const result = await processPortfolioFiles(files, {
+      store,
+      settings,
+      saveSettings,
+      replaceResidents: (items) => {
+        store.saveList('residents', items);
+        setResidents(items);
+      },
+      residents,
+    }, opts);
+
+    if (result.snapshot) {
+      setPortfolio(result.snapshot);
+      store.addImportHistory({
+        fileName: result.snapshot.fileName,
+        source: result.snapshot.source,
+        summaryText: result.snapshot.summaryText,
+        importedAt: result.snapshot.importedAt,
+      });
+    }
+    return result;
+  }, [store, settings, residents, saveSettings]);
+
+  const applyPortfolioSnapshot = useCallback((snapshot) => {
+    const next = buildSnapshotFromImport(snapshot);
+    store.savePortfolio(next);
+    setPortfolio(next);
+    return next;
+  }, [store]);
+
+  const syncPortfolioFromServer = useCallback(async () => {
+    const data = await fetchLatestPortfolio();
+    if (!data?.snapshot) return null;
+    const next = applyPortfolioSnapshot(data.snapshot);
+    if (data.residents?.length) {
+      store.saveList('residents', data.residents);
+      setResidents(data.residents);
+    }
+    if (data.properties?.length && settings) {
+      const tenant = {
+        ...settings.tenant,
+        properties: data.properties,
+      };
+      const nextSettings = {
+        ...settings,
+        tenant,
+        portfolioSync: {
+          ...(settings.portfolioSync || {}),
+          lastSyncAt: Date.now(),
+          lastFileName: next.fileName,
+        },
+      };
+      store.saveSettings(nextSettings);
+      setSettings(nextSettings);
+    }
+    return next;
+  }, [applyPortfolioSnapshot, settings, store]);
+
+  const vacantUnits = useMemo(
+    () => deriveVacantUnits(portfolio),
+    [portfolio],
+  );
+
+  const portfolioSynced = Boolean(portfolio?.importedAt && portfolio?.units?.length);
+
+  useEffect(() => {
+    if (!getStoredSyncKey()) return;
+    syncPortfolioFromServer().catch(() => {});
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   const value = {
     config: APP_CONFIG,
     tenant: settings?.tenant ?? null,
@@ -263,6 +340,13 @@ export function PmProvider({ children }) {
     removeKnowledge: removeFromCollection('knowledge', setKnowledge),
     saveIntegration,
     disconnectIntegration,
+    // portfolio / PMS sync
+    portfolio,
+    portfolioSynced,
+    vacantUnits,
+    importPortfolioFiles,
+    applyPortfolioSnapshot,
+    syncPortfolioFromServer,
   };
 
   return <PmContext.Provider value={value}>{children}</PmContext.Provider>;

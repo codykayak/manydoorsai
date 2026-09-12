@@ -87,6 +87,16 @@ export function createStore(tenantId) {
     leasingLeads: () => list('leasingLeads'),
     workOrders: () => list('workOrders'),
     knowledge: () => list('knowledge'),
+    // portfolio snapshot from rent-roll / PMS nightly export
+    getPortfolio: () => read(tenantId, 'portfolio', null),
+    savePortfolio: (snapshot) => write(tenantId, 'portfolio', snapshot),
+    getImportHistory: () => list('importHistory'),
+    addImportHistory: (entry) => {
+      const items = list('importHistory');
+      items.unshift({ ...entry, id: entry.id || genId('imp'), createdAt: Date.now() });
+      saveList('importHistory', items.slice(0, 50));
+      return items[0];
+    },
   };
 }
 

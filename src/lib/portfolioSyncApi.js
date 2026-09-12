@@ -1,49 +1,32 @@
 /**
- * Client for pmPortfolioSync — nightly PMS export upload + pull latest snapshot.
+ * Portfolio sync client — staff use Google sign-in; machines use the GCP secret.
  */
 
 import APP_CONFIG from '../config/appConfig';
+import { getIdToken } from './pmAuth';
 
 const DEFAULT_URL =
   'https://us-central1-property-managment-a5ed3.cloudfunctions.net/pmPortfolioSync';
-
-const STORAGE_KEY = 'pm:portfolio:syncKey';
 
 export function getPortfolioSyncUrl() {
   return (import.meta.env.VITE_PM_PORTFOLIO_SYNC_URL || DEFAULT_URL).replace(/\/$/, '');
 }
 
-export function getStoredSyncKey() {
-  try {
-    return localStorage.getItem(STORAGE_KEY) || '';
-  } catch {
-    return '';
-  }
+async function authHeaders() {
+  const token = await getIdToken();
+  if (!token) throw new Error('Sign in with Google to view or configure nightly sync.');
+  return { Authorization: `Bearer ${token}` };
 }
 
-export function setStoredSyncKey(key) {
-  try {
-    if (key) localStorage.setItem(STORAGE_KEY, key);
-    else localStorage.removeItem(STORAGE_KEY);
-  } catch {
-    /* ignore */
-  }
-}
-
-async function request(method, { action, body, query, file } = {}) {
-  const key = getStoredSyncKey();
-  if (!key) throw new Error('Enter your Portfolio Sync API key in Settings → PMS nightly sync.');
-
+async function request(method, { action, body, query, file, tenantId } = {}) {
   const url = new URL(getPortfolioSyncUrl());
   if (action) url.searchParams.set('action', action);
   if (query) {
     for (const [k, v] of Object.entries(query)) url.searchParams.set(k, v);
   }
 
-  const headers = {
-    'X-Portfolio-Sync-Key': key,
-    'X-Tenant-Id': APP_CONFIG.defaultTenantId,
-  };
+  const headers = await authHeaders();
+  headers['X-Tenant-Id'] = tenantId || APP_CONFIG.defaultTenantId;
 
   let fetchBody = body;
   if (file) {
@@ -61,23 +44,41 @@ async function request(method, { action, body, query, file } = {}) {
   return data;
 }
 
-/** Upload a rent-roll file to the server (same as nightly listener). */
-export async function uploadPortfolioFile(file) {
-  return request('POST', { file });
-}
-
-/** Pull the latest portfolio snapshot from Firestore. */
-export async function fetchLatestPortfolio() {
+/** Pull the latest portfolio snapshot (Google sign-in). */
+export async function fetchLatestPortfolio(tenantId) {
   return request('GET', {
     action: 'latest',
-    query: { tenantId: APP_CONFIG.defaultTenantId },
+    query: { tenantId: tenantId || APP_CONFIG.defaultTenantId },
+    tenantId,
   });
 }
 
-/** Get sync status and ingest history. */
-export async function fetchSyncStatus() {
+export async function fetchSyncStatus(tenantId) {
   return request('GET', {
     action: 'status',
-    query: { tenantId: APP_CONFIG.defaultTenantId },
+    query: { tenantId: tenantId || APP_CONFIG.defaultTenantId },
+    tenantId,
   });
+}
+
+/** Build a Windows installer script for this tenant's folder + schedule. */
+export function buildSyncInstallerBat({ tenantId, exportFolder, scheduleTime = '18:15' }) {
+  const folder = exportFolder || 'C:\\YardiExports';
+  const [hour, minute] = scheduleTime.split(':');
+  return `@echo off
+REM ManyDoors AI — nightly PMS export uploader
+REM Tenant: ${tenantId}
+REM Folder: ${folder}
+REM Schedule: daily at ${scheduleTime}
+
+set TENANT_ID=${tenantId}
+set EXPORT_DIR=${folder}
+set PORTFOLIO_SYNC_API_KEY=PASTE_YOUR_SECRET_MANAGER_KEY_HERE
+
+cd /d "%~dp0\\..\\.."
+schtasks /Create /TN "ManyDoors PMS Sync" /TR "cmd /c cd /d %~dp0\\..\\.. && set TENANT_ID=${tenantId}&& set EXPORT_DIR=${folder}&& set PORTFOLIO_SYNC_API_KEY=%PORTFOLIO_SYNC_API_KEY%&& node scripts\\nightly-pms-export-upload.mjs" /SC DAILY /ST ${hour}:${minute} /F
+
+echo Scheduled nightly upload at ${scheduleTime}. Edit PORTFOLIO_SYNC_API_KEY in Task Scheduler env or setx before first run.
+pause
+`;
 }

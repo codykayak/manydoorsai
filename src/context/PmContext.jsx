@@ -25,7 +25,6 @@ import {
 } from '../data/seed';
 import { emptyPortfolioSnapshot, deriveVacantUnits, buildSnapshotFromImport } from '../lib/portfolioData';
 import { processPortfolioFiles } from '../lib/portfolioImport';
-import { fetchLatestPortfolio, getStoredSyncKey } from '../lib/portfolioSyncApi';
 
 const PmContext = createContext(null);
 
@@ -268,46 +267,12 @@ export function PmProvider({ children }) {
     return next;
   }, [store]);
 
-  const syncPortfolioFromServer = useCallback(async () => {
-    const data = await fetchLatestPortfolio();
-    if (!data?.snapshot) return null;
-    const next = applyPortfolioSnapshot(data.snapshot);
-    if (data.residents?.length) {
-      store.saveList('residents', data.residents);
-      setResidents(data.residents);
-    }
-    if (data.properties?.length && settings) {
-      const tenant = {
-        ...settings.tenant,
-        properties: data.properties,
-      };
-      const nextSettings = {
-        ...settings,
-        tenant,
-        portfolioSync: {
-          ...(settings.portfolioSync || {}),
-          lastSyncAt: Date.now(),
-          lastFileName: next.fileName,
-        },
-      };
-      store.saveSettings(nextSettings);
-      setSettings(nextSettings);
-    }
-    return next;
-  }, [applyPortfolioSnapshot, settings, store]);
-
   const vacantUnits = useMemo(
     () => deriveVacantUnits(portfolio),
     [portfolio],
   );
 
   const portfolioSynced = Boolean(portfolio?.importedAt && portfolio?.units?.length);
-
-  useEffect(() => {
-    if (!getStoredSyncKey()) return;
-    syncPortfolioFromServer().catch(() => {});
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
 
   const value = {
     config: APP_CONFIG,
@@ -346,7 +311,6 @@ export function PmProvider({ children }) {
     vacantUnits,
     importPortfolioFiles,
     applyPortfolioSnapshot,
-    syncPortfolioFromServer,
   };
 
   return <PmContext.Provider value={value}>{children}</PmContext.Provider>;

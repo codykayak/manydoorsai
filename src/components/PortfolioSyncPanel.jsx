@@ -1,37 +1,67 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { usePm } from '../context/PmContext';
+import { usePmAuth } from '../hooks/usePmAuth';
 import Icon from './Icon';
-import APP_CONFIG from '../config/appConfig';
 import {
-  getPortfolioSyncUrl, getStoredSyncKey, setStoredSyncKey, fetchSyncStatus,
-} from '../lib/portfolioSyncApi';
+  loadSyncConfig, saveSyncConfig, loadPortfolioFromFirestore, isPmFirebaseConfigured,
+} from '../lib/pmAuth';
+import { buildSyncInstallerBat, fetchSyncStatus } from '../lib/portfolioSyncApi';
 import styles from '../pm.module.css';
 
+const DEFAULT_TIME = '18:15';
+
 export default function PortfolioSyncPanel() {
-  const { portfolio, portfolioSynced, syncPortfolioFromServer, importPortfolioFiles, settings } = usePm();
-  const [apiKey, setApiKey] = useState(() => getStoredSyncKey());
+  const { portfolio, portfolioSynced, importPortfolioFiles, applyPortfolioSnapshot } = usePm();
+  const { user, tenantId, loading: authLoading, signIn, signOut } = usePmAuth();
+  const [exportFolder, setExportFolder] = useState('');
+  const [scheduleTime, setScheduleTime] = useState(DEFAULT_TIME);
   const [syncing, setSyncing] = useState(false);
   const [msg, setMsg] = useState(null);
   const [err, setErr] = useState(null);
-  const [status, setStatus] = useState(null);
+  const [serverStatus, setServerStatus] = useState(null);
 
-  const syncUrl = getPortfolioSyncUrl();
-  const tenantId = APP_CONFIG.defaultTenantId;
-  const lastImport = settings?.portfolioSync?.lastImportAt || portfolio?.importedAt;
+  const tid = tenantId || 'demo';
+  const lastImport = portfolio?.importedAt;
 
-  async function saveKey() {
-    setStoredSyncKey(apiKey.trim());
-    setMsg('API key saved locally.');
-    setErr(null);
+  useEffect(() => {
+    if (!user || !tenantId) return;
+    loadSyncConfig(tenantId).then((cfg) => {
+      if (cfg?.exportFolder) setExportFolder(cfg.exportFolder);
+      if (cfg?.scheduleTime) setScheduleTime(cfg.scheduleTime);
+    }).catch(() => {});
+    loadPortfolioFromFirestore(tenantId).then((snap) => {
+      if (snap) applyPortfolioSnapshot(snap);
+    }).catch(() => {});
+  }, [user, tenantId, applyPortfolioSnapshot]);
+
+  async function pickFolder() {
+    try {
+      if (window.showDirectoryPicker) {
+        const handle = await window.showDirectoryPicker();
+        setExportFolder(handle.name);
+        setMsg(`Selected folder: ${handle.name} (enter full path below if needed)`);
+      } else {
+        setMsg('Enter the full path where Yardi drops the nightly CSV (e.g. C:\\YardiExports).');
+      }
+    } catch {
+      /* user cancelled */
+    }
   }
 
-  async function pullLatest() {
+  async function saveSetup() {
+    if (!exportFolder.trim()) {
+      setErr('Choose or enter the folder where your PMS saves the nightly export.');
+      return;
+    }
     setSyncing(true);
-    setMsg(null);
     setErr(null);
     try {
-      const snap = await syncPortfolioFromServer();
-      setMsg(snap ? `Synced — ${snap.summaryText}` : 'No snapshot on server yet.');
+      await saveSyncConfig(tid, {
+        exportFolder: exportFolder.trim(),
+        scheduleTime,
+        enabled: true,
+      });
+      setMsg('Nightly sync settings saved. Download the installer below for this PC.');
     } catch (e) {
       setErr(e.message);
     } finally {
@@ -39,10 +69,25 @@ export default function PortfolioSyncPanel() {
     }
   }
 
-  async function checkStatus() {
+  function downloadInstaller() {
+    const bat = buildSyncInstallerBat({ tenantId: tid, exportFolder, scheduleTime });
+    const blob = new Blob([bat], { type: 'text/plain' });
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = `manydoors-sync-${tid}.bat`;
+    a.click();
+    URL.revokeObjectURL(a.href);
+    setMsg('Installer downloaded. Run once on the PC that receives the nightly Yardi export.');
+  }
+
+  async function refreshStatus() {
     try {
-      const data = await fetchSyncStatus();
-      setStatus(data);
+      const data = await fetchSyncStatus(tid);
+      setServerStatus(data);
+      if (data?.snapshot || data?.lastImportAt) {
+        const snap = await loadPortfolioFromFirestore(tid);
+        if (snap) applyPortfolioSnapshot(snap);
+      }
     } catch (e) {
       setErr(e.message);
     }
@@ -64,12 +109,14 @@ export default function PortfolioSyncPanel() {
     }
   }
 
-  const curlExample = `curl -X POST "${syncUrl}" \\
-  -H "X-Portfolio-Sync-Key: YOUR_KEY" \\
-  -H "X-Tenant-Id: ${tenantId}" \\
-  -H "X-File-Name: Yardi_RentRoll.csv" \\
-  -H "Content-Type: text/csv" \\
-  --data-binary @Yardi_RentRoll.csv`;
+  if (!isPmFirebaseConfigured) {
+    return (
+      <div className={styles.card} style={{ marginTop: 18 }}>
+        <div className={styles.cardTitle}>PMS nightly sync</div>
+        <p className={styles.hint}>Firebase is not configured in this build — use the document inbox to import CSV files manually.</p>
+      </div>
+    );
+  }
 
   return (
     <div className={styles.card} style={{ marginTop: 18 }}>
@@ -83,77 +130,101 @@ export default function PortfolioSyncPanel() {
       </div>
 
       <p className={styles.hint} style={{ marginBottom: 14 }}>
-        Works with Yardi, RealPage, AppFolio, Entrata, or any PMS that exports CSV/Excel.
-        Schedule a nightly export, then run the upload listener on the PMC&apos;s machine — no Voyager API required.
+        Sign in with Google, pick the folder where Yardi (or any PMS) drops the nightly rent roll,
+        and we handle the rest. No database setup per property manager — one tenant, one folder, one schedule.
       </p>
 
-      <div className={styles.field}>
-        <label className={styles.label}>Portfolio Sync API key</label>
-        <div className={styles.row}>
-          <input
-            className={styles.input}
-            type="password"
-            placeholder="Set PORTFOLIO_SYNC_API_KEY in Firebase Functions"
-            value={apiKey}
-            onChange={(e) => setApiKey(e.target.value)}
-          />
-          <button className={`${styles.btn} ${styles.btnSm}`} onClick={saveKey}>Save</button>
-        </div>
-      </div>
-
-      <div className={`${styles.grid} ${styles.cols3}`} style={{ marginTop: 12 }}>
-        <div>
-          <div className={styles.metricLabel}>Tenant ID</div>
-          <code style={{ fontSize: 13 }}>{tenantId}</code>
-        </div>
-        <div>
-          <div className={styles.metricLabel}>Last import</div>
-          <div style={{ fontSize: 14, fontWeight: 600 }}>
-            {lastImport ? new Date(lastImport).toLocaleString() : 'Never'}
+      {!user ? (
+        <button className={`${styles.btn} ${styles.btnPrimary}`} onClick={signIn} disabled={authLoading}>
+          <Icon name="users" size={15} /> {authLoading ? 'Loading…' : 'Sign in with Google'}
+        </button>
+      ) : (
+        <>
+          <div className={styles.row} style={{ marginBottom: 12, gap: 8, flexWrap: 'wrap' }}>
+            <span className={styles.hint}>Signed in as <strong>{user.email}</strong></span>
+            <button className={`${styles.btn} ${styles.btnSm} ${styles.btnGhost}`} onClick={signOut}>Sign out</button>
           </div>
-          {portfolio?.fileName && <div className={styles.hint}>{portfolio.fileName}</div>}
-        </div>
-        <div>
-          <div className={styles.metricLabel}>Units tracked</div>
-          <div style={{ fontSize: 14, fontWeight: 600 }}>{portfolio?.summary?.totalUnits || 0}</div>
-        </div>
-      </div>
 
-      <div className={styles.row} style={{ marginTop: 14, gap: 8, flexWrap: 'wrap' }}>
-        <button className={`${styles.btn} ${styles.btnPrimary}`} onClick={pullLatest} disabled={syncing}>
-          <Icon name="refresh" size={15} /> {syncing ? 'Syncing…' : 'Pull latest from server'}
-        </button>
-        <button className={`${styles.btn} ${styles.btnGhost}`} onClick={checkStatus} disabled={syncing}>
-          Check server status
-        </button>
-        <label className={`${styles.btn} ${styles.btnGhost}`} style={{ cursor: 'pointer' }}>
-          <Icon name="upload" size={15} /> Manual import
-          <input type="file" accept=".csv,.xlsx,.xls,.xlsm" style={{ display: 'none' }} onChange={onManualFile} />
-        </label>
-      </div>
+          <div className={styles.field}>
+            <label className={styles.label}>Nightly export folder</label>
+            <div className={styles.row}>
+              <input
+                className={styles.input}
+                placeholder="C:\YardiExports"
+                value={exportFolder}
+                onChange={(e) => setExportFolder(e.target.value)}
+              />
+              <button type="button" className={`${styles.btn} ${styles.btnSm}`} onClick={pickFolder}>Browse</button>
+            </div>
+            <div className={styles.hint} style={{ marginTop: 6 }}>
+              Point Yardi Voyager scheduled reports to this folder (CSV rent roll).
+            </div>
+          </div>
+
+          <div className={styles.field}>
+            <label className={styles.label}>Upload time (local)</label>
+            <input
+              className={styles.input}
+              type="time"
+              value={scheduleTime}
+              onChange={(e) => setScheduleTime(e.target.value)}
+              style={{ maxWidth: 160 }}
+            />
+            <div className={styles.hint} style={{ marginTop: 6 }}>
+              We upload shortly after your PMS export lands (default 6:15 PM).
+            </div>
+          </div>
+
+          <div className={`${styles.grid} ${styles.cols3}`} style={{ marginTop: 12 }}>
+            <div>
+              <div className={styles.metricLabel}>Your tenant</div>
+              <code style={{ fontSize: 13 }}>{tid}</code>
+            </div>
+            <div>
+              <div className={styles.metricLabel}>Last import</div>
+              <div style={{ fontSize: 14, fontWeight: 600 }}>
+                {lastImport ? new Date(lastImport).toLocaleString() : 'Never'}
+              </div>
+            </div>
+            <div>
+              <div className={styles.metricLabel}>Units tracked</div>
+              <div style={{ fontSize: 14, fontWeight: 600 }}>{portfolio?.summary?.totalUnits || 0}</div>
+            </div>
+          </div>
+
+          <div className={styles.row} style={{ marginTop: 14, gap: 8, flexWrap: 'wrap' }}>
+            <button className={`${styles.btn} ${styles.btnPrimary}`} onClick={saveSetup} disabled={syncing}>
+              Save sync settings
+            </button>
+            <button className={`${styles.btn} ${styles.btnGhost}`} onClick={downloadInstaller} disabled={!exportFolder}>
+              Download PC installer
+            </button>
+            <button className={`${styles.btn} ${styles.btnGhost}`} onClick={refreshStatus} disabled={syncing}>
+              Refresh status
+            </button>
+            <label className={`${styles.btn} ${styles.btnGhost}`} style={{ cursor: 'pointer' }}>
+              <Icon name="upload" size={15} /> Manual import
+              <input type="file" accept=".csv,.xlsx,.xls,.xlsm" style={{ display: 'none' }} onChange={onManualFile} />
+            </label>
+          </div>
+        </>
+      )}
 
       {msg && <div className={styles.banner} style={{ marginTop: 12 }}><Icon name="check" size={16} /><div>{msg}</div></div>}
       {err && <div className={`${styles.banner} ${styles.bannerRed}`} style={{ marginTop: 12 }}><Icon name="alert" size={16} /><div>{err}</div></div>}
-      {status && (
+      {serverStatus && (
         <div className={styles.hint} style={{ marginTop: 10 }}>
-          Server: {status.lastImportAt ? `last upload ${new Date(status.lastImportAt).toLocaleString()}` : 'no uploads yet'}
-          {status.history?.length ? ` · ${status.history.length} recent` : ''}
+          Server: {serverStatus.lastImportAt ? `last upload ${new Date(serverStatus.lastImportAt).toLocaleString()}` : 'no uploads yet'}
         </div>
       )}
 
-      <div className={styles.sectionTitle} style={{ marginTop: 18 }}>Nightly listener setup</div>
-      <ol className={styles.hint} style={{ paddingLeft: 18, lineHeight: 1.6 }}>
-        <li>Export rent roll from your PMS nightly (Yardi Voyager → Reports → Rent Roll → CSV).</li>
-        <li>Set <code>PORTFOLIO_SYNC_API_KEY</code> in Firebase Functions secrets.</li>
-        <li>Run <code>node scripts/nightly-pms-export-upload.mjs</code> via Task Scheduler / cron after the export lands.</li>
-        <li>Open the dashboard — data refreshes on next &quot;Pull latest&quot; or page load sync.</li>
-      </ol>
-      <pre style={{
-        fontSize: 11, background: 'rgba(0,0,0,0.25)', padding: 12, borderRadius: 8,
-        overflow: 'auto', marginTop: 8, whiteSpace: 'pre-wrap',
-      }}>
-        {curlExample}
-      </pre>
+      {user && (
+        <div className={styles.hint} style={{ marginTop: 14, lineHeight: 1.6 }}>
+          <strong>One-time on the export PC:</strong> download the installer, paste your org upload key once
+          (from Google Cloud Secret Manager — ManyDoors sets this up, not each property manager),
+          then run the installer. Every new PMC only repeats sign-in + folder + time here.
+        </div>
+      )}
     </div>
   );
 }

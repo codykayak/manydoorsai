@@ -1,4 +1,6 @@
 import { initializeApp, getApps } from 'firebase-admin/app';
+import { getAuth } from 'firebase-admin/auth';
+import { getFirestore } from 'firebase-admin/firestore';
 import { setCors } from './cors.js';
 
 if (!getApps().length) {
@@ -16,6 +18,13 @@ import {
   tenantPropertiesFromSnapshot,
 } from './portfolioStore.js';
 
+const DB_ID = process.env.FIRESTORE_DATABASE_ID || 'property-managment';
+
+function db() {
+  return getFirestore(DB_ID);
+}
+
+/** Machine upload (nightly agent) — GCP Secret Manager key. */
 function checkSyncKey(req) {
   const expected = process.env.PORTFOLIO_SYNC_API_KEY;
   if (!expected) {
@@ -25,7 +34,43 @@ function checkSyncKey(req) {
   if (!safeCompareKeys(provided, expected)) {
     return { ok: false, error: 'Invalid portfolio sync API key.' };
   }
-  return { ok: true };
+  return { ok: true, mode: 'api-key' };
+}
+
+/** Staff browser or setup agent — Firebase Google sign-in. */
+async function checkFirebaseAuth(req) {
+  const header = req.get('Authorization') || req.get('authorization') || '';
+  const token = header.startsWith('Bearer ') ? header.slice(7).trim() : '';
+  if (!token) return { ok: false };
+  try {
+    const decoded = await getAuth().verifyIdToken(token);
+    const uid = decoded.uid;
+    const index = await db().doc(`userTenants/${uid}`).get();
+    const tenantId = index.exists
+      ? (index.data()?.tenantId || index.data()?.defaultTenantId)
+      : null;
+    const memberRef = tenantId
+      ? db().doc(`tenants/${tenantId}/members/${uid}`)
+      : null;
+    const member = memberRef ? await memberRef.get() : null;
+    if (tenantId && member?.exists) {
+      return { ok: true, mode: 'firebase', uid, tenantId };
+    }
+    // Pilot: signed-in users without provisioning yet can read demo tenant.
+    return { ok: true, mode: 'firebase', uid, tenantId: tenantIdFrom(req) };
+  } catch {
+    return { ok: false, error: 'Invalid or expired sign-in token.' };
+  }
+}
+
+async function authorize(req, { allowApiKey = true } = {}) {
+  const firebase = await checkFirebaseAuth(req);
+  if (firebase.ok) return firebase;
+  if (allowApiKey) {
+    const key = checkSyncKey(req);
+    if (key.ok) return key;
+  }
+  return { ok: false, error: firebase.error || checkSyncKey(req).error };
 }
 
 function tenantIdFrom(req) {
@@ -37,7 +82,7 @@ function tenantIdFrom(req) {
 export async function handlePortfolioSync(req, res) {
   setCors(req, res, {
     methods: 'GET, POST, OPTIONS',
-    headers: 'Content-Type, X-Portfolio-Sync-Key, X-Tenant-Id, X-File-Name',
+    headers: 'Content-Type, Authorization, X-Portfolio-Sync-Key, X-Tenant-Id, X-File-Name',
   });
 
   if (req.method === 'OPTIONS') {
@@ -45,13 +90,13 @@ export async function handlePortfolioSync(req, res) {
     return;
   }
 
-  const auth = checkSyncKey(req);
+  const auth = await authorize(req, { allowApiKey: req.method === 'POST' });
   if (!auth.ok) {
     res.status(401).json({ error: auth.error });
     return;
   }
 
-  const tenantId = tenantIdFrom(req);
+  const tenantId = auth.tenantId || tenantIdFrom(req);
   const action = req.query?.action || (req.method === 'GET' ? 'latest' : 'upload');
 
   try {

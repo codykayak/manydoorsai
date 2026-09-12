@@ -8,7 +8,7 @@ export const pmPortfolioSync = onRequest(
   {
     region: REGION,
     invoker: 'public',
-    secrets: [],
+    secrets: ['PORTFOLIO_SYNC_API_KEY'],
     timeoutSeconds: 120,
     memory: '512MiB',
   },

@@ -196,7 +196,7 @@ export const GATEWAY_MODULES = [
   },
   {
     id: 'support',
-    featureSlug: 'us-support',
+    featureSlug: 'savings',
     icon: 'shield',
     title: 'U.S. Support & Updates',
     tagline: 'Real people, constant improvements, no stale software',

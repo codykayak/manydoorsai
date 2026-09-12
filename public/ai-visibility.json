@@ -1,0 +1,13 @@
+{
+  "site": "https://www.manydoorsai.com",
+  "name": "ManyDoors AI",
+  "description": "AI property management — maintenance triage, leasing automation, resident communications, and owner reporting.",
+  "primaryPages": [
+    { "title": "Home", "url": "https://www.manydoorsai.com/" },
+    { "title": "Savings", "url": "https://www.manydoorsai.com/features/savings" },
+    { "title": "AiBhive Pros", "url": "https://www.manydoorsai.com/pros" },
+    { "title": "FAQ", "url": "https://www.manydoorsai.com/faq" }
+  ],
+  "sitemap": "https://www.manydoorsai.com/sitemap.xml",
+  "llmsTxt": "https://www.manydoorsai.com/llms.txt"
+}

@@ -4,6 +4,7 @@
  */
 
 import { CONTACT_EMAIL } from './contactEmail.js';
+import { GROK_VOICE_PHONE_DISPLAY, GROK_VOICE_PHONE_E164 } from './voiceContact.js';
 
 const env = import.meta.env ?? {};
 
@@ -15,7 +16,12 @@ export const APP_CONFIG = {
     env.VITE_PM_PRODUCT_TAGLINE ||
     'AI-powered property operations — maintenance triage, leasing, and resident communications',
   logo: env.VITE_PM_LOGO || '/manydoors-logo-mark.svg',
-  logoWordmark: env.VITE_PM_LOGO_WORDMARK || '/manydoors-logo.svg',
+  /** Combined mark + wordmark for navbar / sidebar (cropped from menu JPG). */
+  logoMenu:
+    env.VITE_PM_LOGO_MENU ||
+    '/manydoors-ai-logo-menu.png',
+  logoWordmark: env.VITE_PM_LOGO_WORDMARK || '/manydoors-ai-logo-menu.png',
+  logoWordmarkPrint: env.VITE_PM_LOGO_WORDMARK_PRINT || '/manydoors-logo.svg',
   heroImage: env.VITE_PM_HERO_IMAGE || '/manydoors-ai-software-property-management.png',
   companyName: env.VITE_PM_COMPANY_NAME || 'ManyDoors AI',
   futureSite: env.VITE_PM_FUTURE_SITE || 'manydoorsai.com',
@@ -27,6 +33,9 @@ export const APP_CONFIG = {
   supportEmail: env.VITE_PM_SUPPORT_EMAIL || CONTACT_EMAIL,
   supportPhone: env.VITE_PM_SUPPORT_PHONE || '541-321-2630',
   salesPhone: env.VITE_PM_SALES_PHONE || '541-321-2630',
+  /** Grok Voice Agent inbound number (temporary 251; local swap later). */
+  voicePhone: env.VITE_PM_VOICE_PHONE || GROK_VOICE_PHONE_DISPLAY,
+  voicePhoneE164: env.VITE_PM_VOICE_PHONE_E164 || GROK_VOICE_PHONE_E164,
   supportAddress: env.VITE_PM_SUPPORT_ADDRESS || 'Eugene, OR',
   /**
    * Optional self-serve scheduling link (e.g. Calendly / Cal.com / HubSpot).

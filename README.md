@@ -70,16 +70,28 @@ Uses project **`property-managment-a5ed3`** and GitHub secret **`FIREBASEMANNYDO
 - **Recommended:** `firebase login:ci` token (paste the full token — not JSON)
 - **Legacy:** service-account JSON key
 
-Set `GEMINI_API_KEY` in Firebase **after** the first Functions deploy (console may say “build backend first” until `pmGatewayChat` exists):
+Set Firebase secrets in **`property-managment-a5ed3`** after the first Functions deploy:
 
 ```bash
-firebase functions:secrets:set GEMINI_API_KEY --project property-managment-a5ed3
+firebase functions:secrets:set XAI_API_KEY --project property-managment-a5ed3
+firebase functions:secrets:set GEMINI_API_KEY --project property-managment-a5ed3   # fallback + social posts
 firebase deploy --only functions --project property-managment-a5ed3
 ```
 
+Site chat uses **Grok (xAI)** as primary; Gemini is fallback if Grok is unavailable. Social post generation still uses Gemini.
+
+The chatbot **Call** button starts a live **Grok Voice Agent** session (`wss://api.x.ai/v1/realtime`). Firebase function `pmVoiceSession` mints a short-lived ephemeral token so the browser never sees `XAI_API_KEY`. The agent is grounded in site knowledge plus AiBhive Pros maintenance playbooks (HVAC, plumbing, electrical, pool, property, fiber).
+
 All site contact email routes to **`info@manydoorsai.com`**. For the contact widget via EmailJS, set template “To” to `{{to_email}}` and add `VITE_EMAILJS_*` to Cloud Build / Docker build args.
 
-The SPA calls `pmGatewayChat` on `property-managment-a5ed3` via `VITE_PM_CHAT_URL` in `cloudbuild.yaml` / `Dockerfile`.
+The SPA calls `pmGatewayChat` on `property-managment-a5ed3` via `VITE_PM_CHAT_URL` in `cloudbuild.yaml` / `Dockerfile`. The Call button uses `pmVoiceSession` (same project; URL is derived from the chat URL unless `VITE_PM_VOICE_URL` is set).
+
+After changing voice or chat functions:
+
+```bash
+cd functions && npm ci
+firebase deploy --only functions:pmVoiceSession,functions:pmGatewayChat --project property-managment-a5ed3
+```
 
 ## Environment
 
@@ -91,13 +103,14 @@ See `.env.example`. Production builds bake defaults via `cloudbuild.yaml` / `Doc
 | `VITE_PM_SITE_URL` | `https://www.manydoorsai.com` |
 | `VITE_PM_SUPPORT_EMAIL` | `info@manydoorsai.com` |
 | `VITE_PM_CHAT_URL` | `pmGatewayChat` on `property-managment-a5ed3` |
+| `VITE_PM_VOICE_URL` | Optional `pmVoiceSession` (defaults from the chat URL) |
 | `VITE_EMAILJS_*` | Optional contact form (template To: `{{to_email}}`) |
 | `VITE_PM_FIREBASE_*` | PM Firestore client (defaults in `firebasePublic.js`) |
 
 ## Setup checklist (complete)
 
 - [x] Cloud Run `manydoorsai` + custom domain
-- [x] Firebase Functions `pmGatewayChat` + `GEMINI_API_KEY`
+- [x] Firebase Functions `pmGatewayChat` + `pmVoiceSession` + `XAI_API_KEY` (Grok chat + voice) + `GEMINI_API_KEY` (fallback / social)
 - [x] Firestore rules on database `property-managment`
 - [x] `robots.txt` + `sitemap.xml`
 - [x] macrorei.com `/property-management` → manydoorsai.com (301)

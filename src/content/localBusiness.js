@@ -12,6 +12,7 @@ export const SERVICE_MARKET_SLUGS = [
   'salem-or',
   'corvallis-or',
   'bend-or',
+  'oregon-coast',
 ];
 
 export const LOCAL_BUSINESS = {
@@ -78,7 +79,7 @@ export function localBusinessJsonLd(config, basePath = '/') {
       latitude: LOCAL_BUSINESS.geo.latitude,
       longitude: LOCAL_BUSINESS.geo.longitude,
     },
-    areaServed: areaServedCities(['Portland', 'Eugene', 'Salem', 'Corvallis', 'Bend']),
+    areaServed: areaServedCities(['Portland', 'Eugene', 'Salem', 'Corvallis', 'Bend', 'Newport', 'Lincoln City', 'Florence']),
     serviceArea: {
       '@type': 'GeoCircle',
       geoMidpoint: {

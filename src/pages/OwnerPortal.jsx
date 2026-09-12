@@ -3,6 +3,7 @@ import { usePm } from '../context/PmContext';
 import Page from '../components/Page';
 import Icon from '../components/Icon';
 import OwnerReport from '../components/OwnerReport';
+import PortfolioCommandCenter from '../components/PortfolioCommandCenter';
 import { LineChart, GroupedBar, BarChart, PieChart } from '../components/charts/Charts';
 import { PROPERTIES, monthLabel } from '../data/financials';
 import { summarize, benchmark, maintenancePerUnit, forecastNOI, whatIf, usd, pct } from '../lib/finance';
@@ -62,6 +63,12 @@ export default function OwnerPortal() {
         </>
       }
     >
+      <PortfolioCommandCenter
+        summary={summary}
+        openWorkOrders={workOrders.filter((w) => w.status !== 'closed').length}
+        propertyCount={scope === 'all' ? PROPERTIES.length : 1}
+      />
+
       {/* Headline KPIs */}
       <div className={`${styles.grid} ${styles.cols4}`}>
         <Kpi label="NOI — Month to Date" value={usd(summary.noiMTD)} sub={`Operating margin ${pct(summary.operatingMargin)}`} accent />

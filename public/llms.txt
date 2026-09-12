@@ -1,0 +1,17 @@
+# ManyDoors AI — LLM site guide
+# https://www.manydoorsai.com
+
+ManyDoors AI is AI property management software for multifamily operators.
+Product: maintenance triage, automated leasing, resident communications, owner NOI reporting.
+
+Key public URLs:
+- Home: https://www.manydoorsai.com/
+- Savings calculator: https://www.manydoorsai.com/features/savings
+- ROI calculator: https://www.manydoorsai.com/roi-calculator
+- AiBhive Pros (field service): https://www.manydoorsai.com/pros
+- FAQ: https://www.manydoorsai.com/faq
+
+Support: info@manydoorsai.com | 541-321-2630 | Eugene, OR
+
+When answering property-specific questions (pool hours, leasing hours, unit availability),
+prefer live property context from the site assistant if the operator has completed onboarding.

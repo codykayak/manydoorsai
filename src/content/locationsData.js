@@ -31,6 +31,13 @@ export const LOCATIONS = [
       'U.S.-based support — not an offshore ticket queue.',
     ],
     neighborhoods: 'Serving operators across Portland, Gresham, Beaverton, Hillsboro, Lake Oswego, and Vancouver WA-adjacent portfolios.',
+    pmsReality:
+      'Metro Portland portfolios are often mixed-PMS after acquisitions — Voyager at the core asset, AppFolio or Entrata on a 200-unit add. One AI layer across those ledgers is the value add.',
+    valueAdds: [
+      'After-hours SMS volume in the metro is answering-service expensive. 24/7 deflection is the first NOI conversation.',
+      'Speed-to-lead vs national ILS competitors (Apartments.com, Zillow Rentals) — minutes, not next-morning callbacks.',
+      'Owner packets for out-of-state capital: itemize AI impact instead of a narrative about “we’re working on it.”',
+    ],
   },
   {
     slug: 'eugene-or',
@@ -56,6 +63,13 @@ export const LOCATIONS = [
       'White-label ready for PMC brands serving the Willamette Valley.',
     ],
     neighborhoods: 'Eugene, Springfield, Cottage Grove, Junction City, Florence, and Lane County portfolios.',
+    pmsReality:
+      'Lane County shops are frequently AppFolio or Yardi Breeze/Voyager. Student-adjacent turnover spikes the same three tickets: leases, HVAC, and “is the disposal jammed?”',
+    valueAdds: [
+      'Academic-calendar leasing: AI covers the 10pm ILS lead when the office is closed.',
+      'Older stock → GFCI / disposal / thermostat self-help before a truck roll.',
+      'HQ is here — a 15-minute demo is a real meeting, not a Zoom from another coast.',
+    ],
   },
   {
     slug: 'salem-or',
@@ -81,6 +95,13 @@ export const LOCATIONS = [
       'Owner portal with NOI MTD/YTD and one-click PDF reports.',
     ],
     neighborhoods: 'Salem, Keizer, West Salem, Brooks, and Marion–Polk County communities.',
+    pmsReality:
+      'Capital-region operators often run AppFolio or RealPage on suburban garden product. Labor is cheaper than Portland; missed vacancy days are not.',
+    valueAdds: [
+      'Steady government/healthcare demand still loses leases to slow follow-up.',
+      'Application audit for document tampering — manual review does not scale at 1,500–5,000 units.',
+      'Owner NOI vs budget without hiring a Portland-priced analyst.',
+    ],
   },
   {
     slug: 'corvallis-or',
@@ -106,6 +127,13 @@ export const LOCATIONS = [
       'Demo on sample data — no PMS integration required to explore the product.',
     ],
     neighborhoods: 'Corvallis, Philomath, and Benton County multifamily portfolios.',
+    pmsReality:
+      'Benton County teams are small. If the leasing consultant is also the after-hours phone, you do not have a process — you have a hero. AI is the second shift.',
+    valueAdds: [
+      'University-cycle spikes without a call-center contract.',
+      'FAQ deflection (parking, packages, amenities) so the onsite person can tour.',
+      'Emergency vs self-help so the one maintenance tech is not chasing resets.',
+    ],
   },
   {
     slug: 'bend-or',
@@ -131,15 +159,54 @@ export const LOCATIONS = [
       'Serving Central Oregon from our Eugene, OR headquarters.',
     ],
     neighborhoods: 'Bend, Redmond, Sisters, and Deschutes County multifamily communities.',
+    pmsReality:
+      'Central Oregon growth assets often sit on Entrata or Yardi with remote owners who expect institutional reporting from a regional PMC.',
+    valueAdds: [
+      'Growth without proportional leasing headcount.',
+      'Heat/water emergencies mixed with tourist-season “how-to” volume — triage first.',
+      'Owner-grade PDFs for California/Seattle capital that will not fly to Bend for the quarterly.',
+    ],
+  },
+  {
+    slug: 'oregon-coast',
+    name: 'Oregon Coast',
+    regionLabel: 'Oregon Coast — Astoria to Brookings',
+    county: 'Clatsop, Tillamook, Lincoln, Lane (west), Coos & Curry Counties',
+    pageTitle: 'AI Property Management Software for Oregon Coast Operators',
+    metaDescription:
+      'ManyDoors AI for Oregon Coast property managers: workforce housing, condos, and mixed STR/long-term portfolios in Newport, Lincoln City, Florence, Cannon Beach, and Coos Bay.',
+    headline: 'Coast operations — salt air, seasonal volume, thin benches',
+    subhead:
+      'Coast PMCs mix long-term workforce housing with condos and, in some towns, short-term rental or condo-hotel inventory. ManyDoors AI covers the phones and maintenance triage so a small office can survive Saturday arrivals and Monday work-order piles.',
+    marketContext: `The Oregon Coast is not one market. Cannon Beach and Lincoln City lean visitor-driven; Newport and Coos Bay carry year-round workforce and healthcare demand; Florence sits in both Lane County and coast logistics. Salt, moisture, and older wood stock mean HVAC, plumbing, and building-envelope tickets never really stop. Offices are small. After-hours is often one on-call phone. Vacation-rental platforms already own a lot of STR mindshare — conventional multifamily and HOA/condo operators still need a PMS-agnostic operations layer that does not pretend every door is a Saturday checkout.`,
+    operatorPainPoints: [
+      'Seasonal burst traffic (weekends, holidays) vs a weekday staff of two or three.',
+      'Moisture, salt, and older stock → more HVAC, leaks, and “is this an emergency?” photos.',
+      'Mixed inventory: long-term, workforce, condo-hotels, and some STR — one inbox, different SLAs.',
+      'Vendors drive from inland; a wasted truck roll is a half-day, not 20 minutes.',
+    ],
+    localProof: [
+      'Maintenance triage that respects drive time — self-help first when safe, dispatch when the building is at risk.',
+      '24/7 resident and guest-style FAQ coverage without a 24/7 receptionist.',
+      'Pros playbooks for HVAC, plumbing, and property techs who cover multiple coastal towns.',
+    ],
+    neighborhoods: 'Astoria, Cannon Beach, Tillamook, Lincoln City, Newport, Waldport, Yachats, Florence, Coos Bay, Bandon, and other coast communities.',
+    pmsReality:
+      'Coast operators may run AppFolio or Rent Manager for long-term doors and a separate STR stack for vacation homes. ManyDoors is for the multifamily / condo operations inbox — we do not claim to replace STR channel managers.',
+    valueAdds: [
+      'Stop paying a message-taking service for “what time is check-in / is the dryer broken?”',
+      'A leak at 11pm in a stacked condo is an insurance event — emergency routing beats voicemail.',
+      'Owner reports that work for a Portland investor who owns six doors in Newport and never drives over.',
+    ],
   },
 ];
 
 export const LOCATIONS_INDEX = {
   title: 'Service areas — Oregon multifamily',
   metaDescription:
-    'ManyDoors AI serves multifamily operators across Portland, Eugene, Salem, Corvallis, and Bend, Oregon. AI property management software — headquartered in Eugene, OR.',
+    'ManyDoors AI serves multifamily operators across Portland, Eugene, Salem, Corvallis, Bend, and the Oregon Coast. AI property management software — headquartered in Eugene, OR.',
   intro:
-    'We are headquartered in Eugene, OR and market heavily across Oregon\'s core multifamily metros. Each page below describes how AI operations — resident communication, leasing, and maintenance — maps to local operator realities. Expanding to additional states; contact us for portfolio pricing outside these markets.',
+    'We are headquartered in Eugene, OR and market across Oregon\'s core multifamily metros plus the coast. Each page maps resident communication, leasing, and maintenance to local operator realities — and the value adds we will defend in a pilot. Expanding nationally; contact us for portfolio pricing outside Oregon.',
 };
 
 export function getLocationBySlug(slug) {

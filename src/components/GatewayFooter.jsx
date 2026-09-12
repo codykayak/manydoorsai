@@ -2,6 +2,7 @@ import { Link } from 'react-router-dom';
 import { usePm } from '../context/PmContext';
 import { LOCAL_BUSINESS } from '../content/localBusiness';
 import { LOCATIONS } from '../content/locationsData';
+import { GROK_VOICE_PHONE_DISPLAY, GROK_VOICE_PHONE_E164 } from '../config/voiceContact';
 import ft from './gatewayFooter.module.css';
 
 function hrefFor(base, route) {
@@ -42,6 +43,10 @@ export default function GatewayFooter({ showFaqLink = true }) {
                 <span className={ft.contactLabel}>Phone</span>
                 <a href={`tel:${phoneTel}`} itemProp="telephone">{phone}</a>
               </li>
+              <li>
+                <span className={ft.contactLabel}>Talk to Grok</span>
+                <a href={`tel:${GROK_VOICE_PHONE_E164}`}>{GROK_VOICE_PHONE_DISPLAY}</a>
+              </li>
               <li itemProp="address" itemScope itemType="https://schema.org/PostalAddress">
                 <span className={ft.contactLabel}>Office</span>
                 <span>
@@ -69,8 +74,14 @@ export default function GatewayFooter({ showFaqLink = true }) {
             © {new Date().getFullYear()} {config.companyName}. {address}
           </span>
           <div className={ft.footLinks}>
-            <Link to={hrefFor(base, 'roi-calculator')} className={ft.faqLink}>
+            <Link to={`${hrefFor(base, 'features/savings')}?view=portfolio`} className={ft.faqLink}>
               ROI calculator
+            </Link>
+            <Link to={hrefFor(base, 'pros')} className={ft.faqLink}>
+              Pros
+            </Link>
+            <Link to={hrefFor(base, 'insights')} className={ft.faqLink}>
+              Knowledge
             </Link>
             <Link to={hrefFor(base, 'locations')} className={ft.faqLink}>
               All service areas

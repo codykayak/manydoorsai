@@ -22,8 +22,12 @@ import {
 import APP_CONFIG from '../config/appConfig';
 const PitchPage = lazy(() => import('./PitchPage'));
 const SocialPostsPanel = lazy(() => import('./SocialPostsPanel'));
+const VoiceAgentPanel = lazy(() => import('./VoiceAgentPanel'));
+const ProsHqPanel = lazy(() => import('../pages/ProsHqPanel'));
 
 const TABS = [
+  { id: 'voice', label: 'Voice agent' },
+  { id: 'pros', label: 'Pros HQ' },
   { id: 'social', label: 'Social posts' },
   { id: 'pitch', label: 'Enterprise pitch' },
   { id: 'docs', label: 'Knowledge base' },
@@ -47,8 +51,10 @@ export default function DeveloperAdmin() {
     if (typeof window !== 'undefined') {
       const params = new URLSearchParams(window.location.search);
       if (params.get('tab') === 'social') return 'social';
+      if (params.get('tab') === 'voice') return 'voice';
+      if (params.get('tab') === 'pros') return 'pros';
     }
-    return 'docs';
+    return 'voice';
   });
   const [articleId, setArticleId] = useState(KNOWLEDGE_ARTICLES[0]?.id || '00-overview');
   const [chat, setChat] = useState([]);
@@ -142,6 +148,8 @@ ${(article?.body ?? '').slice(0, 4000)}
     if (typeof window === 'undefined') return;
     const url = new URL(window.location.href);
     if (tab === 'social') url.searchParams.set('tab', 'social');
+    else if (tab === 'voice') url.searchParams.set('tab', 'voice');
+    else if (tab === 'pros') url.searchParams.set('tab', 'pros');
     else url.searchParams.delete('tab');
     window.history.replaceState({}, '', url.pathname + url.search);
   }, [tab]);
@@ -173,6 +181,18 @@ ${(article?.body ?? '').slice(0, 4000)}
             </button>
           ))}
         </div>
+
+        {tab === 'voice' && (
+          <Suspense fallback={<div className={styles.hint}>Loading voice agent…</div>}>
+            <VoiceAgentPanel />
+          </Suspense>
+        )}
+
+        {tab === 'pros' && (
+          <Suspense fallback={<div className={styles.hint}>Loading Pros HQ…</div>}>
+            <ProsHqPanel embedded />
+          </Suspense>
+        )}
 
         {tab === 'social' && (
           <Suspense fallback={<div className={styles.hint}>Loading social posts…</div>}>

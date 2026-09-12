@@ -1,6 +1,6 @@
 /**
  * Comprehensive FAQ for ManyDoors AI — single source for the FAQ page
- * and the Gemini site chatbot knowledge corpus.
+ * and the Grok site chatbot knowledge corpus.
  */
 
 export const FAQ_INTRO = {
@@ -24,7 +24,7 @@ export const FAQ_CATEGORIES = [
       },
       {
         q: 'Where is ManyDoors AI located? Which markets do you serve?',
-        a: 'ManyDoors AI is headquartered in Eugene, OR (541-321-2630, info@manydoorsai.com). We actively market to multifamily operators in Portland, Eugene, Salem, Corvallis, and Bend, Oregon — see /locations for metro-specific pages. The platform is built to scale nationally as portfolios expand.',
+        a: 'ManyDoors AI is headquartered in Eugene, OR (541-321-2630, info@manydoorsai.com). We actively market to multifamily operators in Portland, Eugene, Salem, Corvallis, Bend, and the Oregon Coast — see /locations. Operator briefings live at /insights. The platform is built to scale nationally as portfolios expand.',
       },
       {
         q: 'Does ManyDoors AI replace my PMS?',
@@ -36,7 +36,11 @@ export const FAQ_CATEGORIES = [
       },
       {
         q: 'Is there a live demo?',
-        a: 'Yes. Visit manydoorsai.com and click Enter platform to explore the full build-and-pitch demo on local sample data — dashboard, communications, leasing, maintenance, owner portal, and knowledge base.',
+        a: 'Yes. Visit manydoorsai.com and click Enter platform to explore the full build-and-pitch demo on local sample data — dashboard, communications, leasing, maintenance, owner portal, and knowledge base. You can also talk to Grok live: hit Call in the site chat, or dial (251) 572-5783 (temporary number; a local Oregon line is coming).',
+      },
+      {
+        q: 'What phone number reaches the Grok voice agent?',
+        a: 'Call (251) 572-5783 to speak with the live Grok voice agent — the same agent as the Call button in site chat. That 251 number is temporary until a local Oregon DID is ready. Office and sales remain 541-321-2630 / info@manydoorsai.com.',
       },
       {
         q: 'What is the relationship between ManyDoors AI and MacroREI?',
@@ -226,7 +230,7 @@ export const FAQ_CATEGORIES = [
       },
       {
         q: 'How do I get help during the demo?',
-        a: 'Use the site chat assistant (powered by Gemini) for questions about the product, or email info@manydoorsai.com. Phone and office details are in the site footer.',
+        a: 'Use the site chat assistant (powered by Grok) for questions about the product — or general real estate and tech topics. Hit Call in the chat, or dial (251) 572-5783 for the live Grok voice agent. Email info@manydoorsai.com for account help. Office phone is 541-321-2630.',
       },
     ],
   },
@@ -292,7 +296,7 @@ export const FAQ_CATEGORIES = [
       },
       {
         q: 'What are the feature detail page URLs?',
-        a: '/features/communications, /leasing, /maintenance, /owner-portal, and /us-support — each explains time/money savings and U.S. support.',
+        a: '/features/communications, /leasing, /maintenance, /owner-portal, /features/savings, and /pros — each explains time/money savings, ROI modeling, and field-service tools.',
       },
       {
         q: 'What is Developer Admin?',
@@ -304,11 +308,11 @@ export const FAQ_CATEGORIES = [
       },
       {
         q: 'What stack is ManyDoors built on?',
-        a: 'React 19, Vite, Firebase (optional), Twilio SMS, and Gemini for the marketing site chatbot. PMS adapters use manifest-driven integration registry.',
+        a: 'React 19, Vite, Firebase (optional), Twilio SMS, and Grok (xAI) for the marketing site chatbot. PMS adapters use manifest-driven integration registry.',
       },
       {
         q: 'How does the site chatbot work?',
-        a: 'The floating assistant sends your question to a Gemini-powered API backed by the full site knowledge corpus (this FAQ, feature pages, product modules, and ROI models). It answers only from that content.',
+        a: 'The floating assistant sends your question to a Grok-powered API with the full site knowledge corpus (FAQ, feature pages, modules, ROI models). It answers product questions from that content and can also help with general topics outside the site.',
       },
     ],
   },

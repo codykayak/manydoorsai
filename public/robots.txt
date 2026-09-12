@@ -1,4 +1,9 @@
 User-agent: *
 Allow: /
+Disallow: /leeds
+Disallow: /leeds/
+Disallow: /leeds/eugene
+Disallow: /leads
+Disallow: /leads/
 
 Sitemap: https://www.manydoorsai.com/sitemap.xml

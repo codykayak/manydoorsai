@@ -1,30 +1,17 @@
+import { runPmGrokChat } from './pmGrokChat.js';
 import { runPmGeminiChat } from './pmGeminiChat.js';
+import { setCors } from './cors.js';
 
-const ALLOWED_ORIGINS = [
-  'https://www.macrorei.com',
-  'https://macrorei.com',
-  /^https:\/\/.*\.macrorei\.com$/,
-  'https://www.manydoorsai.com',
-  'https://manydoorsai.com',
-  /^https:\/\/.*\.manydoorsai\.com$/,
-  'https://realestate-map-23692.web.app',
-  'https://realestate-map-23692.firebaseapp.com',
-  /^http:\/\/localhost(:\d+)?$/,
-  /^http:\/\/127\.0\.0\.1(:\d+)?$/,
-];
-
-function corsOrigin(req) {
-  const origin = req.get('origin') || req.get('Origin') || '';
-  if (!origin) return ALLOWED_ORIGINS[0];
-  const ok = ALLOWED_ORIGINS.some((o) => (o instanceof RegExp ? o.test(origin) : o === origin));
-  return ok ? origin : ALLOWED_ORIGINS[0];
-}
-
-export function setCors(req, res) {
-  res.set('Access-Control-Allow-Origin', corsOrigin(req));
-  res.set('Access-Control-Allow-Methods', 'POST, OPTIONS');
-  res.set('Access-Control-Allow-Headers', 'Content-Type');
-  res.set('Access-Control-Max-Age', '3600');
+async function runPmSiteChat(messages, propertyContext = '') {
+  const hasGrok = Boolean(process.env.grok || process.env.XAI_API_KEY || process.env.GROK_API_KEY);
+  if (hasGrok) {
+    try {
+      return await runPmGrokChat(messages, propertyContext);
+    } catch (e) {
+      console.warn('[pmGatewayChat] Grok failed, trying Gemini:', e.message);
+    }
+  }
+  return runPmGeminiChat(messages, propertyContext);
 }
 
 export async function handlePmGatewayChat(req, res) {
@@ -41,7 +28,7 @@ export async function handlePmGatewayChat(req, res) {
   }
 
   try {
-    const { messages } = req.body ?? {};
+    const { messages, propertyContext } = req.body ?? {};
     if (!Array.isArray(messages) || !messages.length) {
       res.status(400).json({ error: 'messages array is required' });
       return;
@@ -52,7 +39,7 @@ export async function handlePmGatewayChat(req, res) {
       .filter((m) => m && (m.role === 'user' || m.role === 'assistant') && typeof m.content === 'string')
       .map((m) => ({ role: m.role, content: m.content.slice(0, 4000) }));
 
-    const reply = await runPmGeminiChat(sanitized);
+    const reply = await runPmSiteChat(sanitized, typeof propertyContext === 'string' ? propertyContext : '');
     res.status(200).json({ reply });
   } catch (e) {
     console.error('[pmGatewayChat]', e);

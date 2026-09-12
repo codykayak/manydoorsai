@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { usePm } from '../context/PmContext';
 import GatewayNavbar from '../components/GatewayNavbar';
 import GatewayFooter from '../components/GatewayFooter';
+import PageBackdrop from '../components/PageBackdrop';
 import PmSeoHead from '../components/PmSeoHead';
 import Icon from '../components/Icon';
 import { FAQ_CATEGORIES, FAQ_COUNT, FAQ_INTRO, allFaqItems } from '../content/faqData';
@@ -52,6 +53,7 @@ export default function FaqPage() {
 
   return (
     <div className={gw.gateway}>
+      <PageBackdrop page="faq" />
       <PmSeoHead
         title={`${FAQ_INTRO.title} | ${config.productName}`}
         description={`${FAQ_COUNT}+ answers about ${config.productName} — AI property management, ROI, integrations, compliance, U.S. support, and the live demo.`}

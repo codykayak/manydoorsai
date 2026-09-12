@@ -208,7 +208,9 @@ export default function GatewayPage() {
             <p className={gw.localAreasLink}>
               Headquartered in Eugene, OR —{' '}
               <Link to={hrefFor(base, 'locations')}>Oregon service areas</Link>
-              {' '}(Portland, Salem, Corvallis, Bend)
+              {' '}(Portland, Eugene, Salem, Corvallis, Bend, Coast)
+              {' · '}
+              <Link to={hrefFor(base, 'insights')}>operator knowledge base</Link>
             </p>
           </div>
         </section>
@@ -244,7 +246,7 @@ export default function GatewayPage() {
             <h2 className={gw.sectionTitle}>Where the ROI comes from</h2>
             <p className={gw.sectionSub}>
               Illustrative model for a {units.toLocaleString()}-unit portfolio — replace with pilot metrics after 30–60 days.{' '}
-              <Link to={hrefFor(base, 'roi-calculator')}>Run your own numbers in the ROI calculator →</Link>
+              <Link to={hrefFor(base, 'features/savings')}>Run your own numbers in the Savings &amp; ROI calculator →</Link>
             </p>
           </div>
           <div className={gw.chartGrid}>

@@ -149,31 +149,32 @@ export const FEATURE_PAGES = [
     image: GATEWAY_ASSETS.investorImage,
   },
   {
-    slug: 'us-support',
-    icon: 'shield',
-    title: 'U.S. Support & Always-On Updates',
-    tagline: 'Real people, constant improvements, no stale software',
+    slug: 'savings',
+    icon: 'dollar',
+    title: 'Savings & ROI',
+    tagline: 'Model time and money impact with your real portfolio inputs',
     metaDescription:
-      'ManyDoors AI is supported by U.S.-based teams with on-call escalation, continuous platform updates, and compliance-aware releases for multifamily operators.',
+      'ManyDoors AI savings calculator — estimate monthly net impact from AI call handling, leasing lift, and maintenance efficiency using your unit count, calls, applications, and maintenance volume.',
     savings: {
       time: 'Faster go-live with guided onboarding (days, not months)',
-      money: 'Avoid legacy PMS add-on lock-in with an agnostic AI layer',
+      money: 'Illustrative net savings modeled in the interactive calculator',
     },
     sections: [
       {
-        heading: US_SUPPORT.headline,
-        body: US_SUPPORT.body,
+        heading: 'Transparent unit economics',
+        body:
+          'Enter your unit count, estimated monthly calls, rental applications, and maintenance volume. Tabs show monthly trends and a side-by-side cost comparison versus traditional staffing.',
       },
       {
-        heading: 'Shipped updates, not annual releases',
+        heading: 'Pre-filled from onboarding',
         body:
-          'New deflection models, connector improvements, and Fair Housing guardrails land continuously. Your knowledge base and integrations improve over time without a rip-and-replace project.',
+          'Complete onboarding once and your Savings calculator, AI assistant, and owner reports all use the same property profile — pool hours, leasing hours, and availability stay in sync.',
       },
     ],
     metrics: [
-      { label: 'Support', value: 'U.S.', sub: 'onboarding & escalation' },
-      { label: 'Updates', value: 'Continuous', sub: 'models & integrations' },
-      { label: 'Compliance', value: 'Built-in', sub: 'FHA, TCPA, FCRA paths' },
+      { label: 'Inputs', value: '4 sliders', sub: 'units, calls, apps, maintenance' },
+      { label: 'Charts', value: '3 tabs', sub: 'calculator, monthly, comparison' },
+      { label: 'Updates', value: 'Live', sub: 'graphs refresh as you type' },
     ],
     chartKey: 'support',
     image: GATEWAY_ASSETS.opsTeamImage,

@@ -1,66 +1,81 @@
-import { NavLink, useNavigate } from 'react-router-dom';
+import { NavLink, useLocation, useNavigate } from 'react-router-dom';
 import { usePm } from '../context/PmContext';
 import Icon from './Icon';
-import { FEATURE_PAGES } from '../content/gatewayContent';
 import { requestDemo } from '../lib/contactCta';
 import nav from './gatewayNavbar.module.css';
 
 function hrefFor(base, route) {
-  const b = (base || '/').replace(/\/$/, '');
-  return route ? `${b}/${route}` : b;
+  const b = (base || '/').replace(/\/$/, '') || '/';
+  if (!route) return b === '/' ? '/' : b;
+  if (b === '/') return `/${route}`;
+  return `${b}/${route}`;
 }
 
+function pathEndsWith(pathname, suffix) {
+  const normalized = pathname.replace(/\/$/, '') || '/';
+  const target = suffix.startsWith('/') ? suffix : `/${suffix}`;
+  return normalized === target || normalized.endsWith(target);
+}
+
+const FEATURE_NAV = [
+  { route: 'features/communications', label: 'AI Resident', icon: 'chat' },
+  { route: 'features/leasing', label: 'Automated Leasing', icon: 'key' },
+  { route: 'features/maintenance', label: 'Maintenance', icon: 'wrench' },
+];
+
+const SAVINGS_ROUTE = 'features/savings';
+
 /**
- * Top navigation for gateway marketing pages — mirrors sidebar branding
- * (logo, product name, tenant) with horizontal links into feature pages.
+ * Top navigation for gateway marketing pages.
+ * Logo links to the original marketing homepage.
  */
-export default function GatewayNavbar({ onEnter }) {
-  const { config, tenant } = usePm();
+export default function GatewayNavbar({ onEnter, homeTo }) {
+  const { config } = usePm();
   const navigate = useNavigate();
+  const location = useLocation();
   const base = config.basePath;
+  const homeHref = homeTo || hrefFor(base, '');
+  const savingsHref = hrefFor(base, SAVINGS_ROUTE);
+  const savingsActive = pathEndsWith(location.pathname, SAVINGS_ROUTE)
+    || pathEndsWith(location.pathname, 'roi-calculator');
 
   const enter = onEnter || (() => navigate(hrefFor(base, 'dashboard')));
 
   return (
     <header className={nav.bar}>
       <div className={nav.inner}>
-        <NavLink to={hrefFor(base, '')} end className={nav.brand}>
-          {config.logoWordmark ? (
-            <img
-              src={config.logoWordmark}
-              alt={config.productName}
-              className={nav.wordmark}
-            />
-          ) : config.logo ? (
-            <img src={config.logo} alt={`${config.productName} logo`} className={nav.logo} />
-          ) : (
-            <Icon name="home" size={28} />
-          )}
-          <div className={nav.brandText}>
-            {!config.logoWordmark && (
-              <span className={nav.brandName}>{config.productName}</span>
-            )}
-            <span className={nav.brandSub}>{tenant?.name || config.companyName}</span>
-          </div>
+        <NavLink to={homeHref} end className={nav.brand} aria-label={`${config.productName} home`}>
+          <img
+            src={config.logoMenu || config.logoWordmark || config.logo}
+            alt={config.productName}
+            className={nav.menuLogo}
+          />
         </NavLink>
 
         <nav className={nav.links} aria-label="Product features">
-          {FEATURE_PAGES.map((f) => (
+          {FEATURE_NAV.map((item) => (
             <NavLink
-              key={f.slug}
-              to={hrefFor(base, `features/${f.slug}`)}
+              key={item.route}
+              to={hrefFor(base, item.route)}
               className={({ isActive }) => `${nav.link} ${isActive ? nav.linkActive : ''}`}
             >
-              <Icon name={f.icon} size={16} />
-              <span className={nav.linkLabel}>{f.title.split(' ').slice(0, 2).join(' ')}</span>
+              <Icon name={item.icon} size={16} />
+              <span className={nav.linkLabel}>{item.label}</span>
             </NavLink>
           ))}
           <NavLink
-            to={hrefFor(base, 'roi-calculator')}
+            to={savingsHref}
+            className={`${nav.link} ${savingsActive ? nav.linkActive : ''}`}
+          >
+            <Icon name="dollar" size={16} />
+            <span className={nav.linkLabel}>Savings &amp; ROI</span>
+          </NavLink>
+          <NavLink
+            to={hrefFor(base, 'pros')}
             className={({ isActive }) => `${nav.link} ${isActive ? nav.linkActive : ''}`}
           >
-            <Icon name="chart" size={16} />
-            <span className={nav.linkLabel}>ROI Calculator</span>
+            <Icon name="spark" size={16} />
+            <span className={nav.linkLabel}>Pros</span>
           </NavLink>
         </nav>
 
@@ -70,11 +85,11 @@ export default function GatewayNavbar({ onEnter }) {
             className={nav.bookBtn}
             onClick={() => requestDemo(config.bookingUrl)}
           >
-            Book a demo
+            <span className={nav.bookLabel}>Demo</span>
             <Icon name="calendar" size={16} />
           </button>
           <button type="button" className={nav.enterBtn} onClick={enter}>
-            Enter platform
+            <span className={nav.enterLabel}>Enter</span>
             <Icon name="bolt" size={16} />
           </button>
         </div>

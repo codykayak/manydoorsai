@@ -1,7 +1,9 @@
 import { useState } from 'react';
+import { Link, useSearchParams } from 'react-router-dom';
 import { usePm } from '../context/PmContext';
 import Page from '../components/Page';
 import Icon from '../components/Icon';
+import ProsAppEmbed from './ProsAppEmbed';
 import { triageRequest } from '../lib/maintenanceTriage';
 import styles from '../pm.module.css';
 
@@ -18,11 +20,22 @@ const STATUS_LABEL = {
   closed: 'Closed',
 };
 
+function hrefFor(base, route) {
+  const b = (base || '/').replace(/\/$/, '');
+  return route ? `${b}/${route}` : b;
+}
+
 export default function Maintenance() {
-  const { workOrders, upsertWorkOrder, residents, featureMap, setFeatureConfig } = usePm();
+  const { workOrders, upsertWorkOrder, residents, featureMap, setFeatureConfig, config } = usePm();
+  const [searchParams, setSearchParams] = useSearchParams();
   const cfg = featureMap.maintenance?.config || {};
   const technicians = cfg.technicians || [];
   const onCall = technicians.find((t) => t.id === cfg.onCallTechId) || technicians[0];
+  const panel = searchParams.get('panel') === 'pros' ? 'pros' : 'triage';
+  const setPanel = (next) => {
+    if (next === 'pros') setSearchParams({ panel: 'pros' });
+    else setSearchParams({});
+  };
   const [adding, setAdding] = useState(false);
   const [resident, setResident] = useState(residents[0]?.name || '');
   const [unit, setUnit] = useState(residents[0]?.unit || '');
@@ -76,10 +89,32 @@ export default function Maintenance() {
 
   return (
     <Page
-      title="AI Maintenance Triage"
-      subtitle="Auto-classify, detect emergencies, deflect with self-help, and route to the on-call tech"
-      actions={<button className={`${styles.btn} ${styles.btnPrimary}`} onClick={() => setAdding((v) => !v)}><Icon name="plus" size={15} /> New request</button>}
+      title="Maintenance"
+      subtitle="AI triage, on-call routing, and ManyDoors AI Pros HQ for field dispatch"
+      actions={(
+        <div className={styles.rowWrap}>
+          <Link to={hrefFor(config.basePath, 'pros')} className={`${styles.btn} ${styles.btnGhost}`}>
+            <Icon name="wrench" size={15} /> Pros marketing
+          </Link>
+          <button className={`${styles.btn} ${styles.btnPrimary}`} onClick={() => setAdding((v) => !v)}>
+            <Icon name="plus" size={15} /> New request
+          </button>
+        </div>
+      )}
     >
+      <div className={styles.prosTabs} style={{ marginBottom: 18 }}>
+        <button type="button" className={`${styles.prosTab} ${panel === 'triage' ? styles.prosTabActive : ''}`} onClick={() => setPanel('triage')}>
+          AI triage
+        </button>
+        <button type="button" className={`${styles.prosTab} ${panel === 'pros' ? styles.prosTabActive : ''}`} onClick={() => setPanel('pros')}>
+          ManyDoors AI Pros HQ
+        </button>
+      </div>
+
+      {panel === 'pros' && <ProsAppEmbed embedded />}
+
+      {panel === 'triage' && (
+        <>
       <div className={styles.card} style={{ marginBottom: 18 }}>
         <div className={styles.cardTitle}>On-call maintenance</div>
         <p className={styles.hint} style={{ marginBottom: 12 }}>
@@ -200,6 +235,8 @@ export default function Maintenance() {
             the on-call tech.
           </div>
         </div>
+      )}
+        </>
       )}
     </Page>
   );

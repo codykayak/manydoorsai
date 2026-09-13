@@ -1,0 +1,37 @@
+---
+description: When user says push/commit, auto-complete git publish to manydoorsai main
+alwaysApply: true
+---
+
+# Push and commit = ship to production
+
+When the user asks to **push**, **commit**, **push and commit**, or similar:
+
+1. **Do not stop** for protected-branch warnings — the user has authorized publishing to `main`.
+2. **Do not ask** for confirmation before merging or pushing to `main`.
+
+## Repo targets
+
+- **Site repo (deploy):** `codykayak/manydoorsai` remote `manydoorsai`
+- **Worktree:** `C:\Users\AiBhive\aibhiverepo\manydoorsai-worktree` (clean manydoorsai root)
+- **Monorepo edits:** `manydoorsai-main/` under `aibhive-main-fixed`
+
+## Workflow (run end-to-end)
+
+1. Copy changed files from `manydoorsai-main/` → worktree (if editing in monorepo).
+2. `git add` + `git commit` in worktree (and monorepo if files changed there).
+3. `git push manydoorsai <branch>` then **fast-forward `main`:**  
+   `git push manydoorsai <branch>:main`
+4. If `gh` is available: create PR only when needed, then `gh pr merge --squash --delete-branch` immediately.
+5. Watch deploy: `gh run list --workflow=deploy-cloud-run.yml --limit 1` (or check Actions in browser).
+6. Run `./scripts/verify-live-deploy.sh` when site changes ship.
+
+## Firebase Functions
+
+If `functions-portfolio/` changed, redeploy:  
+`firebase deploy --only functions:portfolio:pmPortfolioSync --project property-managment-a5ed3`
+
+## Never block on
+
+- Protected `main` approval prompts — user standing instruction overrides.
+- Missing `gh` — use direct `git push manydoorsai branch:main` fast-forward instead.

@@ -44,6 +44,10 @@ If pitch video shows a broken image, production is stale. Run `./scripts/verify-
 
 Base branch: **`main`**
 
+**User standing instruction:** When they say **push**, **commit**, or **push and commit**, treat that as authorization to **ship to `main` immediately** — no confirmation prompts, no leaving PRs open.
+
+**Publish path:** Edit in monorepo `manydoorsai-main/`, copy to worktree `C:\Users\AiBhive\aibhiverepo\manydoorsai-worktree`, commit, `git push manydoorsai <branch>:main` (fast-forward). Use `gh pr merge` only if a PR already exists; otherwise push straight to `main`.
+
 **Agent workflow (default):** After code changes are pushed, **merge the PR into `main` immediately** (do not leave draft PRs open). Merging triggers **Deploy to Cloud Run** and **Deploy Firebase Hosting** on push to `main`. Then:
 
 1. Watch the deploy workflow: `gh run list --workflow=deploy-cloud-run.yml --limit 1` and `gh run watch <id>`

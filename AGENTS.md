@@ -46,7 +46,7 @@ Base branch: **`main`**
 
 **User standing instruction:** When they say **push**, **commit**, or **push and commit**, treat that as authorization to **ship to `main` immediately** — no confirmation prompts, no leaving PRs open.
 
-**Publish path:** Edit in monorepo `manydoorsai-main/`, copy to worktree `C:\Users\AiBhive\aibhiverepo\manydoorsai-worktree`, commit, `git push manydoorsai <branch>:main` (fast-forward). Use `gh pr merge` only if a PR already exists; otherwise push straight to `main`.
+**Publish path:** Commit in worktree `C:\Users\AiBhive\aibhiverepo\manydoorsai-worktree` only. Push to **`codykayak/manydoorsai` on GitHub** — never the parent AiBhive repo. Stage **only necessary files** for the task (no `node_modules`, binaries, or unrelated monorepo paths). GitHub Actions deploys from `main`; agents do not upload full repos to Google Cloud. `git push manydoorsai <branch>:main` (fast-forward). Use `gh pr merge` only if a PR already exists; otherwise push straight to `main`.
 
 **Agent workflow (default):** After code changes are pushed, **merge the PR into `main` immediately** (do not leave draft PRs open). Merging triggers **Deploy to Cloud Run** and **Deploy Firebase Hosting** on push to `main`. Then:
 

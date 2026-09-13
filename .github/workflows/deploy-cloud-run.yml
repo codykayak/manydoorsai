@@ -31,12 +31,36 @@ jobs:
       - uses: google-github-actions/setup-gcloud@v2
         if: steps.creds.outputs.present == 'true'
 
+      - name: Resolve GCP project ID
+        id: gcp
+        if: steps.creds.outputs.present == 'true'
+        env:
+          SA_PROJECT: ${{ steps.auth.outputs.project_id }}
+          SECRET_PROJECT: ${{ secrets.GCP_PROJECT_ID }}
+        run: |
+          set -euo pipefail
+          # Prefer the service-account project. GCP_PROJECT_ID must be ONLY an id
+          # (no substitutions). Bad values look like:
+          #   project-c223f844-... _SERVICE=aibhive _REGION=us-central1
+          raw="${SA_PROJECT:-}"
+          if [ -z "$raw" ] && [ -n "${SECRET_PROJECT:-}" ]; then
+            raw="$(echo "$SECRET_PROJECT" | awk '{print $1}')"
+          fi
+          if [ -z "$raw" ]; then
+            raw="property-managment-a5ed3"
+          fi
+          echo "project_id=$raw" >> "$GITHUB_OUTPUT"
+          echo "Using GCP project: $raw"
+
       - name: Build and deploy (cloudbuild.yaml)
         if: steps.creds.outputs.present == 'true'
         env:
-          PROJECT_ID: ${{ secrets.GCP_PROJECT_ID || steps.auth.outputs.project_id }}
+          PROJECT_ID: ${{ steps.gcp.outputs.project_id }}
         run: |
-          gcloud builds submit --config cloudbuild.yaml --project "${PROJECT_ID}" --substitutions SHORT_SHA=$(git rev-parse --short HEAD)
+          set -euo pipefail
+          gcloud builds submit --config cloudbuild.yaml \
+            --project "${PROJECT_ID}" \
+            --substitutions "_SERVICE_NAME=manydoorsai,_REGION=us-west1,SHORT_SHA=$(git rev-parse --short HEAD)"
 
       - name: Verify live site updated
         if: steps.creds.outputs.present == 'true'

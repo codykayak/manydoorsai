@@ -15,7 +15,7 @@ git push -u origin main
 |--------|---------|
 | `PROJECTMANAGMENT` | GCP SA JSON — Cloud Run deploy via `cloudbuild.yaml` (Cloud Build + Storage + Run permissions) |
 | `FIREBASEMANNYDOORS` | `firebase login:ci` token **or** service-account JSON for `property-managment-a5ed3` Functions only |
-| `GCP_PROJECT_ID` | Optional GCP project override |
+| `GCP_PROJECT_ID` | Optional override — **project id only** (e.g. `property-managment-a5ed3`). Never paste `gcloud --substitutions` text here. If unset, deploy uses the `PROJECTMANAGEMENT` service account’s project. |
 
 ### Firebase Functions secrets (`property-managment-a5ed3`)
 
